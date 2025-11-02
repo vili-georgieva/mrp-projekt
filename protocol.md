@@ -239,5 +239,5 @@ An automated curl script (`test_api.sh`) tests all endpoints:
 
 
 ## Git Repository
-GitHub Link: [To be added]
+GitHub Link: https://github.com/vili-georgieva/mrp-projekt
 

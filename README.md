@@ -4,7 +4,7 @@
 A RESTful HTTP server for managing media content (movies, series, games) with user registration, authentication, and CRUD operations.
 
 ## GitHub Repository
-[Your GitHub Repository Link Here]
+https://github.com/vili-georgieva/mrp-projekt
 
 ## Technologies
 - Java 21
@@ -141,6 +141,4 @@ curl -X POST http://localhost:8080/api/media \
 ## Author
 Velichka Georgieva
 
-## License
-Academic project for FH Technikum Wien
 

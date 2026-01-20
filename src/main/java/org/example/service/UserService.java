@@ -52,6 +52,7 @@ public class UserService {
         // Generate secure token with UUID
         String token = generateSecureToken();
         userRepository.updateToken(username, token);
+        System.out.println("User " + username + " logged in with token: " + token);
         return token;
     }
 

@@ -7,6 +7,8 @@ import org.example.controller.UserController;
 import org.example.controller.FavoriteController;
 import org.example.repository.MediaRepository;
 import org.example.repository.UserRepository;
+import org.example.repository.RatingRepository;
+import org.example.repository.FavoriteRepository;
 import org.example.service.MediaService;
 import org.example.service.UserService;
 
@@ -17,11 +19,17 @@ public class RestServer {
     private final HttpServer server;
 
     public RestServer(int port) throws IOException {
+        // Create repositories
         UserRepository userRepository = new UserRepository();
         MediaRepository mediaRepository = new MediaRepository();
+        RatingRepository ratingRepository = new RatingRepository();
+        FavoriteRepository favoriteRepository = new FavoriteRepository();
 
+        // Create all tables - order is important due to foreign keys
         userRepository.createTable();
         mediaRepository.createTable();
+        ratingRepository.createTable();
+        favoriteRepository.createTable();
 
         UserService userService = new UserService(userRepository);
         MediaService mediaService = new MediaService(mediaRepository);
@@ -36,8 +44,24 @@ public class RestServer {
         // Setup contexts (endpoints) - Order important: more specific paths first
         server.createContext("/api/users/register", userController::handleRegister);
         server.createContext("/api/users/login", userController::handleLogin);
-        server.createContext("/api/users/favorites", favoriteController);
-        server.createContext("/api/users", userController::handleGetUser);
+        server.createContext("/api/users/", exchange -> {
+            String path = exchange.getRequestURI().getPath();
+            if (path.contains("/favorites")) {
+                favoriteController.handle(exchange);
+            } else if (path.contains("/rating-history")) {
+                ratingController.handleRequest(exchange);
+            } else {
+                userController.handleGetUser(exchange);
+            }
+        });
+        server.createContext("/api/media/", exchange -> {
+            String path = exchange.getRequestURI().getPath();
+            if (path.contains("/ratings")) {
+                ratingController.handleRequest(exchange);
+            } else {
+                mediaController.handleMedia(exchange);
+            }
+        });
         server.createContext("/api/media", mediaController::handleMedia);
         server.createContext("/api/ratings", ratingController::handleRequest);
 

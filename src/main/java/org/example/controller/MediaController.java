@@ -156,6 +156,7 @@ public class MediaController {
         try {
             // Read Authorization header: "Bearer {token}"
             String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
+            System.out.println("Authentication header: " + authHeader);
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return Optional.empty();  // No token present
             }

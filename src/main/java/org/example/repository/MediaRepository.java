@@ -12,9 +12,9 @@ import java.util.Optional;
 
 public class MediaRepository {
 
-    // Creates table for media entries on server start
+    // Creates table for media entries
     public void createTable() {
-        DatabaseConnection.executeInTransactionVoid(conn -> {
+        DatabaseConnection.executeInTransaction(conn -> {
             String sql = "CREATE TABLE IF NOT EXISTS media_entries (" +
                     "id SERIAL PRIMARY KEY," +
                     "title VARCHAR(255) NOT NULL," +
@@ -28,7 +28,10 @@ public class MediaRepository {
                     ")";
             try (Statement stmt = conn.createStatement()) {
                 stmt.execute(sql);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
+            return null;
         });
     }
 
@@ -97,7 +100,7 @@ public class MediaRepository {
 
     // Updates existing media entry (creator remains unchanged)
     public void update(MediaEntry media) {
-        DatabaseConnection.executeInTransactionVoid(conn -> {
+        DatabaseConnection.executeInTransaction(conn -> {
             String sql = "UPDATE media_entries SET title = ?, description = ?, media_type = ?, " +
                     "release_year = ?, genres = ?, age_restriction = ? WHERE id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -109,30 +112,39 @@ public class MediaRepository {
                 stmt.setInt(6, media.getAgeRestriction());
                 stmt.setInt(7, media.getId());
                 stmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
+            return null;
         });
     }
 
     // Deletes media entry from database
     public void delete(int id) {
-        DatabaseConnection.executeInTransactionVoid(conn -> {
+        DatabaseConnection.executeInTransaction(conn -> {
             String sql = "DELETE FROM media_entries WHERE id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setInt(1, id);
                 stmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
+            return null;
         });
     }
 
     // Update average rating for a media entry
     public void updateAverageRating(int mediaId, double avgRating) {
-        DatabaseConnection.executeInTransactionVoid(conn -> {
+        DatabaseConnection.executeInTransaction(conn -> {
             String sql = "UPDATE media_entries SET average_rating = ? WHERE id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setDouble(1, avgRating);
                 stmt.setInt(2, mediaId);
                 stmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
+            return null;
         });
     }
 

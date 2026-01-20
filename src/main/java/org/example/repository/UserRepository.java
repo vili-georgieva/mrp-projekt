@@ -11,7 +11,7 @@ import java.util.Optional;
 public class UserRepository {
 
     public void createTable() {
-        DatabaseConnection.executeInTransactionVoid(conn -> {
+        DatabaseConnection.executeInTransaction(conn -> {
             String sql = "CREATE TABLE IF NOT EXISTS users (" +
                     "username VARCHAR(255) PRIMARY KEY," +
                     "password_hash VARCHAR(255) NOT NULL," +
@@ -19,19 +19,25 @@ public class UserRepository {
                     ")";
             try (Statement stmt = conn.createStatement()) {
                 stmt.execute(sql);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
+            return null;
         });
     }
 
     public void save(User user) {
-        DatabaseConnection.executeInTransactionVoid(conn -> {
+        DatabaseConnection.executeInTransaction(conn -> {
             String sql = "INSERT INTO users (username, password_hash, token) VALUES (?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, user.getUsername());
                 stmt.setString(2, user.getPassword());
                 stmt.setString(3, user.getToken());
                 stmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
+            return null;
         });
     }
 
@@ -76,13 +82,16 @@ public class UserRepository {
     }
 
     public void updateToken(String username, String token) {
-        DatabaseConnection.executeInTransactionVoid(conn -> {
+        DatabaseConnection.executeInTransaction(conn -> {
             String sql = "UPDATE users SET token = ? WHERE username = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, token);
                 stmt.setString(2, username);
                 stmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
+            return null;
         });
     }
 

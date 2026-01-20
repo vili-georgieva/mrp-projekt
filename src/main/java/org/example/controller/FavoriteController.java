@@ -1,5 +1,4 @@
 package org.example.controller;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpExchange;
@@ -8,17 +7,14 @@ import org.example.model.MediaEntry;
 import org.example.repository.UserRepository;
 import org.example.service.FavoriteService;
 import org.example.service.UserService;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 public class FavoriteController implements HttpHandler {
-
     private final FavoriteService favoriteService;
     private final UserService userService;
     private final ObjectMapper objectMapper;
@@ -29,213 +25,179 @@ public class FavoriteController implements HttpHandler {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
     }
-
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        String method = exchange.getRequestMethod();
-        String path = exchange.getRequestURI().getPath();
-
         try {
-            // Extract token from Authorization header
-            String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
-            String username = null;
+            String username = getAuthenticatedUser(exchange);
+            if (username == null) return;
 
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                String token = authHeader.substring(7);
-                var userOpt = userService.validateToken(token);
+            String method = exchange.getRequestMethod();
+            String path = exchange.getRequestURI().getPath();
+            String[] parts = path.split("/"); // Split: ["", "api", "users", "{username}", "favorites", ...]
 
-                if (userOpt.isEmpty()) {
-                    sendResponse(exchange, 401, createErrorResponse("Invalid or expired token"));
+            // Validate path structure: /api/users/{username}/favorites
+            if (parts.length < 5 || !parts[1].equals("api") || !parts[2].equals("users") || !parts[4].equals("favorites")) {
+                sendError(exchange, 400, "Invalid path");
+                return;
+            }
+
+            // Check access
+            String pathUsername = parts[3];
+            if (!username.equals(pathUsername)) {
+                sendError(exchange, 403, "Access denied");
+                return;
+            }
+
+            // Route based on path length and method
+            if (parts.length == 5) {
+                // /api/users/{username}/favorites
+                if (method.equals("GET")) {
+                    handleGetFavorites(exchange, username);
+                } else {
+                    sendError(exchange, 405, "Method not allowed");
+                }
+            } else if (parts.length == 6) {
+                // /api/users/{username}/favorites/{mediaId}
+                int mediaId = parseMediaId(parts[5]);
+                if (mediaId == -1) {
+                    sendError(exchange, 400, "Invalid media ID");
                     return;
                 }
-                username = userOpt.get().getUsername();
-            } else {
-                sendResponse(exchange, 401, createErrorResponse("Missing Authorization header"));
-                return;
-            }
 
-            // Route handling
-            if (method.equals("POST") && path.matches("/api/users/[^/]+/favorites/\\d+")) {
-                handleAddFavorite(exchange, username, path);
-            } else if (method.equals("DELETE") && path.matches("/api/users/[^/]+/favorites/\\d+")) {
-                handleRemoveFavorite(exchange, username, path);
-            } else if (method.equals("POST") && path.matches("/api/users/[^/]+/favorites/\\d+/toggle")) {
-                handleToggleFavorite(exchange, username, path);
-            } else if (method.equals("GET") && path.matches("/api/users/[^/]+/favorites")) {
-                handleGetFavorites(exchange, username, path);
-            } else if (method.equals("GET") && path.matches("/api/users/[^/]+/favorites/check/\\d+")) {
-                handleCheckFavorite(exchange, username, path);
+                if (method.equals("POST")) {
+                    handleAddFavorite(exchange, username, mediaId);
+                } else if (method.equals("DELETE")) {
+                    handleRemoveFavorite(exchange, username, mediaId);
+                } else {
+                    sendError(exchange, 405, "Method not allowed");
+                }
+            } else if (parts.length == 7) {
+                // /api/users/{username}/favorites/{...}/{...}
+                if (parts[5].equals("check")) {
+                    // /api/users/{username}/favorites/check/{mediaId}
+                    int mediaId = parseMediaId(parts[6]);
+                    if (mediaId == -1) {
+                        sendError(exchange, 400, "Invalid media ID");
+                        return;
+                    }
+                    if (method.equals("GET")) {
+                        handleCheckFavorite(exchange, username, mediaId);
+                    } else {
+                        sendError(exchange, 405, "Method not allowed");
+                    }
+                } else {
+                    // /api/users/{username}/favorites/{mediaId}/toggle
+                    int mediaId = parseMediaId(parts[5]);
+                    if (mediaId == -1 || !parts[6].equals("toggle")) {
+                        sendError(exchange, 400, "Invalid path");
+                        return;
+                    }
+                    if (method.equals("POST")) {
+                        handleToggleFavorite(exchange, username, mediaId);
+                    } else {
+                        sendError(exchange, 405, "Method not allowed");
+                    }
+                }
             } else {
-                sendResponse(exchange, 404, createErrorResponse("Endpoint not found"));
+                sendError(exchange, 404, "Endpoint not found");
             }
-
         } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(exchange, 500, createErrorResponse("Internal server error: " + e.getMessage()));
+            sendError(exchange, 500, "Internal server error");
         }
     }
 
-    // POST /api/users/{username}/favorites/{mediaId}
-    // Adds a media to favorites
-    private void handleAddFavorite(HttpExchange exchange, String authenticatedUser, String path) throws IOException {
+    private int parseMediaId(String idString) {
         try {
-            String[] parts = path.split("/");
-            String pathUsername = parts[3];
-            int mediaId = Integer.parseInt(parts[5]);
+            return Integer.parseInt(idString);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
 
-            // Check if user is accessing their own favorites
-            if (!authenticatedUser.equals(pathUsername)) {
-                sendResponse(exchange, 403, createErrorResponse("You can only manage your own favorites"));
-                return;
-            }
+    private String getAuthenticatedUser(HttpExchange exchange) throws IOException {
+        String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            sendError(exchange, 401, "Missing Authorization header");
+            return null;
+        }
+        var userOpt = userService.validateToken(authHeader.substring(7));
+        if (userOpt.isEmpty()) {
+            sendError(exchange, 401, "Invalid token");
+            return null;
+        }
+        return userOpt.get().getUsername();
+    }
 
-            favoriteService.addFavorite(authenticatedUser, mediaId);
+    private void handleAddFavorite(HttpExchange exchange, String username, int mediaId) throws IOException {
+        try {
+            favoriteService.addFavorite(username, mediaId);
+            sendSuccess(exchange, 201, "Added to favorites");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            sendError(exchange, 404, e.getMessage());
+        } catch (SQLException e) {
+            sendError(exchange, 500, "Database error");
+        }
+    }
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Media added to favorites");
-
-            sendResponse(exchange, 201, objectMapper.writeValueAsString(response));
-
-        } catch (IllegalArgumentException e) {
-            sendResponse(exchange, 404, createErrorResponse(e.getMessage()));
+    private void handleRemoveFavorite(HttpExchange exchange, String username, int mediaId) throws IOException {
+        try {
+            favoriteService.removeFavorite(username, mediaId);
+            sendSuccess(exchange, 200, "Removed from favorites");
         } catch (IllegalStateException e) {
-            sendResponse(exchange, 409, createErrorResponse(e.getMessage()));
+            sendError(exchange, 404, e.getMessage());
         } catch (SQLException e) {
-            sendResponse(exchange, 500, createErrorResponse("Database error: " + e.getMessage()));
+            sendError(exchange, 500, "Database error");
         }
     }
 
-    // DELETE /api/users/{username}/favorites/{mediaId}
-    // Removes a media from favorites
-    private void handleRemoveFavorite(HttpExchange exchange, String authenticatedUser, String path) throws IOException {
+    private void handleToggleFavorite(HttpExchange exchange, String username, int mediaId) throws IOException {
         try {
-            String[] parts = path.split("/");
-            String pathUsername = parts[3];
-            int mediaId = Integer.parseInt(parts[5]);
-
-            // Check if user is accessing their own favorites
-            if (!authenticatedUser.equals(pathUsername)) {
-                sendResponse(exchange, 403, createErrorResponse("You can only manage your own favorites"));
-                return;
-            }
-
-            favoriteService.removeFavorite(authenticatedUser, mediaId);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Media removed from favorites");
-
-            sendResponse(exchange, 200, objectMapper.writeValueAsString(response));
-
-        } catch (IllegalStateException e) {
-            sendResponse(exchange, 404, createErrorResponse(e.getMessage()));
-        } catch (SQLException e) {
-            sendResponse(exchange, 500, createErrorResponse("Database error: " + e.getMessage()));
-        }
-    }
-
-    // POST /api/users/{username}/favorites/{mediaId}/toggle
-    // Toggles favorite status
-    private void handleToggleFavorite(HttpExchange exchange, String authenticatedUser, String path) throws IOException {
-        try {
-            String[] parts = path.split("/");
-            String pathUsername = parts[3];
-            int mediaId = Integer.parseInt(parts[5]);
-
-            // Check if user is accessing their own favorites
-            if (!authenticatedUser.equals(pathUsername)) {
-                sendResponse(exchange, 403, createErrorResponse("You can only manage your own favorites"));
-                return;
-            }
-
-            boolean added = favoriteService.toggleFavorite(authenticatedUser, mediaId);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("favorited", added);
-            response.put("message", added ? "Media added to favorites" : "Media removed from favorites");
-
-            sendResponse(exchange, 200, objectMapper.writeValueAsString(response));
-
+            boolean added = favoriteService.toggleFavorite(username, mediaId);
+            sendJson(exchange, 200, Map.of(
+                "success", true,
+                "favorited", added,
+                "message", added ? "Added" : "Removed"
+            ));
         } catch (IllegalArgumentException e) {
-            sendResponse(exchange, 404, createErrorResponse(e.getMessage()));
+            sendError(exchange, 404, e.getMessage());
         } catch (SQLException e) {
-            sendResponse(exchange, 500, createErrorResponse("Database error: " + e.getMessage()));
+            sendError(exchange, 500, "Database error");
         }
     }
 
-    // GET /api/users/{username}/favorites
-    // Gets all favorites of a user
-    private void handleGetFavorites(HttpExchange exchange, String authenticatedUser, String path) throws IOException {
+    private void handleGetFavorites(HttpExchange exchange, String username) throws IOException {
         try {
-            String[] parts = path.split("/");
-            String pathUsername = parts[3];
-
-            // Check if user is accessing their own favorites
-            if (!authenticatedUser.equals(pathUsername)) {
-                sendResponse(exchange, 403, createErrorResponse("You can only view your own favorites"));
-                return;
-            }
-
-            List<MediaEntry> favorites = favoriteService.getFavorites(authenticatedUser);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("count", favorites.size());
-            response.put("favorites", favorites);
-
-            sendResponse(exchange, 200, objectMapper.writeValueAsString(response));
-
+            List<MediaEntry> favorites = favoriteService.getFavorites(username);
+            sendJson(exchange, 200, Map.of(
+                "success", true, 
+                "count", favorites.size(), 
+                "favorites", favorites
+            ));
         } catch (SQLException e) {
-            sendResponse(exchange, 500, createErrorResponse("Database error: " + e.getMessage()));
+            sendError(exchange, 500, "Database error");
         }
     }
 
-    // GET /api/users/{username}/favorites/check/{mediaId}
-    // Checks if a media is in favorites
-    private void handleCheckFavorite(HttpExchange exchange, String authenticatedUser, String path) throws IOException {
+    private void handleCheckFavorite(HttpExchange exchange, String username, int mediaId) throws IOException {
         try {
-            String[] parts = path.split("/");
-            String pathUsername = parts[3];
-            int mediaId = Integer.parseInt(parts[6]);
-
-            // Check if user is accessing their own favorites
-            if (!authenticatedUser.equals(pathUsername)) {
-                sendResponse(exchange, 403, createErrorResponse("You can only check your own favorites"));
-                return;
-            }
-
-            boolean isFavorite = favoriteService.isFavorite(authenticatedUser, mediaId);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("isFavorite", isFavorite);
-
-            sendResponse(exchange, 200, objectMapper.writeValueAsString(response));
-
+            boolean isFavorite = favoriteService.isFavorite(username, mediaId);
+            sendJson(exchange, 200, Map.of("success", true, "isFavorite", isFavorite));
         } catch (SQLException e) {
-            sendResponse(exchange, 500, createErrorResponse("Database error: " + e.getMessage()));
+            sendError(exchange, 500, "Database error");
         }
     }
-
-    private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
+    private void sendSuccess(HttpExchange exchange, int code, String message) throws IOException {
+        sendJson(exchange, code, Map.of("success", true, "message", message));
+    }
+    private void sendError(HttpExchange exchange, int code, String error) throws IOException {
+        sendJson(exchange, code, Map.of("success", false, "error", error));
+    }
+    private void sendJson(HttpExchange exchange, int code, Map<String, Object> data) throws IOException {
+        byte[] bytes = objectMapper.writeValueAsString(data).getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json");
-        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
-        exchange.sendResponseHeaders(statusCode, bytes.length);
+        exchange.sendResponseHeaders(code, bytes.length);
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(bytes);
-        }
-    }
-
-    private String createErrorResponse(String message) {
-        Map<String, Object> error = new HashMap<>();
-        error.put("success", false);
-        error.put("error", message);
-        try {
-            return objectMapper.writeValueAsString(error);
-        } catch (Exception e) {
-            return "{\"success\":false,\"error\":\"" + message + "\"}";
         }
     }
 }

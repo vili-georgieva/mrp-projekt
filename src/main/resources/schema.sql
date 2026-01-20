@@ -13,15 +13,16 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS media_entries (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    type VARCHAR(50) NOT NULL,
+    media_type VARCHAR(50) NOT NULL,
     description TEXT,
-    creator_username VARCHAR(255) NOT NULL,
+    creator VARCHAR(255) NOT NULL,
+    release_year INTEGER,
     genres TEXT,
     age_restriction INTEGER,
     average_rating DECIMAL(3,2) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (creator_username) REFERENCES users(username) ON DELETE CASCADE
+    FOREIGN KEY (creator) REFERENCES users(username) ON DELETE CASCADE
 );
 
 -- Ratings Table
@@ -51,7 +52,7 @@ CREATE TABLE IF NOT EXISTS favorites (
 );
 
 -- Indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_media_type ON media_entries(type);
+CREATE INDEX IF NOT EXISTS idx_media_type ON media_entries(media_type);
 CREATE INDEX IF NOT EXISTS idx_media_rating ON media_entries(average_rating);
 CREATE INDEX IF NOT EXISTS idx_ratings_media ON ratings(media_id);
 CREATE INDEX IF NOT EXISTS idx_ratings_user ON ratings(username);

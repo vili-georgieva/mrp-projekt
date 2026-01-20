@@ -9,6 +9,32 @@ import java.util.List;
 
 public class RatingRepository {
 
+    // Creates ratings table on server start
+    public void createTable() {
+        DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "CREATE TABLE IF NOT EXISTS ratings (" +
+                    "id SERIAL PRIMARY KEY," +
+                    "media_id INTEGER NOT NULL," +
+                    "username VARCHAR(255) NOT NULL," +
+                    "stars INTEGER NOT NULL CHECK (stars >= 1 AND stars <= 5)," +
+                    "comment TEXT," +
+                    "confirmed BOOLEAN DEFAULT false," +
+                    "likes INTEGER DEFAULT 0," +
+                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                    "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                    "UNIQUE(media_id, username)," +
+                    "FOREIGN KEY (media_id) REFERENCES media_entries(id) ON DELETE CASCADE," +
+                    "FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE" +
+                    ")";
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute(sql);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        });
+    }
+
     // Create a new rating or update existing one
     public Rating createRating(Rating rating) throws SQLException {
         String sql = "INSERT INTO ratings (media_id, username, stars, comment, confirmed, likes) " +

@@ -8,11 +8,32 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class FavoriteRepository {
+
+    // Creates favorites table on server start
+    public void createTable() {
+        DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "CREATE TABLE IF NOT EXISTS favorites (" +
+                    "username VARCHAR(255) NOT NULL," +
+                    "media_id INTEGER NOT NULL," +
+                    "added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                    "PRIMARY KEY (username, media_id)," +
+                    "FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE," +
+                    "FOREIGN KEY (media_id) REFERENCES media_entries(id) ON DELETE CASCADE" +
+                    ")";
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute(sql);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        });
+    }
 
     // Adds a media to a user's favorites
     public boolean addFavorite(String username, int mediaId) throws SQLException {

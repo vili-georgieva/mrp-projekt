@@ -17,10 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/**
- * Unit Tests für UserController - Presentation Layer
- * Testet HTTP-Request-Handling für User-Endpoints
- */
+
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
 
@@ -39,12 +36,9 @@ class UserControllerTest {
         responseBody = new ByteArrayOutputStream();
     }
 
-    /**
-     * Test: Erfolgreiche User-Registrierung
-     */
+    //Test: Erfolgreiche User-Registrierung
     @Test
     void handleRegisterTest() throws Exception {
-        // Arrange - Vorbereitung
         String requestBody = "{\"username\":\"testuser\",\"password\":\"testpass\"}";
         User mockUser = new User("testuser", "hashedpassword");
 
@@ -54,21 +48,16 @@ class UserControllerTest {
         when(exchange.getResponseHeaders()).thenReturn(new Headers());
         when(userService.register("testuser", "testpass")).thenReturn(mockUser);
 
-        // Act - Ausführung
         userController.handleRegister(exchange);
 
-        // Assert - Überprüfung
-        verify(exchange).sendResponseHeaders(eq(201), anyLong()); // 201 = Created
+        verify(exchange).sendResponseHeaders(eq(201), anyLong());
         verify(userService).register("testuser", "testpass");
         assertTrue(responseBody.toString().contains("User registered successfully"));
     }
 
-    /**
-     * Test: Registrierung mit existierendem Username schlägt fehl
-     */
+    // Test: Registrierung mit existierendem Username schlägt fehl
     @Test
     void handleRegisterWithExistingUsernameTest() throws Exception {
-        // Arrange
         String requestBody = "{\"username\":\"existing\",\"password\":\"pass\"}";
 
         when(exchange.getRequestMethod()).thenReturn("POST");
@@ -78,20 +67,15 @@ class UserControllerTest {
         when(userService.register("existing", "pass"))
             .thenThrow(new IllegalArgumentException("Username already exists"));
 
-        // Act
         userController.handleRegister(exchange);
 
-        // Assert
-        verify(exchange).sendResponseHeaders(eq(400), anyLong()); // 400 = Bad Request
+        verify(exchange).sendResponseHeaders(eq(400), anyLong());
         assertTrue(responseBody.toString().contains("Username already exists"));
     }
 
-    /**
-     * Test: Erfolgreicher Login gibt Token zurück
-     */
+    // Test: Erfolgreicher Login gibt Token zurück
     @Test
     void handleLoginTest() throws Exception {
-        // Arrange
         String requestBody = "{\"username\":\"testuser\",\"password\":\"testpass\"}";
         String mockToken = "abc123-xyz789-token";
 
@@ -101,21 +85,16 @@ class UserControllerTest {
         when(exchange.getResponseHeaders()).thenReturn(new Headers());
         when(userService.login("testuser", "testpass")).thenReturn(mockToken);
 
-        // Act
         userController.handleLogin(exchange);
 
-        // Assert
-        verify(exchange).sendResponseHeaders(eq(200), anyLong()); // 200 = OK
+        verify(exchange).sendResponseHeaders(eq(200), anyLong());
         verify(userService).login("testuser", "testpass");
         assertTrue(responseBody.toString().contains(mockToken));
     }
 
-    /**
-     * Test: Login mit falschen Credentials schlägt fehl
-     */
+    // Test: Login mit falschen Credentials schlägt fehl
     @Test
     void handleLoginWithInvalidCredentialsTest() throws Exception {
-        // Arrange
         String requestBody = "{\"username\":\"testuser\",\"password\":\"wrongpass\"}";
 
         when(exchange.getRequestMethod()).thenReturn("POST");
@@ -125,11 +104,9 @@ class UserControllerTest {
         when(userService.login("testuser", "wrongpass"))
             .thenThrow(new IllegalArgumentException("Invalid username or password"));
 
-        // Act
         userController.handleLogin(exchange);
 
-        // Assert
-        verify(exchange).sendResponseHeaders(eq(401), anyLong()); // 401 = Unauthorized
+        verify(exchange).sendResponseHeaders(eq(401), anyLong());
         assertTrue(responseBody.toString().contains("Invalid username or password"));
     }
 }

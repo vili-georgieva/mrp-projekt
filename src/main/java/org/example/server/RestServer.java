@@ -11,6 +11,7 @@ import org.example.repository.RatingRepository;
 import org.example.repository.FavoriteRepository;
 import org.example.service.MediaService;
 import org.example.service.UserService;
+import org.example.service.RatingService;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -31,12 +32,15 @@ public class RestServer {
         ratingRepository.createTable();
         favoriteRepository.createTable();
 
+        // Create services
         UserService userService = new UserService(userRepository);
         MediaService mediaService = new MediaService(mediaRepository);
+        RatingService ratingService = new RatingService();
 
+        // Create controllers
         UserController userController = new UserController(userService);
         MediaController mediaController = new MediaController(mediaService, userService);
-        RatingController ratingController = new RatingController();
+        RatingController ratingController = new RatingController(ratingService, userService);
         FavoriteController favoriteController = new FavoriteController();
 
         this.server = HttpServer.create(new InetSocketAddress(port), 0);
@@ -49,7 +53,7 @@ public class RestServer {
             if (path.contains("/favorites")) {
                 favoriteController.handle(exchange);
             } else if (path.contains("/rating-history")) {
-                ratingController.handleRequest(exchange);
+                ratingController.handleRatingHistory(exchange);
             } else {
                 userController.handleGetUser(exchange);
             }
@@ -57,15 +61,15 @@ public class RestServer {
         server.createContext("/api/media/", exchange -> {
             String path = exchange.getRequestURI().getPath();
             if (path.contains("/ratings")) {
-                ratingController.handleRequest(exchange);
+                ratingController.handleMediaRatings(exchange);
             } else {
                 mediaController.handleMedia(exchange);
             }
         });
         server.createContext("/api/media", mediaController::handleMedia);
-        server.createContext("/api/ratings", ratingController::handleRequest);
+        server.createContext("/api/ratings", ratingController::handleRating);
 
-        server.setExecutor(null); // Default executor
+        server.setExecutor(null);
     }
 
     public void start() {

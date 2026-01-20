@@ -1,11 +1,10 @@
 package org.example.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpExchange;
 import org.example.model.Rating;
-import org.example.repository.UserRepository;
+import org.example.model.User;
 import org.example.service.RatingService;
 import org.example.service.UserService;
 
@@ -14,382 +13,239 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
+// Controller for rating operations (create, read, update, delete ratings)
 public class RatingController {
-
     private final RatingService ratingService;
     private final UserService userService;
     private final ObjectMapper objectMapper;
 
-    public RatingController() {
-        this.ratingService = new RatingService();
-        this.userService = new UserService(new UserRepository());
+    public RatingController(RatingService ratingService, UserService userService) {
+        this.ratingService = ratingService;
+        this.userService = userService;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
     }
 
-    /**
-     * Handle all rating-related requests
-     * Routes:
-     * POST /api/media/{mediaId}/ratings - Create/Update rating
-     * GET /api/media/{mediaId}/ratings - Get all ratings for media
-     * DELETE /api/ratings/{ratingId} - Delete rating
-     * PATCH /api/ratings/{ratingId}/comment - Update only comment
-     * DELETE /api/ratings/{ratingId}/comment - Delete only comment
-     * POST /api/ratings/{ratingId}/like - Like a rating
-     * POST /api/ratings/{ratingId}/confirm - Confirm rating (moderation)
-     */
-    public void handleRequest(HttpExchange exchange) throws IOException {
+    // Handler for /api/media/{mediaId}/ratings
+    public void handleMediaRatings(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
+        String[] parts = path.split("/");
 
         try {
-            // POST /api/media/{mediaId}/ratings - Create/Update rating
-            if (method.equals("POST") && path.matches("/api/media/\\d+/ratings")) {
-                handleCreateOrUpdateRating(exchange);
-            }
-            // GET /api/media/{mediaId}/ratings - Get ratings for media
-            else if (method.equals("GET") && path.matches("/api/media/\\d+/ratings")) {
-                handleGetRatingsByMedia(exchange);
-            }
-            // DELETE /api/ratings/{ratingId} - Delete rating
-            else if (method.equals("DELETE") && path.matches("/api/ratings/\\d+$")) {
-                handleDeleteRating(exchange);
-            }
-            // PATCH /api/ratings/{ratingId}/comment - Update only comment
-            else if (method.equals("PATCH") && path.matches("/api/ratings/\\d+/comment")) {
-                handleUpdateComment(exchange);
-            }
-            // DELETE /api/ratings/{ratingId}/comment - Delete only comment
-            else if (method.equals("DELETE") && path.matches("/api/ratings/\\d+/comment")) {
-                handleDeleteComment(exchange);
-            }
-            // POST /api/ratings/{ratingId}/like - Like rating
-            else if (method.equals("POST") && path.matches("/api/ratings/\\d+/like")) {
-                handleLikeRating(exchange);
-            }
-            // POST /api/ratings/{ratingId}/confirm - Confirm rating
-            else if (method.equals("POST") && path.matches("/api/ratings/\\d+/confirm")) {
-                handleConfirmRating(exchange);
-            }
-            // GET /api/users/{username}/rating-history - Get user's rating history
-            else if (method.equals("GET") && path.matches("/api/users/[^/]+/rating-history")) {
-                handleGetRatingHistory(exchange);
-            }
-            else {
-                sendResponse(exchange, 404, "{\"error\": \"Endpoint not found\"}");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(exchange, 500, "{\"error\": \"" + e.getMessage() + "\"}");
-        }
-    }
+            int mediaId = Integer.parseInt(parts[3]);
 
-    /**
-     * POST /api/media/{mediaId}/ratings
-     * Create or update a rating
-     */
-    private void handleCreateOrUpdateRating(HttpExchange exchange) throws IOException {
-        try {
-            // Extract token and validate user
-            String token = extractToken(exchange);
-            if (token == null) {
-                sendResponse(exchange, 401, "{\"error\": \"Missing Authorization header\"}");
-                return;
+            switch (method) {
+                case "GET":
+                    handleGetRatings(exchange, mediaId);
+                    break;
+                case "POST":
+                    Optional<User> user = authenticateRequest(exchange);
+                    if (user.isEmpty()) {
+                        sendResponse(exchange, 401, "{\"error\":\"Unauthorized\"}");
+                        return;
+                    }
+                    handleCreateRating(exchange, mediaId, user.get());
+                    break;
+                default:
+                    sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
             }
-
-            var userOpt = userService.validateToken(token);
-            if (userOpt.isEmpty()) {
-                sendResponse(exchange, 401, "{\"error\": \"Invalid token\"}");
-                return;
-            }
-            String username = userOpt.get().getUsername();
-
-            // Extract mediaId from path
-            String path = exchange.getRequestURI().getPath();
-            int mediaId = Integer.parseInt(path.split("/")[3]);
-
-            // Parse request body
-            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-            JsonNode json = objectMapper.readTree(body);
-
-            int stars = json.get("stars").asInt();
-            String comment = json.has("comment") ? json.get("comment").asText() : "";
-
-            // Create or update rating
-            Rating rating = ratingService.createOrUpdateRating(mediaId, username, stars, comment);
-
-            String response = objectMapper.writeValueAsString(rating);
-            sendResponse(exchange, 201, response);
-
+        } catch (NumberFormatException e) {
+            sendResponse(exchange, 400, "{\"error\":\"Invalid media ID\"}");
         } catch (SQLException e) {
-            sendResponse(exchange, 500, "{\"error\": \"Database error: " + e.getMessage() + "\"}");
-        } catch (IllegalArgumentException e) {
-            sendResponse(exchange, 400, "{\"error\": \"" + e.getMessage() + "\"}");
+            sendResponse(exchange, 500, "{\"error\":\"Database error\"}");
         }
     }
 
-    /**
-     * GET /api/media/{mediaId}/ratings
-     * Get all ratings for a media (with optional filter for confirmed only)
-     */
-    private void handleGetRatingsByMedia(HttpExchange exchange) throws IOException {
+    // Handler for /api/ratings/{ratingId}
+    public void handleRating(HttpExchange exchange) throws IOException {
+        String method = exchange.getRequestMethod();
+        String path = exchange.getRequestURI().getPath();
+        String[] parts = path.split("/");
+
         try {
-            // Extract mediaId from path
-            String path = exchange.getRequestURI().getPath();
-            int mediaId = Integer.parseInt(path.split("/")[3]);
-
-            // Check query parameter for confirmed filter
-            String query = exchange.getRequestURI().getQuery();
-            boolean confirmedOnly = query != null && query.contains("confirmed=true");
-
-            List<Rating> ratings;
-            if (confirmedOnly) {
-                ratings = ratingService.getConfirmedRatingsByMediaId(mediaId);
-            } else {
-                ratings = ratingService.getRatingsByMediaId(mediaId);
+            Optional<User> user = authenticateRequest(exchange);
+            if (user.isEmpty()) {
+                sendResponse(exchange, 401, "{\"error\":\"Unauthorized\"}");
+                return;
             }
 
+            int ratingId = Integer.parseInt(parts[3]);
+
+            // Sub-paths: /api/ratings/{id}/comment, /api/ratings/{id}/like, /api/ratings/{id}/confirm
+            if (parts.length == 5) {
+                String action = parts[4];
+                switch (action) {
+                    case "comment":
+                        if (method.equals("PATCH")) { // patch = update comment
+                            handleUpdateComment(exchange, ratingId, user.get());
+                        } else if (method.equals("DELETE")) {
+                            handleDeleteComment(exchange, ratingId, user.get());
+                        } else {
+                            sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
+                        }
+                        return;
+                    case "like":
+                        if (method.equals("POST")) {
+                            handleLikeRating(exchange, ratingId);
+                        } else {
+                            sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
+                        }
+                        return;
+                    case "confirm":
+                        if (method.equals("POST")) {
+                            handleConfirmRating(exchange, ratingId);
+                        } else {
+                            sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
+                        }
+                        return;
+                }
+            }
+
+            // DELETE /api/ratings/{id}
+            if (method.equals("DELETE")) {
+                handleDeleteRating(exchange, ratingId, user.get());
+            } else {
+                sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
+            }
+
+        } catch (NumberFormatException e) {
+            sendResponse(exchange, 400, "{\"error\":\"Invalid rating ID\"}");
+        } catch (SQLException e) {
+            sendResponse(exchange, 500, "{\"error\":\"Database error\"}");
+        }
+    }
+
+    // Handler for /api/users/{username}/rating-history
+    public void handleRatingHistory(HttpExchange exchange) throws IOException {
+        if (!exchange.getRequestMethod().equals("GET")) {
+            sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
+            return;
+        }
+
+        try {
+            String path = exchange.getRequestURI().getPath();
+            String username = path.split("/")[3];
+
+            List<Rating> ratings = ratingService.getRatingHistory(username);
             String response = objectMapper.writeValueAsString(ratings);
             sendResponse(exchange, 200, response);
-
         } catch (SQLException e) {
-            sendResponse(exchange, 500, "{\"error\": \"Database error: " + e.getMessage() + "\"}");
+            sendResponse(exchange, 500, "{\"error\":\"Database error\"}");
         }
     }
 
-    /**
-     * DELETE /api/ratings/{ratingId}
-     * Delete a rating (only owner can delete)
-     */
-    private void handleDeleteRating(HttpExchange exchange) throws IOException {
-        try {
-            // Extract token and validate user
-            String token = extractToken(exchange);
-            if (token == null) {
-                sendResponse(exchange, 401, "{\"error\": \"Missing Authorization header\"}");
-                return;
-            }
-
-            var userOpt = userService.validateToken(token);
-            if (userOpt.isEmpty()) {
-                sendResponse(exchange, 401, "{\"error\": \"Invalid token\"}");
-                return;
-            }
-            String username = userOpt.get().getUsername();
-
-            // Extract ratingId from path
-            String path = exchange.getRequestURI().getPath();
-            int ratingId = Integer.parseInt(path.split("/")[3]);
-
-            // Delete rating
-            boolean deleted = ratingService.deleteRating(ratingId, username);
-
-            if (deleted) {
-                sendResponse(exchange, 200, "{\"message\": \"Rating deleted successfully\"}");
-            } else {
-                sendResponse(exchange, 404, "{\"error\": \"Rating not found\"}");
-            }
-
-        } catch (SecurityException e) {
-            sendResponse(exchange, 403, "{\"error\": \"" + e.getMessage() + "\"}");
-        } catch (SQLException e) {
-            sendResponse(exchange, 500, "{\"error\": \"Database error: " + e.getMessage() + "\"}");
-        }
+    // GET /api/media/{mediaId}/ratings
+    private void handleGetRatings(HttpExchange exchange, int mediaId) throws IOException, SQLException {
+        List<Rating> ratings = ratingService.getRatingsByMediaId(mediaId);
+        String response = objectMapper.writeValueAsString(ratings);
+        sendResponse(exchange, 200, response);
     }
 
-    /**
-     * PATCH /api/ratings/{ratingId}/comment
-     * Update only the comment of a rating (owner only)
-     */
-    private void handleUpdateComment(HttpExchange exchange) throws IOException {
+    // POST /api/media/{mediaId}/ratings
+    private void handleCreateRating(HttpExchange exchange, int mediaId, User user) throws IOException, SQLException {
         try {
-            // Extract token and validate user
-            String token = extractToken(exchange);
-            if (token == null) {
-                sendResponse(exchange, 401, "{\"error\": \"Missing Authorization header\"}");
-                return;
-            }
-
-            var userOpt = userService.validateToken(token);
-            if (userOpt.isEmpty()) {
-                sendResponse(exchange, 401, "{\"error\": \"Invalid token\"}");
-                return;
-            }
-            String username = userOpt.get().getUsername();
-
-            // Extract ratingId from path
-            String path = exchange.getRequestURI().getPath();
-            int ratingId = Integer.parseInt(path.split("/")[3]);
-
-            // Parse request body
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-            JsonNode json = objectMapper.readTree(body);
+            Rating input = objectMapper.readValue(body, Rating.class);
 
-            String newComment = json.get("comment").asText();
+            Rating rating = ratingService.createOrUpdateRating(mediaId, user.getUsername(), input.getStars(), input.getComment());
+            String response = objectMapper.writeValueAsString(rating);
+            sendResponse(exchange, 201, response);
+        } catch (IllegalArgumentException e) {
+            sendResponse(exchange, 400, "{\"error\":\"" + e.getMessage() + "\"}");
+        }
+    }
 
-            // Update comment
-            boolean updated = ratingService.updateComment(ratingId, username, newComment);
+    // DELETE /api/ratings/{ratingId}
+    private void handleDeleteRating(HttpExchange exchange, int ratingId, User user) throws IOException, SQLException {
+        try {
+            boolean deleted = ratingService.deleteRating(ratingId, user.getUsername());
+            if (deleted) {
+                sendResponse(exchange, 200, "{\"message\":\"Rating deleted\"}");
+            } else {
+                sendResponse(exchange, 404, "{\"error\":\"Rating not found\"}");
+            }
+        } catch (SecurityException e) {
+            sendResponse(exchange, 403, "{\"error\":\"" + e.getMessage() + "\"}");
+        }
+    }
 
+    // PATCH /api/ratings/{ratingId}/comment
+    private void handleUpdateComment(HttpExchange exchange, int ratingId, User user) throws IOException, SQLException {
+        try {
+            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            Rating input = objectMapper.readValue(body, Rating.class);
+
+            boolean updated = ratingService.updateComment(ratingId, user.getUsername(), input.getComment());
             if (updated) {
                 Rating rating = ratingService.getRatingById(ratingId);
                 String response = objectMapper.writeValueAsString(rating);
                 sendResponse(exchange, 200, response);
             } else {
-                sendResponse(exchange, 404, "{\"error\": \"Rating not found\"}");
+                sendResponse(exchange, 404, "{\"error\":\"Rating not found\"}");
             }
-
         } catch (SecurityException e) {
-            sendResponse(exchange, 403, "{\"error\": \"" + e.getMessage() + "\"}");
-        } catch (SQLException e) {
-            sendResponse(exchange, 500, "{\"error\": \"Database error: " + e.getMessage() + "\"}");
+            sendResponse(exchange, 403, "{\"error\":\"" + e.getMessage() + "\"}");
         }
     }
 
-    /**
-     * DELETE /api/ratings/{ratingId}/comment
-     * Delete only the comment of a rating (keeps the stars)
-     */
-    private void handleDeleteComment(HttpExchange exchange) throws IOException {
+    // DELETE /api/ratings/{ratingId}/comment
+    private void handleDeleteComment(HttpExchange exchange, int ratingId, User user) throws IOException, SQLException {
         try {
-            // Extract token and validate user
-            String token = extractToken(exchange);
-            if (token == null) {
-                sendResponse(exchange, 401, "{\"error\": \"Missing Authorization header\"}");
-                return;
-            }
-
-            var userOpt = userService.validateToken(token);
-            if (userOpt.isEmpty()) {
-                sendResponse(exchange, 401, "{\"error\": \"Invalid token\"}");
-                return;
-            }
-            String username = userOpt.get().getUsername();
-
-            // Extract ratingId from path
-            String path = exchange.getRequestURI().getPath();
-            int ratingId = Integer.parseInt(path.split("/")[3]);
-
-            // Delete only comment (set to empty string)
-            boolean deleted = ratingService.deleteComment(ratingId, username);
-
+            boolean deleted = ratingService.deleteComment(ratingId, user.getUsername());
             if (deleted) {
                 Rating rating = ratingService.getRatingById(ratingId);
                 String response = objectMapper.writeValueAsString(rating);
                 sendResponse(exchange, 200, response);
             } else {
-                sendResponse(exchange, 404, "{\"error\": \"Rating not found\"}");
+                sendResponse(exchange, 404, "{\"error\":\"Rating not found\"}");
             }
-
         } catch (SecurityException e) {
-            sendResponse(exchange, 403, "{\"error\": \"" + e.getMessage() + "\"}");
-        } catch (SQLException e) {
-            sendResponse(exchange, 500, "{\"error\": \"Database error: " + e.getMessage() + "\"}");
+            sendResponse(exchange, 403, "{\"error\":\"" + e.getMessage() + "\"}");
         }
     }
 
-    /**
-     * POST /api/ratings/{ratingId}/like
-     * Like a rating (increment like counter)
-     */
-    private void handleLikeRating(HttpExchange exchange) throws IOException {
-        try {
-            // Extract ratingId from path
-            String path = exchange.getRequestURI().getPath();
-            int ratingId = Integer.parseInt(path.split("/")[3]);
-
-            // Increment likes
-            boolean success = ratingService.likeRating(ratingId);
-
-            if (success) {
-                Rating rating = ratingService.getRatingById(ratingId);
-                String response = objectMapper.writeValueAsString(rating);
-                sendResponse(exchange, 200, response);
-            } else {
-                sendResponse(exchange, 404, "{\"error\": \"Rating not found\"}");
-            }
-
-        } catch (SQLException e) {
-            sendResponse(exchange, 500, "{\"error\": \"Database error: " + e.getMessage() + "\"}");
-        }
-    }
-
-    /**
-     * POST /api/ratings/{ratingId}/confirm
-     * Confirm a rating (moderation)
-     */
-    private void handleConfirmRating(HttpExchange exchange) throws IOException {
-        try {
-            // Extract token and validate user (could add admin check here)
-            String token = extractToken(exchange);
-            if (token == null) {
-                sendResponse(exchange, 401, "{\"error\": \"Missing Authorization header\"}");
-                return;
-            }
-
-            var userOpt = userService.validateToken(token);
-            if (userOpt.isEmpty()) {
-                sendResponse(exchange, 401, "{\"error\": \"Invalid token\"}");
-                return;
-            }
-
-            // Extract ratingId from path
-            String path = exchange.getRequestURI().getPath();
-            int ratingId = Integer.parseInt(path.split("/")[3]);
-
-            // Confirm rating
-            boolean success = ratingService.confirmRating(ratingId);
-
-            if (success) {
-                sendResponse(exchange, 200, "{\"message\": \"Rating confirmed successfully\"}");
-            } else {
-                sendResponse(exchange, 404, "{\"error\": \"Rating not found\"}");
-            }
-
-        } catch (SQLException e) {
-            sendResponse(exchange, 500, "{\"error\": \"Database error: " + e.getMessage() + "\"}");
-        }
-    }
-
-    /**
-     * GET /api/users/{username}/rating-history
-     * Get rating history for a user
-     */
-    private void handleGetRatingHistory(HttpExchange exchange) throws IOException {
-        try {
-            // Extract username from path
-            String path = exchange.getRequestURI().getPath();
-            String username = path.split("/")[3];
-
-            List<Rating> ratings = ratingService.getRatingHistory(username);
-
-            String response = objectMapper.writeValueAsString(ratings);
+    // POST /api/ratings/{ratingId}/like
+    private void handleLikeRating(HttpExchange exchange, int ratingId) throws IOException, SQLException {
+        boolean success = ratingService.likeRating(ratingId);
+        if (success) {
+            Rating rating = ratingService.getRatingById(ratingId);
+            String response = objectMapper.writeValueAsString(rating);
             sendResponse(exchange, 200, response);
-
-        } catch (SQLException e) {
-            sendResponse(exchange, 500, "{\"error\": \"Database error: " + e.getMessage() + "\"}");
+        } else {
+            sendResponse(exchange, 404, "{\"error\":\"Rating not found\"}");
         }
     }
 
-    /**
-     * Extract Bearer token from Authorization header
-     */
-    private String extractToken(HttpExchange exchange) {
+    // POST /api/ratings/{ratingId}/confirm
+    private void handleConfirmRating(HttpExchange exchange, int ratingId) throws IOException, SQLException {
+        boolean success = ratingService.confirmRating(ratingId);
+        if (success) {
+            sendResponse(exchange, 200, "{\"message\":\"Rating confirmed\"}");
+        } else {
+            sendResponse(exchange, 404, "{\"error\":\"Rating not found\"}");
+        }
+    }
+
+    // Token validation
+    private Optional<User> authenticateRequest(HttpExchange exchange) {
         String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return Optional.empty();
         }
-        return null;
+        String token = authHeader.substring(7);
+        return userService.validateToken(token);
     }
 
-    /**
-     * Send HTTP response
-     */
+    // HTTP Response
     private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.sendResponseHeaders(statusCode, response.getBytes(StandardCharsets.UTF_8).length);
+        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(statusCode, bytes.length);
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(response.getBytes(StandardCharsets.UTF_8));
+            os.write(bytes);
         }
     }
 }

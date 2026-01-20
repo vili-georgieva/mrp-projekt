@@ -18,10 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/**
- * Unit Tests für MediaService - Business Logic Layer
- * Testet Media-Management-Logik (Create, Update, Delete)
- */
+// Unit Tests für MediaService - Business Logic Layer
+// Testet Media-Management-Logik (Create, Update, Delete)
 @ExtendWith(MockitoExtension.class)
 class MediaServiceTest {
 
@@ -37,12 +35,9 @@ class MediaServiceTest {
         testUser = new User("testuser", "hashedpass");
     }
 
-    /**
-     * Test: Erfolgreiche Media-Erstellung
-     */
+    // Test: Erfolgreiche Media-Erstellung
     @Test
     void createMediaTest() {
-        // Arrange
         MediaEntry media = new MediaEntry();
         media.setTitle("Test Movie");
         media.setMediaType(MediaType.MOVIE);
@@ -50,10 +45,8 @@ class MediaServiceTest {
 
         when(mediaRepository.save(any(MediaEntry.class))).thenReturn(1);
 
-        // Act
         MediaEntry result = mediaService.createMedia(media, testUser);
 
-        // Assert
         assertNotNull(result);
         assertEquals("Test Movie", result.getTitle());
         assertEquals("testuser", result.getCreator());
@@ -61,17 +54,13 @@ class MediaServiceTest {
         verify(mediaRepository).save(any(MediaEntry.class));
     }
 
-    /**
-     * Test: Media-Erstellung mit leerem Titel wirft Exception
-     */
+    // Test: Media-Erstellung mit leerem Titel wirft Exception
     @Test
     void createMediaWithEmptyTitleTest() {
-        // Arrange
         MediaEntry media = new MediaEntry();
         media.setTitle("");
         media.setMediaType(MediaType.MOVIE);
 
-        // Act & Assert
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
             () -> mediaService.createMedia(media, testUser)
@@ -81,12 +70,9 @@ class MediaServiceTest {
         verify(mediaRepository, never()).save(any(MediaEntry.class));
     }
 
-    /**
-     * Test: Erfolgreiche Media-Update (nur eigene Media)
-     */
+    // Test: Erfolgreiche Media-Update (nur eigene Media)
     @Test
     void updateMediaTest() {
-        // Arrange
         MediaEntry existingMedia = new MediaEntry();
         existingMedia.setId(1);
         existingMedia.setTitle("Old Title");
@@ -100,10 +86,8 @@ class MediaServiceTest {
         when(mediaRepository.findById(1)).thenReturn(Optional.of(existingMedia));
         doNothing().when(mediaRepository).update(any(MediaEntry.class));
 
-        // Act
         MediaEntry result = mediaService.updateMedia(1, updatedMedia, testUser);
 
-        // Assert
         assertNotNull(result);
         assertEquals("New Title", result.getTitle());
         assertEquals("testuser", result.getCreator());
@@ -111,12 +95,9 @@ class MediaServiceTest {
         verify(mediaRepository).update(any(MediaEntry.class));
     }
 
-    /**
-     * Test: Update von fremder Media wirft Exception
-     */
+    // Test: Update von fremder Media wirft Exception
     @Test
     void updateMediaByDifferentUserTest() {
-        // Arrange
         MediaEntry existingMedia = new MediaEntry();
         existingMedia.setId(1);
         existingMedia.setCreator("otheruser");
@@ -126,7 +107,6 @@ class MediaServiceTest {
 
         when(mediaRepository.findById(1)).thenReturn(Optional.of(existingMedia));
 
-        // Act & Assert
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
             () -> mediaService.updateMedia(1, updatedMedia, testUser)
@@ -136,12 +116,9 @@ class MediaServiceTest {
         verify(mediaRepository, never()).update(any(MediaEntry.class));
     }
 
-    /**
-     * Test: Erfolgreiche Media-Löschung (nur eigene Media)
-     */
+    // Test: Erfolgreiche Media-Löschung (nur eigene Media)
     @Test
     void deleteMediaTest() {
-        // Arrange
         MediaEntry existingMedia = new MediaEntry();
         existingMedia.setId(1);
         existingMedia.setCreator("testuser");
@@ -149,27 +126,21 @@ class MediaServiceTest {
         when(mediaRepository.findById(1)).thenReturn(Optional.of(existingMedia));
         doNothing().when(mediaRepository).delete(1);
 
-        // Act
         assertDoesNotThrow(() -> mediaService.deleteMedia(1, testUser));
 
-        // Assert
         verify(mediaRepository).findById(1);
         verify(mediaRepository).delete(1);
     }
 
-    /**
-     * Test: Löschung von fremder Media wirft Exception
-     */
+    // Test: Löschung von fremder Media wirft Exception
     @Test
     void deleteMediaByDifferentUserTest() {
-        // Arrange
         MediaEntry existingMedia = new MediaEntry();
         existingMedia.setId(1);
         existingMedia.setCreator("otheruser");
 
         when(mediaRepository.findById(1)).thenReturn(Optional.of(existingMedia));
 
-        // Act & Assert
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
             () -> mediaService.deleteMedia(1, testUser)
@@ -179,12 +150,9 @@ class MediaServiceTest {
         verify(mediaRepository, never()).delete(anyInt());
     }
 
-    /**
-     * Test: getAllMedia gibt Liste von Media zurück
-     */
+    // Test: getAllMedia gibt Liste von Media zurück
     @Test
     void getAllMediaTest() {
-        // Arrange
         MediaEntry media1 = new MediaEntry();
         media1.setId(1);
         media1.setTitle("Movie 1");
@@ -196,10 +164,8 @@ class MediaServiceTest {
         List<MediaEntry> mockList = Arrays.asList(media1, media2);
         when(mediaRepository.findAll()).thenReturn(mockList);
 
-        // Act
         List<MediaEntry> result = mediaService.getAllMedia();
 
-        // Assert
         assertNotNull(result);
         assertEquals(2, result.size());
         assertEquals("Movie 1", result.get(0).getTitle());

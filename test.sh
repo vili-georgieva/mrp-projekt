@@ -7,12 +7,6 @@ BASE_URL="http://localhost:8080"
 TEST_USER="testuser_$(date +%s)"
 TEST_PASS="test123"
 
-# Colors for output
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
 
 # Counters
 TESTS_RUN=0
@@ -22,15 +16,14 @@ TESTS_FAILED=0
 # Function to print section headers
 print_section() {
     echo ""
-    echo -e "${BLUE}========================================${NC}"
-    echo -e "${BLUE}$1${NC}"
-    echo -e "${BLUE}========================================${NC}"
+    echo "$1"
+    echo "-------------------------"
 }
 
 # Function to print test results
 print_test() {
     TESTS_RUN=$((TESTS_RUN + 1))
-    echo -e "${YELLOW}Test $TESTS_RUN: $1${NC}"
+    echo "Test $TESTS_RUN: $1"
 }
 
 # Function to check response
@@ -40,12 +33,12 @@ check_response() {
     local test_name="$3"
 
     if echo "$response" | grep -q "$expected"; then
-        echo -e "${GREEN}✓ PASSED${NC}"
+        echo "PASSED"
         TESTS_PASSED=$((TESTS_PASSED + 1))
         return 0
     else
-        echo -e "${RED}✗ FAILED${NC}"
-        echo -e "${RED}Response: $response${NC}"
+        echo "FAILED"
+        echo "Response: $response"
         TESTS_FAILED=$((TESTS_FAILED + 1))
         return 1
     fi
@@ -54,16 +47,15 @@ check_response() {
 # Check if server is running
 print_section "PRE-CHECK: Server Status"
 if curl -s "$BASE_URL/api/media" > /dev/null 2>&1; then
-    echo -e "${GREEN}✓ Server is running${NC}"
+    echo "Server is running"
 else
-    echo -e "${RED}✗ Server is not running on $BASE_URL${NC}"
+    echo "Server is not running on $BASE_URL"
     echo "Please start the server first!"
     exit 1
 fi
 
-# ==============================================
 # 1. USER REGISTRATION & LOGIN
-# ==============================================
+# -------------------------
 print_section "1. USER REGISTRATION & LOGIN"
 
 # Test 1: Register new user
@@ -80,11 +72,11 @@ TOKEN=$(curl -s -X POST "$BASE_URL/api/users/login" \
     -d "{\"username\":\"$TEST_USER\",\"password\":\"$TEST_PASS\"}" | tr -d '"')
 
 if [ -z "$TOKEN" ]; then
-    echo -e "${RED}✗ FAILED - No token received${NC}"
+    echo "FAILED - No token received"
     TESTS_FAILED=$((TESTS_FAILED + 1))
     exit 1
 else
-    echo -e "${GREEN}✓ PASSED - Token: ${TOKEN:0:20}...${NC}"
+    echo "PASSED - Token: ${TOKEN:0:20}..."
     TESTS_PASSED=$((TESTS_PASSED + 1))
 fi
 
@@ -101,9 +93,9 @@ RESPONSE=$(curl -s -X POST "$BASE_URL/api/users/login" \
     -d '{"username":"wronguser","password":"wrongpass"}')
 check_response "$RESPONSE" "error" "Wrong Credentials"
 
-# ==============================================
+
 # 2. MEDIA MANAGEMENT
-# ==============================================
+# -------------------------
 print_section "2. MEDIA MANAGEMENT"
 
 # Test 5: Create Movie
@@ -182,9 +174,9 @@ RESPONSE=$(curl -s -X PUT "$BASE_URL/api/media/$MOVIE_ID" \
     }')
 check_response "$RESPONSE" "Reloaded" "Update Media"
 
-# ==============================================
+
 # 3. RATING SYSTEM
-# ==============================================
+# -------------------------
 print_section "3. RATING SYSTEM"
 
 # Test 11: Create rating with comment
@@ -235,9 +227,9 @@ RESPONSE=$(curl -s -X POST "$BASE_URL/api/media/$MOVIE_ID/ratings" \
     -d '{"stars":6}')
 check_response "$RESPONSE" "error" "Invalid Score"
 
-# ==============================================
+
 # 4. FAVORITES SYSTEM
-# ==============================================
+# -------------------------
 print_section "4. FAVORITES SYSTEM"
 
 # Test 17: Add to favorites
@@ -276,9 +268,9 @@ RESPONSE=$(curl -s -X POST "$BASE_URL/api/users/$TEST_USER/favorites/$SERIES_ID"
     -H "Authorization: Bearer $TOKEN")
 check_response "$RESPONSE" "added\|success" "Add Second Favorite"
 
-# ==============================================
+
 # 5. ERROR HANDLING & EDGE CASES
-# ==============================================
+# -------------------------
 print_section "5. ERROR HANDLING & EDGE CASES"
 
 # Test 23: Access without token
@@ -306,9 +298,9 @@ RESPONSE=$(curl -s -X POST "$BASE_URL/api/users/register" \
     -d "{\"username\":\"$TEST_USER\",\"password\":\"$TEST_PASS\"}")
 check_response "$RESPONSE" "exists\|error" "Duplicate User"
 
-# ==============================================
+
 # 6. CLEANUP & DELETE OPERATIONS
-# ==============================================
+# -------------------------
 print_section "6. CLEANUP & DELETE OPERATIONS"
 
 # Test 27: Delete rating comment
@@ -334,32 +326,28 @@ print_test "Delete Media"
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE_URL/api/media/$GAME_ID" \
     -H "Authorization: Bearer $TOKEN")
 if [ "$HTTP_CODE" = "204" ] || [ "$HTTP_CODE" = "200" ]; then
-    echo -e "${GREEN}✓ PASSED${NC}"
+    echo "PASSED"
     TESTS_PASSED=$((TESTS_PASSED + 1))
 else
-    echo -e "${RED}✗ FAILED (HTTP $HTTP_CODE)${NC}"
+    echo "FAILED (HTTP $HTTP_CODE)"
     TESTS_FAILED=$((TESTS_FAILED + 1))
 fi
 
-# ==============================================
+
 # FINAL REPORT
-# ==============================================
+# -------------------------
 print_section "TEST SUMMARY"
 
 echo ""
-echo -e "${BLUE}Total Tests Run: ${NC}$TESTS_RUN"
-echo -e "${GREEN}Tests Passed: ${NC}$TESTS_PASSED"
-echo -e "${RED}Tests Failed: ${NC}$TESTS_FAILED"
+echo "Total Tests Run: $TESTS_RUN"
+echo "Tests Passed: $TESTS_PASSED"
+echo "Tests Failed: $TESTS_FAILED"
 echo ""
 
 if [ $TESTS_FAILED -eq 0 ]; then
-    echo -e "${GREEN}========================================${NC}"
-    echo -e "${GREEN}ALL TESTS PASSED! ✓${NC}"
-    echo -e "${GREEN}========================================${NC}"
+    echo "ALL TESTS PASSED!"
     exit 0
 else
-    echo -e "${RED}========================================${NC}"
-    echo -e "${RED}SOME TESTS FAILED! ✗${NC}"
-    echo -e "${RED}========================================${NC}"
+    echo "SOME TESTS FAILED!"
     exit 1
 fi

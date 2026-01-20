@@ -1,0 +1,30 @@
+# Compiled class files
+*.class
+target/
+
+# IDE specific files
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Maven
+.mvn/
+mvn*
+
+# Logs
+*.log
+
+# Personal analysis files
+PROJEKT_ANALYSE.txt
+PROJEKT_DOKUMENTATION.txt
+ABGABE_CHECKLISTE.txt
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+*.sqlite
+

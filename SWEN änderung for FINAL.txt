@@ -1,0 +1,21 @@
+Änderungen / Verbesserungen:
+
+# FIXED
+Aktuell werden die Transaktionen direkt im DAO ausgeführt, weil dort für jede Operation automatisch eine neue Connection geöffnet wird. (Bsp. "UserDAO": Zeile 14 und 15; "MediaDAO": Zeile 19 und 20 (Es gibt noch mehr))
+Besser wäre es, die Transaktionssteuerung in den Service-Layer zu verlagern. Dann kann der Service selbst entscheiden, wann eine Transaktion beginnt, etc.
+So könnten mehrere DAO-Methoden innerhalb einer gemeinsamen Transaktion laufen – etwa wenn beim Erstellen eines Users gleichzeitig ein Profil angelegt wird.
+Der Service würde dabei die Connection an die DAOs weitergeben und kontrollieren.
+## -- FIXED END --
+
+
+Für final:
+min. 20 unitests. Für unser projekt werden es eher umwie 30-35 sein. Keine zu einfache Unitests. junit-jupiter version 5+ verwenden für unitests.
+JUnits sollen heißen wie die Klasse die ich teste mit "Test" am ende angehängt. Test-Funktionen sollen heißen wie die Funktion die ich teste mit "Test am ende angehängt.
+Test: Fokus auf PL, auch für REST Layer, mittel viel bei BLL, 1-2 oder keine bei DAL.
+Für Unitests: Mockito oder easy mock (beides geht, voriges Jahr wurde aber easy mock von den meisten benutzt) (Mockito wurde aber in tasks_5 benutzt)
+
+
+---
+
+final presentation:
+postman collection zeigen. Code zeigen/erklären (im code finden können, wo was ist). Fragen zur Architektur. Fragen beantworten: Warum hast du dich dafür entschieden, nicht für was andere (z.b. warum mockito | easy mock benutzt.

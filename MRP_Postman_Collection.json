@@ -1,0 +1,190 @@
+{
+  "info": {
+    "name": "Media Ratings Platform - Intermediate",
+    "description": "API endpoints for MRP intermediate submission",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "User Registration",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"testpass123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/users/register",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "users", "register"]
+        }
+      }
+    },
+    {
+      "name": "User Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"testpass123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/users/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "users", "login"]
+        }
+      }
+    },
+    {
+      "name": "Get User Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer testuser-mrpToken"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/users/testuser",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "users", "testuser"]
+        }
+      }
+    },
+    {
+      "name": "Create Media Entry",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer testuser-mrpToken"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"The Matrix\",\n  \"description\": \"A computer hacker learns about the true nature of reality\",\n  \"mediaType\": \"MOVIE\",\n  \"releaseYear\": 1999,\n  \"genres\": [\"Action\", \"Sci-Fi\"],\n  \"ageRestriction\": 16\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/media",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "media"]
+        }
+      }
+    },
+    {
+      "name": "Get All Media",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/media",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "media"]
+        }
+      }
+    },
+    {
+      "name": "Get Media by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/media/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "media", "1"]
+        }
+      }
+    },
+    {
+      "name": "Update Media Entry",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer testuser-mrpToken"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"The Matrix Reloaded\",\n  \"description\": \"Updated description\",\n  \"mediaType\": \"MOVIE\",\n  \"releaseYear\": 2003,\n  \"genres\": [\"Action\", \"Sci-Fi\"],\n  \"ageRestriction\": 16\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/media/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "media", "1"]
+        }
+      }
+    },
+    {
+      "name": "Delete Media Entry",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer testuser-mrpToken"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/media/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "media", "1"]
+        }
+      }
+    }
+  ]
+}
+

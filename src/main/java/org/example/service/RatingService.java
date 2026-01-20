@@ -17,11 +17,9 @@ public class RatingService {
         this.mediaRepository = new MediaRepository();
     }
 
-    /**
-     * Create or update a rating for a media entry.
-     * Business Logic: One user can only have ONE rating per media.
-     * If rating exists, it will be updated. Otherwise, a new one is created.
-     */
+    // Create or update a rating for a media entry
+    // Business Logic: One user can only have ONE rating per media
+    // If rating exists, it will be updated. Otherwise, a new one is created
     public Rating createOrUpdateRating(int mediaId, String username, int stars, String comment) throws SQLException {
         // Validate stars range
         if (stars < 1 || stars > 5) {
@@ -56,9 +54,7 @@ public class RatingService {
         return rating;
     }
 
-    /**
-     * Delete a rating. Only the owner can delete their rating.
-     */
+    // Delete a rating. Only the owner can delete their rating
     public boolean deleteRating(int ratingId, String username) throws SQLException {
         Rating rating = ratingRepository.getRatingById(ratingId);
 
@@ -81,9 +77,7 @@ public class RatingService {
         return deleted;
     }
 
-    /**
-     * Update only the comment of a rating (owner only)
-     */
+    // Update only the comment of a rating (owner only)
     public boolean updateComment(int ratingId, String username, String newComment) throws SQLException {
         Rating rating = ratingRepository.getRatingById(ratingId);
 
@@ -99,9 +93,7 @@ public class RatingService {
         return ratingRepository.updateComment(ratingId, newComment);
     }
 
-    /**
-     * Delete only the comment of a rating (keeps the stars, owner only)
-     */
+    // Delete only the comment of a rating (keeps the stars, owner only)
     public boolean deleteComment(int ratingId, String username) throws SQLException {
         Rating rating = ratingRepository.getRatingById(ratingId);
 
@@ -118,16 +110,12 @@ public class RatingService {
         return ratingRepository.updateComment(ratingId, "");
     }
 
-    /**
-     * Like a rating (increment like counter)
-     */
+    // Like a rating (increment like counter)
     public boolean likeRating(int ratingId) throws SQLException {
         return ratingRepository.incrementLikes(ratingId);
     }
 
-    /**
-     * Confirm a rating (moderation - set confirmed=true)
-     */
+    // Confirm a rating (moderation - set confirmed=true)
     public boolean confirmRating(int ratingId) throws SQLException {
         boolean confirmed = ratingRepository.confirmRating(ratingId);
 
@@ -142,45 +130,33 @@ public class RatingService {
         return confirmed;
     }
 
-    /**
-     * Get all ratings for a specific media
-     */
+    // Get all ratings for a specific media
     public List<Rating> getRatingsByMediaId(int mediaId) throws SQLException {
         return ratingRepository.getRatingsByMediaId(mediaId);
     }
 
-    /**
-     * Get only confirmed ratings for a specific media
-     */
+    // Get only confirmed ratings for a specific media
     public List<Rating> getConfirmedRatingsByMediaId(int mediaId) throws SQLException {
         return ratingRepository.getConfirmedRatingsByMediaId(mediaId);
     }
 
-    /**
-     * Get rating history for a user
-     */
+    // Get rating history for a user
     public List<Rating> getRatingHistory(String username) throws SQLException {
         return ratingRepository.getRatingsByUser(username);
     }
 
-    /**
-     * Get a specific rating by ID
-     */
+    // Get a specific rating by ID
     public Rating getRatingById(int ratingId) throws SQLException {
         return ratingRepository.getRatingById(ratingId);
     }
 
-    /**
-     * Check if a user has already rated a media
-     */
+    // Check if a user has already rated a media
     public Rating getUserRatingForMedia(int mediaId, String username) throws SQLException {
         return ratingRepository.getRatingByMediaAndUser(mediaId, username);
     }
 
-    /**
-     * Calculate and update the average rating for a media entry.
-     * Only confirmed ratings are included in the average.
-     */
+    // Calculate and update the average rating for a media entry
+    // Only confirmed ratings are included in the average
     private void updateMediaAverageRating(int mediaId) throws SQLException {
         double avgRating = ratingRepository.getAverageRating(mediaId);
         mediaRepository.updateAverageRating(mediaId, avgRating);

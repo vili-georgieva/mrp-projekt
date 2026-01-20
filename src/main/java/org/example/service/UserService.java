@@ -17,7 +17,7 @@ public class UserService {
     }
 
     public User register(String username, String password) {
-        // Prüfe ob User bereits existiert
+        // Check if user already exists
         Optional<User> existing = userRepository.findByUsername(username);
         if (existing.isPresent()) {
             throw new IllegalArgumentException("Username already exists");
@@ -30,7 +30,7 @@ public class UserService {
             throw new IllegalArgumentException("Password cannot be empty");
         }
 
-        // Hash das Password für bessere Sicherheit
+        // Hash password for better security
         String hashedPassword = hashPassword(password);
         User user = new User(username, hashedPassword);
         userRepository.save(user);
@@ -49,7 +49,7 @@ public class UserService {
             throw new IllegalArgumentException("Invalid username or password");
         }
 
-        // Generiere sicheren Token mit UUID
+        // Generate secure token with UUID
         String token = generateSecureToken();
         userRepository.updateToken(username, token);
         return token;
@@ -66,16 +66,12 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    /**
-     * Generiert einen sicheren Token mit UUID
-     */
+    // Generates a secure token with UUID
     private String generateSecureToken() {
         return UUID.randomUUID().toString() + "-" + UUID.randomUUID().toString();
     }
 
-    /**
-     * Hasht das Password mit SHA-256
-     */
+    // Hashes password with SHA-256
     private String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

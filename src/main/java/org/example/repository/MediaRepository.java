@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public class MediaRepository {
 
-    // Erstellt die Tabelle für Media-Einträge beim Server-Start
+    // Creates table for media entries on server start
     public void createTable() {
         DatabaseConnection.executeInTransactionVoid(conn -> {
             String sql = "CREATE TABLE IF NOT EXISTS media_entries (" +
@@ -32,7 +32,7 @@ public class MediaRepository {
         });
     }
 
-    // Speichert neuen Media-Eintrag
+    // Saves new media entry
     public int save(MediaEntry media) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "INSERT INTO media_entries (title, description, media_type, release_year, genres, age_restriction, creator) " +
@@ -42,12 +42,12 @@ public class MediaRepository {
                 stmt.setString(2, media.getDescription());
                 stmt.setString(3, media.getMediaType().name());
                 stmt.setInt(4, media.getReleaseYear());
-                stmt.setString(5, String.join(",", media.getGenres()));  // Liste -> "Action,Drama"
+                stmt.setString(5, String.join(",", media.getGenres()));  // List -> "Action,Drama"
                 stmt.setInt(6, media.getAgeRestriction());
                 stmt.setString(7, media.getCreator());
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
-                    return rs.getInt("id");// Gibt die generierte ID zurück
+                    return rs.getInt("id"); // Returns generated ID
                 }
                 throw new SQLException("Failed to create media entry");
             } catch (SQLException e) {
@@ -56,7 +56,7 @@ public class MediaRepository {
         });
     }
 
-    // Sucht Media-Eintrag nach ID (leer wenn nicht gefunden)
+    // Finds media entry by ID (empty if not found)
     public Optional<MediaEntry> findById(int id) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT * FROM media_entries WHERE id = ?";
@@ -78,7 +78,7 @@ public class MediaRepository {
         return findById(id).orElse(null);
     }
 
-    // Holt alle Media-Einträge aus der Datenbank
+    // Gets all media entries from database
     public List<MediaEntry> findAll() {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT * FROM media_entries";
@@ -95,7 +95,7 @@ public class MediaRepository {
         });
     }
 
-    // Aktualisiert existierenden Media-Eintrag (creator bleibt unverändert)
+    // Updates existing media entry (creator remains unchanged)
     public void update(MediaEntry media) {
         DatabaseConnection.executeInTransactionVoid(conn -> {
             String sql = "UPDATE media_entries SET title = ?, description = ?, media_type = ?, " +
@@ -113,7 +113,7 @@ public class MediaRepository {
         });
     }
 
-    // Löscht Media-Eintrag aus der DB
+    // Deletes media entry from database
     public void delete(int id) {
         DatabaseConnection.executeInTransactionVoid(conn -> {
             String sql = "DELETE FROM media_entries WHERE id = ?";
@@ -124,9 +124,7 @@ public class MediaRepository {
         });
     }
 
-    /**
-     * Update average rating for a media entry
-     */
+    // Update average rating for a media entry
     public void updateAverageRating(int mediaId, double avgRating) {
         DatabaseConnection.executeInTransactionVoid(conn -> {
             String sql = "UPDATE media_entries SET average_rating = ? WHERE id = ?";
@@ -138,7 +136,7 @@ public class MediaRepository {
         });
     }
 
-    //Konvertiert Datenbank-Zeile (ResultSet) zu MediaEntry-Objekt
+    // Converts database row (ResultSet) to MediaEntry object
     private MediaEntry mapResultSetToMedia(ResultSet rs) throws SQLException {
         MediaEntry media = new MediaEntry();
         media.setId(rs.getInt("id"));

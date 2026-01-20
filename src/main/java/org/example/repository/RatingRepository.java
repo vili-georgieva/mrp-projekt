@@ -9,9 +9,7 @@ import java.util.List;
 
 public class RatingRepository {
 
-    /**
-     * Create a new rating or update existing one
-     */
+    // Create a new rating or update existing one
     public Rating createRating(Rating rating) throws SQLException {
         String sql = "INSERT INTO ratings (media_id, username, stars, comment, confirmed, likes) " +
                      "VALUES (?, ?, ?, ?, ?, ?) " +
@@ -39,9 +37,7 @@ public class RatingRepository {
         }
     }
 
-    /**
-     * Update an existing rating
-     */
+    // Update an existing rating
     public boolean updateRating(int ratingId, int stars, String comment) throws SQLException {
         String sql = "UPDATE ratings SET stars = ?, comment = ?, updated_at = CURRENT_TIMESTAMP " +
                      "WHERE id = ?";
@@ -57,9 +53,7 @@ public class RatingRepository {
         }
     }
 
-    /**
-     * Update only the comment of a rating
-     */
+    // Update only the comment of a rating
     public boolean updateComment(int ratingId, String comment) throws SQLException {
         String sql = "UPDATE ratings SET comment = ?, updated_at = CURRENT_TIMESTAMP, confirmed = false " +
                      "WHERE id = ?";
@@ -74,9 +68,7 @@ public class RatingRepository {
         }
     }
 
-    /**
-     * Delete a rating by ID
-     */
+    // Delete a rating by ID
     public boolean deleteRating(int ratingId) throws SQLException {
         String sql = "DELETE FROM ratings WHERE id = ?";
 
@@ -88,9 +80,7 @@ public class RatingRepository {
         }
     }
 
-    /**
-     * Get rating by ID
-     */
+    // Get rating by ID
     public Rating getRatingById(int id) throws SQLException {
         String sql = "SELECT * FROM ratings WHERE id = ?";
 
@@ -108,9 +98,7 @@ public class RatingRepository {
         return null;
     }
 
-    /**
-     * Get all ratings for a specific media
-     */
+    // Get all ratings for a specific media
     public List<Rating> getRatingsByMediaId(int mediaId) throws SQLException {
         String sql = "SELECT * FROM ratings WHERE media_id = ? ORDER BY created_at DESC";
 
@@ -129,9 +117,7 @@ public class RatingRepository {
         }
     }
 
-    /**
-     * Get confirmed ratings for a specific media
-     */
+    // Get confirmed ratings for a specific media
     public List<Rating> getConfirmedRatingsByMediaId(int mediaId) throws SQLException {
         String sql = "SELECT * FROM ratings WHERE media_id = ? AND confirmed = true ORDER BY created_at DESC";
 
@@ -150,9 +136,7 @@ public class RatingRepository {
         }
     }
 
-    /**
-     * Get rating by media and user (check if exists)
-     */
+    // Get rating by media and user (check if exists)
     public Rating getRatingByMediaAndUser(int mediaId, String username) throws SQLException {
         String sql = "SELECT * FROM ratings WHERE media_id = ? AND username = ?";
 
@@ -171,9 +155,7 @@ public class RatingRepository {
         return null;
     }
 
-    /**
-     * Get all ratings by a user
-     */
+    // Get all ratings by a user
     public List<Rating> getRatingsByUser(String username) throws SQLException {
         String sql = "SELECT * FROM ratings WHERE username = ? ORDER BY created_at DESC";
 
@@ -192,9 +174,7 @@ public class RatingRepository {
         }
     }
 
-    /**
-     * Increment likes for a rating
-     */
+    // Increment likes for a rating
     public boolean incrementLikes(int ratingId) throws SQLException {
         String sql = "UPDATE ratings SET likes = likes + 1 WHERE id = ?";
 
@@ -206,9 +186,7 @@ public class RatingRepository {
         }
     }
 
-    /**
-     * Confirm a rating (moderation)
-     */
+    // Confirm a rating (moderation)
     public boolean confirmRating(int ratingId) throws SQLException {
         String sql = "UPDATE ratings SET confirmed = true WHERE id = ?";
 
@@ -220,9 +198,7 @@ public class RatingRepository {
         }
     }
 
-    /**
-     * Calculate average rating for a media
-     */
+    // Calculate average rating for a media
     public double getAverageRating(int mediaId) throws SQLException {
         String sql = "SELECT AVG(stars) as avg_rating FROM ratings WHERE media_id = ? AND confirmed = true";
 
@@ -240,9 +216,7 @@ public class RatingRepository {
         return 0.0;
     }
 
-    /**
-     * Helper method to map ResultSet to Rating object
-     */
+    // Helper method to map ResultSet to Rating object
     private Rating mapResultSetToRating(ResultSet rs) throws SQLException {
         Rating rating = new Rating();
         rating.setId(rs.getInt("id"));

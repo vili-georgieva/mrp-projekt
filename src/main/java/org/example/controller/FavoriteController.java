@@ -75,19 +75,17 @@ public class FavoriteController implements HttpHandler {
         }
     }
 
-    /**
-     * POST /api/users/{username}/favorites/{mediaId}
-     * Fügt ein Medium zu den Favoriten hinzu
-     */
+    // POST /api/users/{username}/favorites/{mediaId}
+    // Adds a media to favorites
     private void handleAddFavorite(HttpExchange exchange, String authenticatedUser, String path) throws IOException {
         try {
             String[] parts = path.split("/");
             String pathUsername = parts[3];
             int mediaId = Integer.parseInt(parts[5]);
 
-            // Prüfe ob Benutzer auf seine eigenen Favoriten zugreift
+            // Check if user is accessing their own favorites
             if (!authenticatedUser.equals(pathUsername)) {
-                sendResponse(exchange, 403, createErrorResponse("Sie können nur Ihre eigenen Favoriten verwalten"));
+                sendResponse(exchange, 403, createErrorResponse("You can only manage your own favorites"));
                 return;
             }
 
@@ -95,7 +93,7 @@ public class FavoriteController implements HttpHandler {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "Medium zu Favoriten hinzugefügt");
+            response.put("message", "Media added to favorites");
 
             sendResponse(exchange, 201, objectMapper.writeValueAsString(response));
 
@@ -108,19 +106,17 @@ public class FavoriteController implements HttpHandler {
         }
     }
 
-    /**
-     * DELETE /api/users/{username}/favorites/{mediaId}
-     * Entfernt ein Medium aus den Favoriten
-     */
+    // DELETE /api/users/{username}/favorites/{mediaId}
+    // Removes a media from favorites
     private void handleRemoveFavorite(HttpExchange exchange, String authenticatedUser, String path) throws IOException {
         try {
             String[] parts = path.split("/");
             String pathUsername = parts[3];
             int mediaId = Integer.parseInt(parts[5]);
 
-            // Prüfe ob Benutzer auf seine eigenen Favoriten zugreift
+            // Check if user is accessing their own favorites
             if (!authenticatedUser.equals(pathUsername)) {
-                sendResponse(exchange, 403, createErrorResponse("Sie können nur Ihre eigenen Favoriten verwalten"));
+                sendResponse(exchange, 403, createErrorResponse("You can only manage your own favorites"));
                 return;
             }
 
@@ -128,7 +124,7 @@ public class FavoriteController implements HttpHandler {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "Medium aus Favoriten entfernt");
+            response.put("message", "Media removed from favorites");
 
             sendResponse(exchange, 200, objectMapper.writeValueAsString(response));
 
@@ -139,19 +135,17 @@ public class FavoriteController implements HttpHandler {
         }
     }
 
-    /**
-     * POST /api/users/{username}/favorites/{mediaId}/toggle
-     * Wechselt den Favoriten-Status
-     */
+    // POST /api/users/{username}/favorites/{mediaId}/toggle
+    // Toggles favorite status
     private void handleToggleFavorite(HttpExchange exchange, String authenticatedUser, String path) throws IOException {
         try {
             String[] parts = path.split("/");
             String pathUsername = parts[3];
             int mediaId = Integer.parseInt(parts[5]);
 
-            // Prüfe ob Benutzer auf seine eigenen Favoriten zugreift
+            // Check if user is accessing their own favorites
             if (!authenticatedUser.equals(pathUsername)) {
-                sendResponse(exchange, 403, createErrorResponse("Sie können nur Ihre eigenen Favoriten verwalten"));
+                sendResponse(exchange, 403, createErrorResponse("You can only manage your own favorites"));
                 return;
             }
 
@@ -160,7 +154,7 @@ public class FavoriteController implements HttpHandler {
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("favorited", added);
-            response.put("message", added ? "Medium zu Favoriten hinzugefügt" : "Medium aus Favoriten entfernt");
+            response.put("message", added ? "Media added to favorites" : "Media removed from favorites");
 
             sendResponse(exchange, 200, objectMapper.writeValueAsString(response));
 
@@ -171,18 +165,16 @@ public class FavoriteController implements HttpHandler {
         }
     }
 
-    /**
-     * GET /api/users/{username}/favorites
-     * Holt alle Favoriten eines Benutzers
-     */
+    // GET /api/users/{username}/favorites
+    // Gets all favorites of a user
     private void handleGetFavorites(HttpExchange exchange, String authenticatedUser, String path) throws IOException {
         try {
             String[] parts = path.split("/");
             String pathUsername = parts[3];
 
-            // Prüfe ob Benutzer auf seine eigenen Favoriten zugreift
+            // Check if user is accessing their own favorites
             if (!authenticatedUser.equals(pathUsername)) {
-                sendResponse(exchange, 403, createErrorResponse("Sie können nur Ihre eigenen Favoriten ansehen"));
+                sendResponse(exchange, 403, createErrorResponse("You can only view your own favorites"));
                 return;
             }
 
@@ -200,19 +192,17 @@ public class FavoriteController implements HttpHandler {
         }
     }
 
-    /**
-     * GET /api/users/{username}/favorites/check/{mediaId}
-     * Prüft, ob ein Medium in den Favoriten ist
-     */
+    // GET /api/users/{username}/favorites/check/{mediaId}
+    // Checks if a media is in favorites
     private void handleCheckFavorite(HttpExchange exchange, String authenticatedUser, String path) throws IOException {
         try {
             String[] parts = path.split("/");
             String pathUsername = parts[3];
             int mediaId = Integer.parseInt(parts[6]);
 
-            // Prüfe ob Benutzer auf seine eigenen Favoriten zugreift
+            // Check if user is accessing their own favorites
             if (!authenticatedUser.equals(pathUsername)) {
-                sendResponse(exchange, 403, createErrorResponse("Sie können nur Ihre eigenen Favoriten prüfen"));
+                sendResponse(exchange, 403, createErrorResponse("You can only check your own favorites"));
                 return;
             }
 

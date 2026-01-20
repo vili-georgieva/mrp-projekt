@@ -13,11 +13,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
-// Controller für Media-Verwaltung (CRUD-Operationen für Filme, Serien, Spiele)
+// Controller for media management (CRUD operations for movies, series, games)
 public class MediaController {
     private final MediaService mediaService;
     private final UserService userService;
-    private final ObjectMapper objectMapper;  // Jackson: JSON <-> Java Objekt Konvertierung
+    private final ObjectMapper objectMapper;  // Jackson: JSON <-> Java object conversion
 
     public MediaController(MediaService mediaService, UserService userService) {
         this.mediaService = mediaService;
@@ -25,18 +25,18 @@ public class MediaController {
         this.objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules();
     }
-    // Haupt-Handler für /api/media Endpunkt
-    // exchange = HTTP-Request-Objekt (vom HttpServer automatisch übergeben)
+    // Main handler for /api/media endpoint
+    // exchange = HTTP request object (automatically passed by HttpServer)
     public void handleMedia(HttpExchange exchange) throws IOException {
-        Optional<User> user = authenticateRequest(exchange);  // Prüfe Token (optional für GET)
+        Optional<User> user = authenticateRequest(exchange);  // Check token (optional for GET)
 
         String method = exchange.getRequestMethod(); // GET, POST, PUT, DELETE
-        String path = exchange.getRequestURI().getPath(); // /api/media oder /api/media/{id}
+        String path = exchange.getRequestURI().getPath(); // /api/media or /api/media/{id}
 
         try {
             switch (method) {
                 case "GET":
-                    handleGetMedia(exchange, path);  //kein Token nötig
+                    handleGetMedia(exchange, path);  // No token required
                     break;
                 case "POST":
                     if (user.isEmpty()) {
@@ -67,19 +67,19 @@ public class MediaController {
         }
     }
 
-    // get alle oder spezifisches Media
+    // Get all or specific media
     private void handleGetMedia(HttpExchange exchange, String path) throws IOException {
         String[] parts = path.split("/");
 
         if (parts.length == 3) {
             // GET /api/media - get all media
             List<MediaEntry> media = mediaService.getAllMedia();
-            String response = objectMapper.writeValueAsString(media);  // Liste -> JSON
+            String response = objectMapper.writeValueAsString(media);  // List -> JSON
             sendResponse(exchange, 200, response);
         } else if (parts.length == 4) {
             // GET /api/media/{id} - get specific media
             try {
-                int id = Integer.parseInt(parts[3]);  // Extrahiere ID aus URL
+                int id = Integer.parseInt(parts[3]);  // Extract ID from URL
                 Optional<MediaEntry> media = mediaService.getMediaById(id);
                 if (media.isPresent()) {
                     String response = objectMapper.writeValueAsString(media.get());
@@ -88,21 +88,21 @@ public class MediaController {
                     sendResponse(exchange, 404, "{\"error\":\"Media not found\"}");  // 404 = Not Found
                 }
             } catch (NumberFormatException e) {
-                sendResponse(exchange, 400, "{\"error\":\"Invalid media ID\"}");  // ID ist keine Zahl
+                sendResponse(exchange, 400, "{\"error\":\"Invalid media ID\"}");  // ID is not a number
             }
         } else {
             sendResponse(exchange, 400, "{\"error\":\"Invalid request\"}");
         }
     }
 
-    // POST /api/media - Erstellt neuen Media-Eintrag
+    // POST /api/media - Creates new media entry
     private void handleCreateMedia(HttpExchange exchange, User user) throws IOException {
         try {
-            // Lese JSON aus Request-Body
+            // Read JSON from request body
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             MediaEntry media = objectMapper.readValue(body, MediaEntry.class);  // JSON -> MediaEntry
 
-            MediaEntry created = mediaService.createMedia(media, user);  // Speichere in DB
+            MediaEntry created = mediaService.createMedia(media, user);  // Save to DB
             String response = objectMapper.writeValueAsString(created);  // MediaEntry -> JSON
             sendResponse(exchange, 201, response);  // 201 = Created
         } catch (IllegalArgumentException e) {
@@ -110,16 +110,16 @@ public class MediaController {
         }
     }
 
-    // PUT /api/media/{id} - Aktualisiert Media-Eintrag (nur Creator darf updaten)
+    // PUT /api/media/{id} - Updates media entry (only creator can update)
     private void handleUpdateMedia(HttpExchange exchange, String path, User user) throws IOException {
         String[] parts = path.split("/");
-        if (parts.length != 4) {  // Muss /api/media/{id} sein
+        if (parts.length != 4) {  // Must be /api/media/{id}
             sendResponse(exchange, 400, "{\"error\":\"Invalid request\"}");
             return;
         }
 
         try {
-            int id = Integer.parseInt(parts[3]);  // Extrahiere ID aus URL
+            int id = Integer.parseInt(parts[3]);  // Extract ID from URL
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             MediaEntry media = objectMapper.readValue(body, MediaEntry.class);
             MediaEntry updated = mediaService.updateMedia(id, media, user);
@@ -132,7 +132,7 @@ public class MediaController {
         }
     }
 
-    // DELETE /api/media/{id} (nur Creator darf löschen)
+    // DELETE /api/media/{id} (only creator can delete)
     private void handleDeleteMedia(HttpExchange exchange, String path, User user) throws IOException {
         String[] parts = path.split("/");
         if (parts.length != 4) {
@@ -142,38 +142,38 @@ public class MediaController {
 
         try {
             int id = Integer.parseInt(parts[3]);
-            mediaService.deleteMedia(id, user);  // Service prüft ob User = Creator
-            sendResponse(exchange, 204, "");  // 204 = No Content (erfolgreich gelöscht)
+            mediaService.deleteMedia(id, user);  // Service checks if user = creator
+            sendResponse(exchange, 204, "");  // 204 = No Content (successfully deleted)
         } catch (NumberFormatException e) {
             sendResponse(exchange, 400, "{\"error\":\"Invalid media ID\"}");
         } catch (IllegalArgumentException e) {
-            sendResponse(exchange, 403, "{\"error\":\"" + e.getMessage() + "\"}");  // Nicht berechtigt
+            sendResponse(exchange, 403, "{\"error\":\"" + e.getMessage() + "\"}");  // Not authorized
         }
     }
 
-    // Authentifiziert Request über Token im Authorization-Header
+    // Authenticates request via token in Authorization header
     private Optional<User> authenticateRequest(HttpExchange exchange) {
         try {
-            // Lese Authorization-Header: "Bearer {token}"
+            // Read Authorization header: "Bearer {token}"
             String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return Optional.empty();  // Kein Token vorhanden
+                return Optional.empty();  // No token present
             }
 
-            String token = authHeader.substring(7);  // Entferne "Bearer ", hole nur Token
-            return userService.validateToken(token);  // Prüfe Token in DB
+            String token = authHeader.substring(7);  // Remove "Bearer ", get only token
+            return userService.validateToken(token);  // Check token in DB
         } catch (RuntimeException e) {
-            return Optional.empty();  //nicht authentifiziert
+            return Optional.empty();  // Not authenticated
         }
     }
 
-    // Sendet HTTP-Response mit JSON-Content
+    // Sends HTTP response with JSON content
     private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
-        exchange.getResponseHeaders().set("Content-Type", "application/json");  // JSON-Header setzen
+        exchange.getResponseHeaders().set("Content-Type", "application/json");  // Set JSON header
         byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
         exchange.sendResponseHeaders(statusCode, bytes.length);  // Status + Content-Length
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(bytes);  // Schreibe Response-Body
+            os.write(bytes);  // Write response body
         }
     }
 }

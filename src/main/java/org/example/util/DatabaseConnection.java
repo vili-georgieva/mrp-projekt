@@ -14,13 +14,13 @@ public class DatabaseConnection {
         try {
             Class.forName("org.postgresql.Driver");
 
-            // DB-Konfiguration laden
+            // Load DB configuration
             Properties props = new Properties();
             InputStream input = DatabaseConnection.class.getClassLoader()
                 .getResourceAsStream("application.properties");
 
             if (input == null) {
-                throw new RuntimeException("application.properties nicht gefunden!");
+                throw new RuntimeException("application.properties not found!");
             }
 
             props.load(input);
@@ -29,24 +29,22 @@ public class DatabaseConnection {
             dbPassword = props.getProperty("db.password");
             input.close();
 
-            System.out.println("Datenbank-Konfiguration geladen");
+            System.out.println("Database configuration loaded");
         } catch (Exception e) {
-            throw new RuntimeException("Fehler beim Laden der DB-Konfiguration: " + e.getMessage(), e);
+            throw new RuntimeException("Error loading DB configuration: " + e.getMessage(), e);
         }
     }
 
     public static Connection getConnection() {
         try {
-            // Erstelle NEUE Connection für jeden Request
+            // Create NEW connection for each request
             return DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
         } catch (Exception e) {
-            throw new RuntimeException("Datenbankverbindung fehlgeschlagen: " + e.getMessage(), e);
+            throw new RuntimeException("Database connection failed: " + e.getMessage(), e);
         }
     }
 
-    /**
-     * Führt eine Transaktion aus und gibt ein Ergebnis zurück.
-     */
+    // Executes a transaction and returns a result
     public static <T> T executeInTransaction(Function<Connection, T> operation) {
         Connection conn = null;
         try {
@@ -62,7 +60,7 @@ public class DatabaseConnection {
             if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;
             }
-            throw new RuntimeException("Transaktion fehlgeschlagen: " + e.getMessage(), e);
+            throw new RuntimeException("Transaction failed: " + e.getMessage(), e);
         } finally {
             if (conn != null) {
                 try { conn.close(); } catch (SQLException ignored) {}
@@ -70,9 +68,7 @@ public class DatabaseConnection {
         }
     }
 
-    /**
-     * Führt eine Transaktion ohne Rückgabewert aus.
-     */
+    // Executes a transaction without return value
     public static void executeInTransactionVoid(TransactionConsumer operation) {
         executeInTransaction(conn -> {
             try {

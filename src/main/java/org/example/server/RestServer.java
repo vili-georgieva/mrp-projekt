@@ -33,7 +33,7 @@ public class RestServer {
 
         this.server = HttpServer.create(new InetSocketAddress(port), 0);
 
-        // Setup contexts (endpoints) - Reihenfolge wichtig: spezifischere Pfade zuerst
+        // Setup contexts (endpoints) - Order important: more specific paths first
         server.createContext("/api/users/register", userController::handleRegister);
         server.createContext("/api/users/login", userController::handleLogin);
         server.createContext("/api/users/favorites", favoriteController);
@@ -41,7 +41,7 @@ public class RestServer {
         server.createContext("/api/media", mediaController::handleMedia);
         server.createContext("/api/ratings", ratingController::handleRequest);
 
-        server.setExecutor(null); //default executor
+        server.setExecutor(null); // Default executor
     }
 
     public void start() {

@@ -17,89 +17,75 @@ public class FavoriteService {
         this.mediaRepository = new MediaRepository();
     }
 
-    // Konstruktor für Tests (Dependency Injection)
+    // Constructor for tests (Dependency Injection)
     public FavoriteService(FavoriteRepository favoriteRepository, MediaRepository mediaRepository) {
         this.favoriteRepository = favoriteRepository;
         this.mediaRepository = mediaRepository;
     }
 
-    /**
-     * Wechselt den Favoriten-Status (hinzufügen wenn nicht vorhanden, entfernen wenn vorhanden)
-     * Gibt true zurück wenn hinzugefügt, false wenn entfernt
-     */
+    // Toggles favorite status (add if not present, remove if present)
+    // Returns true if added, false if removed
     public boolean toggleFavorite(String username, int mediaId) throws SQLException {
-        // Prüfe ob Medium existiert
+        // Check if media exists
         MediaEntry media = mediaRepository.getMediaById(mediaId);
         if (media == null) {
-            throw new IllegalArgumentException("Medium mit ID " + mediaId + " existiert nicht");
+            throw new IllegalArgumentException("Media with ID " + mediaId + " does not exist");
         }
 
-        // Prüfe ob bereits als Favorit markiert
+        // Check if already marked as favorite
         if (favoriteRepository.isFavorite(username, mediaId)) {
-            // Entferne Favorit
+            // Remove favorite
             favoriteRepository.removeFavorite(username, mediaId);
             return false;
         } else {
-            // Füge Favorit hinzu
+            // Add favorite
             favoriteRepository.addFavorite(username, mediaId);
             return true;
         }
     }
 
-    /**
-     * Fügt ein Medium zu den Favoriten eines Benutzers hinzu
-     */
+    // Adds a media to a user's favorites
     public void addFavorite(String username, int mediaId) throws SQLException {
-        // Prüfe ob Medium existiert
+        // Check if media exists
         MediaEntry media = mediaRepository.getMediaById(mediaId);
         if (media == null) {
-            throw new IllegalArgumentException("Medium mit ID " + mediaId + " existiert nicht");
+            throw new IllegalArgumentException("Media with ID " + mediaId + " does not exist");
         }
 
-        // Prüfe ob bereits als Favorit markiert
+        // Check if already marked as favorite
         if (favoriteRepository.isFavorite(username, mediaId)) {
-            throw new IllegalStateException("Medium ist bereits in den Favoriten");
+            throw new IllegalStateException("Media is already in favorites");
         }
 
         favoriteRepository.addFavorite(username, mediaId);
     }
 
-    /**
-     * Entfernt ein Medium aus den Favoriten eines Benutzers
-     */
+    // Removes a media from a user's favorites
     public void removeFavorite(String username, int mediaId) throws SQLException {
-        // Prüfe ob als Favorit markiert
+        // Check if marked as favorite
         if (!favoriteRepository.isFavorite(username, mediaId)) {
-            throw new IllegalStateException("Medium ist nicht in den Favoriten");
+            throw new IllegalStateException("Media is not in favorites");
         }
 
         favoriteRepository.removeFavorite(username, mediaId);
     }
 
-    /**
-     * Holt alle Favoriten eines Benutzers
-     */
+    // Gets all favorites of a user
     public List<MediaEntry> getFavorites(String username) throws SQLException {
         return favoriteRepository.getFavoritesByUser(username);
     }
 
-    /**
-     * Prüft, ob ein Medium vom Benutzer favorisiert wurde
-     */
+    // Checks if a media was favorited by the user
     public boolean isFavorite(String username, int mediaId) throws SQLException {
         return favoriteRepository.isFavorite(username, mediaId);
     }
 
-    /**
-     * Holt die Anzahl der Benutzer, die ein bestimmtes Medium favorisiert haben
-     */
+    // Gets the number of users who favorited a specific media
     public int getFavoriteCount(int mediaId) throws SQLException {
         return favoriteRepository.getFavoriteCount(mediaId);
     }
 
-    /**
-     * Holt alle Favoriten-IDs eines Benutzers
-     */
+    // Gets all favorite IDs of a user
     public List<Integer> getFavoriteIds(String username) throws SQLException {
         return favoriteRepository.getFavoriteIdsByUser(username);
     }

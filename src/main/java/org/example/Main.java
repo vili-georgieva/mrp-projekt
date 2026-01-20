@@ -5,7 +5,7 @@ import org.example.server.RestServer;
 public class Main {
     public static void main(String[] args) {
         try {
-            // Create and start server (DB-Config wird aus application.properties geladen)
+            // Create and start server (DB config is loaded from application.properties)
             RestServer server = new RestServer(8080);
             server.start();
 

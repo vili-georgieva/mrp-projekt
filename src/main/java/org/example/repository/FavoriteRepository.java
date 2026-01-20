@@ -14,9 +14,7 @@ import java.util.List;
 
 public class FavoriteRepository {
 
-    /**
-     * Fügt ein Medium zu den Favoriten eines Benutzers hinzu
-     */
+    // Adds a media to a user's favorites
     public boolean addFavorite(String username, int mediaId) throws SQLException {
         String sql = "INSERT INTO favorites (username, media_id) VALUES (?, ?) ON CONFLICT DO NOTHING";
 
@@ -31,9 +29,7 @@ public class FavoriteRepository {
         }
     }
 
-    /**
-     * Entfernt ein Medium aus den Favoriten eines Benutzers
-     */
+    // Removes a media from a user's favorites
     public boolean removeFavorite(String username, int mediaId) throws SQLException {
         String sql = "DELETE FROM favorites WHERE username = ? AND media_id = ?";
 
@@ -48,9 +44,7 @@ public class FavoriteRepository {
         }
     }
 
-    /**
-     * Prüft, ob ein Medium in den Favoriten eines Benutzers ist
-     */
+    // Checks if a media is in a user's favorites
     public boolean isFavorite(String username, int mediaId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM favorites WHERE username = ? AND media_id = ?";
 
@@ -69,9 +63,7 @@ public class FavoriteRepository {
         return false;
     }
 
-    /**
-     * Holt alle Favoriten eines Benutzers (gibt vollständige MediaEntry-Objekte zurück)
-     */
+    // Gets all favorites of a user (returns complete MediaEntry objects)
     public List<MediaEntry> getFavoritesByUser(String username) throws SQLException {
         String sql = "SELECT m.* FROM media_entries m " +
                     "INNER JOIN favorites f ON m.id = f.media_id " +
@@ -113,9 +105,7 @@ public class FavoriteRepository {
         return favorites;
     }
 
-    /**
-     * Holt alle Favoriten-Media-IDs eines Benutzers
-     */
+    // Gets all favorite media IDs of a user
     public List<Integer> getFavoriteIdsByUser(String username) throws SQLException {
         String sql = "SELECT media_id FROM favorites WHERE username = ? ORDER BY added_at DESC";
 
@@ -136,9 +126,7 @@ public class FavoriteRepository {
         return favoriteIds;
     }
 
-    /**
-     * Holt die Anzahl der Benutzer, die ein bestimmtes Medium favorisiert haben
-     */
+    // Gets the number of users who favorited a specific media
     public int getFavoriteCount(int mediaId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM favorites WHERE media_id = ?";
 

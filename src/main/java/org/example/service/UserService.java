@@ -3,6 +3,9 @@ package org.example.service;
 import org.example.model.User;
 import org.example.repository.UserRepository;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.security.MessageDigest;
@@ -89,6 +92,26 @@ public class UserService {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("SHA-256 algorithm not found", e);
         }
+    }
+
+    // Returns user statistics (media count, rating count, favorites, average stars)
+    public Map<String, Object> getUserStatistics(String username) {
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("mediaCount", userRepository.getMediaCount(username));
+        stats.put("ratingCount", userRepository.getRatingCount(username));
+        stats.put("favoriteCount", userRepository.getFavoriteCount(username));
+        stats.put("averageStars", Math.round(userRepository.getAverageStars(username) * 100.0) / 100.0);
+        return stats;
+    }
+
+    // Returns leaderboard (top users by rating count)
+    public List<Map<String, Object>> getLeaderboard(int limit) {
+        return userRepository.getLeaderboard(limit);
+    }
+
+    // Returns recommendations for user based on genre similarity
+    public List<Map<String, Object>> getRecommendations(String username, int limit) {
+        return userRepository.getRecommendations(username, limit);
     }
 }
 

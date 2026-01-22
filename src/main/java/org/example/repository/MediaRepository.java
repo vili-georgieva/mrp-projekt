@@ -164,4 +164,54 @@ public class MediaRepository {
         media.setCreator(rs.getString("creator"));
         return media;
     }
+
+    // Searches media with optional filters (null = ignore filter)
+    public List<MediaEntry> searchMedia(String title, String genre, MediaType mediaType,
+                                        Integer minRating, Integer ageRestriction) {
+        return DatabaseConnection.executeInTransaction(conn -> {
+            StringBuilder sql = new StringBuilder("SELECT * FROM media_entries WHERE 1=1");
+            List<Object> params = new ArrayList<>();
+
+            // Filter by title (case-insensitive partial match)
+            if (title != null && !title.trim().isEmpty()) {
+                sql.append(" AND LOWER(title) LIKE LOWER(?)");
+                params.add("%" + title + "%");
+            }
+
+            // Filter by genre (partial match in comma-separated list)
+            if (genre != null && !genre.trim().isEmpty()) {
+                sql.append(" AND LOWER(genres) LIKE LOWER(?)");
+                params.add("%" + genre + "%");
+            }
+
+            // Filter by media type
+            if (mediaType != null) {
+                sql.append(" AND media_type = ?");
+                params.add(mediaType.name());
+            }
+
+            // Filter by age restriction (max age)
+            if (ageRestriction != null) {
+                sql.append(" AND age_restriction <= ?");
+                params.add(ageRestriction);
+            }
+
+            sql.append(" ORDER BY title");
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+                for (int i = 0; i < params.size(); i++) {
+                    stmt.setObject(i + 1, params.get(i));
+                }
+
+                ResultSet rs = stmt.executeQuery();
+                List<MediaEntry> results = new ArrayList<>();
+                while (rs.next()) {
+                    results.add(mapResultSetToMedia(rs));
+                }
+                return results;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 }

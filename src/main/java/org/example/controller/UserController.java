@@ -82,7 +82,6 @@ public class UserController {
                 return;
             }
 
-
             String path = exchange.getRequestURI().getPath();
             String[] parts = path.split("/"); // Extract username from URL: /api/users/{username}
 
@@ -98,7 +97,86 @@ public class UserController {
                 return;
             }
 
-            String response = objectMapper.writeValueAsString(user.get());
+            // Build response with user data and statistics
+            var responseData = new java.util.HashMap<String, Object>();
+            responseData.put("username", user.get().getUsername());
+            responseData.put("statistics", userService.getUserStatistics(username));
+
+            String response = objectMapper.writeValueAsString(responseData);
+            sendResponse(exchange, 200, response);
+        } catch (RuntimeException e) {
+            sendResponse(exchange, 500, "{\"error\":\"Database error\"}");
+        }
+    }
+
+    // GET /api/leaderboard?limit=10
+    public void handleLeaderboard(HttpExchange exchange) throws IOException {
+        if (!"GET".equals(exchange.getRequestMethod())) {
+            sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
+            return;
+        }
+
+        try {
+            // Parse limit from query parameter (default 10)
+            int limit = 10;
+            String query = exchange.getRequestURI().getQuery();
+            if (query != null) {
+                String[] params = query.split("&");
+                for (String param : params) {
+                    if (param.startsWith("limit=")) {
+                        try {
+                            limit = Integer.parseInt(param.substring(6));
+                        } catch (NumberFormatException e) {
+                            // Keep default
+                        }
+                    }
+                }
+            }
+
+            var leaderboard = userService.getLeaderboard(limit);
+            String response = objectMapper.writeValueAsString(leaderboard);
+            sendResponse(exchange, 200, response);
+        } catch (RuntimeException e) {
+            sendResponse(exchange, 500, "{\"error\":\"Database error\"}");
+        }
+    }
+
+    // GET /api/users/{username}/recommendations?limit=10
+    public void handleRecommendations(HttpExchange exchange) throws IOException {
+        if (!"GET".equals(exchange.getRequestMethod())) {
+            sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
+            return;
+        }
+
+        try {
+            String path = exchange.getRequestURI().getPath();
+            String[] parts = path.split("/");
+
+            if (parts.length < 4) {
+                sendResponse(exchange, 400, "{\"error\":\"Invalid request\"}");
+                return;
+            }
+
+            String username = parts[3];
+
+            // Parse limit from query parameter (default 10)
+            int limit = 10;
+            String query = exchange.getRequestURI().getQuery();
+            if (query != null) {
+                String[] params = query.split("&");
+                for (String param : params) {
+                    if (param.startsWith("limit=")) {
+                        try {
+                            limit = Integer.parseInt(param.substring(6));
+                        } catch (NumberFormatException e) {
+                            // Keep default
+                        }
+                    }
+                }
+            }
+
+            var recommendations = userService.getRecommendations(username, limit);
+            String response = objectMapper.writeValueAsString(recommendations);
             sendResponse(exchange, 200, response);
         } catch (RuntimeException e) {
             sendResponse(exchange, 500, "{\"error\":\"Database error\"}");

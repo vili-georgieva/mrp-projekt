@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.model.MediaEntry;
+import org.example.model.MediaType;
 import org.example.model.User;
 import org.example.repository.MediaRepository;
 
@@ -66,6 +67,12 @@ public class MediaService {
 
     public List<MediaEntry> getAllMedia() {
         return mediaRepository.findAll();
+    }
+
+    // Searches media with optional filters (null = no filter)
+    public List<MediaEntry> searchMedia(String title, String genre, MediaType mediaType,
+                                        Integer minRating, Integer ageRestriction) {
+        return mediaRepository.searchMedia(title, genre, mediaType, minRating, ageRestriction);
     }
 }
 

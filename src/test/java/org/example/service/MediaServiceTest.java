@@ -172,4 +172,23 @@ class MediaServiceTest {
         assertEquals("Series 1", result.get(1).getTitle());
         verify(mediaRepository).findAll();
     }
+
+    // Test: Update von nicht existierender Media wirft Exception
+    @Test
+    void updateNonexistentMediaTest() {
+        MediaEntry updatedMedia = new MediaEntry();
+        updatedMedia.setTitle("Updated Title");
+        updatedMedia.setMediaType(MediaType.MOVIE);
+
+        when(mediaRepository.findById(999)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> mediaService.updateMedia(999, updatedMedia, testUser)
+        );
+
+        assertEquals("Media entry not found", exception.getMessage());
+        verify(mediaRepository).findById(999);
+        verify(mediaRepository, never()).update(any(MediaEntry.class));
+    }
 }

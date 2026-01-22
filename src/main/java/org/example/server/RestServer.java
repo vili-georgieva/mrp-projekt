@@ -48,9 +48,19 @@ public class RestServer {
         // Setup contexts (endpoints) - Order important: more specific paths first
         server.createContext("/api/users/register", userController::handleRegister);
         server.createContext("/api/users/login", userController::handleLogin);
+        server.createContext("/api/leaderboard", exchange -> {
+            // GET /api/leaderboard?limit=10
+            if ("GET".equals(exchange.getRequestMethod())) {
+                userController.handleLeaderboard(exchange);
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+            }
+        });
         server.createContext("/api/users/", exchange -> {
             String path = exchange.getRequestURI().getPath();
-            if (path.contains("/favorites")) {
+            if (path.contains("/recommendations")) {
+                userController.handleRecommendations(exchange);
+            } else if (path.contains("/favorites")) {
                 favoriteController.handle(exchange);
             } else if (path.contains("/rating-history")) {
                 ratingController.handleRatingHistory(exchange);

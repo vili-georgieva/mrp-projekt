@@ -3,6 +3,7 @@ package org.example.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import org.example.model.MediaEntry;
+import org.example.model.MediaType;
 import org.example.model.User;
 import org.example.service.MediaService;
 import org.example.service.UserService;
@@ -72,10 +73,38 @@ public class MediaController {
         String[] parts = path.split("/");
 
         if (parts.length == 3) {
-            // GET /api/media - get all media
-            List<MediaEntry> media = mediaService.getAllMedia();
-            String response = objectMapper.writeValueAsString(media);  // List -> JSON
-            sendResponse(exchange, 200, response);
+            // GET /api/media - get all media OR search with query parameters
+            String query = exchange.getRequestURI().getQuery();
+
+            if (query != null && !query.isEmpty()) {
+                // Parse query parameters for search
+                String title = getQueryParam(query, "title");
+                String genre = getQueryParam(query, "genre");
+                String typeStr = getQueryParam(query, "mediaType");
+                String ratingStr = getQueryParam(query, "minRating");
+                String ageStr = getQueryParam(query, "ageRestriction");
+
+                MediaType mediaType = null;
+                if (typeStr != null && !typeStr.isEmpty()) {
+                    try {
+                        mediaType = MediaType.valueOf(typeStr.toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        // Invalid media type, ignore
+                    }
+                }
+
+                Integer minRating = parseIntegerParam(ratingStr);
+                Integer ageRestriction = parseIntegerParam(ageStr);
+
+                List<MediaEntry> results = mediaService.searchMedia(title, genre, mediaType, minRating, ageRestriction);
+                String response = objectMapper.writeValueAsString(results);
+                sendResponse(exchange, 200, response);
+            } else {
+                // No query parameters, return all media
+                List<MediaEntry> media = mediaService.getAllMedia();
+                String response = objectMapper.writeValueAsString(media);  // List -> JSON
+                sendResponse(exchange, 200, response);
+            }
         } else if (parts.length == 4) {
             // GET /api/media/{id} - get specific media
             try {
@@ -175,6 +204,29 @@ public class MediaController {
         exchange.sendResponseHeaders(statusCode, bytes.length);  // Status + Content-Length
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(bytes);  // Write response body
+        }
+    }
+
+    // Extracts query parameter from query string (e.g. "?title=Matrix&genre=Action")
+    private String getQueryParam(String query, String paramName) {
+        if (query == null) return null;
+        String[] params = query.split("&");
+        for (String param : params) {
+            String[] keyValue = param.split("=");
+            if (keyValue.length == 2 && keyValue[0].equals(paramName)) {
+                return keyValue[1];
+            }
+        }
+        return null;
+    }
+
+    // Parses Integer from String, returns null if invalid
+    private Integer parseIntegerParam(String value) {
+        if (value == null || value.isEmpty()) return null;
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 }

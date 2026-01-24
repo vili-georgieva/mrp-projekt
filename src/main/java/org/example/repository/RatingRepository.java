@@ -36,210 +36,232 @@ public class RatingRepository {
     }
 
     // Create a new rating or update existing one
-    public Rating createRating(Rating rating) throws SQLException {
-        String sql = "INSERT INTO ratings (media_id, username, stars, comment, confirmed, likes) " +
-                     "VALUES (?, ?, ?, ?, ?, ?) " +
-                     "ON CONFLICT (media_id, username) DO UPDATE SET " +
-                     "stars = EXCLUDED.stars, comment = EXCLUDED.comment, updated_at = CURRENT_TIMESTAMP " +
-                     "RETURNING id, created_at, updated_at";
+    public Rating createRating(Rating rating) {
+        return DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "INSERT INTO ratings (media_id, username, stars, comment, confirmed, likes) " +
+                         "VALUES (?, ?, ?, ?, ?, ?) " +
+                         "ON CONFLICT (media_id, username) DO UPDATE SET " +
+                         "stars = EXCLUDED.stars, comment = EXCLUDED.comment, updated_at = CURRENT_TIMESTAMP " +
+                         "RETURNING id, created_at, updated_at";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, rating.getMediaId());
+                pstmt.setString(2, rating.getUsername());
+                pstmt.setInt(3, rating.getStars());
+                pstmt.setString(4, rating.getComment());
+                pstmt.setBoolean(5, rating.isConfirmed());
+                pstmt.setInt(6, rating.getLikes());
 
-            pstmt.setInt(1, rating.getMediaId());
-            pstmt.setString(2, rating.getUsername());
-            pstmt.setInt(3, rating.getStars());
-            pstmt.setString(4, rating.getComment());
-            pstmt.setBoolean(5, rating.isConfirmed());
-            pstmt.setInt(6, rating.getLikes());
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    rating.setId(rs.getInt("id"));
-                    rating.setTimestamp(rs.getTimestamp("created_at").toLocalDateTime());
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        rating.setId(rs.getInt("id"));
+                        rating.setTimestamp(rs.getTimestamp("created_at").toLocalDateTime());
+                    }
                 }
+                return rating;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-            return rating;
-        }
+        });
     }
 
     // Update an existing rating
-    public boolean updateRating(int ratingId, int stars, String comment) throws SQLException {
-        String sql = "UPDATE ratings SET stars = ?, comment = ?, updated_at = CURRENT_TIMESTAMP " +
-                     "WHERE id = ?";
+    public boolean updateRating(int ratingId, int stars, String comment) {
+        return DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "UPDATE ratings SET stars = ?, comment = ?, updated_at = CURRENT_TIMESTAMP " +
+                         "WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, stars);
-            pstmt.setString(2, comment);
-            pstmt.setInt(3, ratingId);
-
-            return pstmt.executeUpdate() > 0;
-        }
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, stars);
+                pstmt.setString(2, comment);
+                pstmt.setInt(3, ratingId);
+                return pstmt.executeUpdate() > 0;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     // Update only the comment of a rating
-    public boolean updateComment(int ratingId, String comment) throws SQLException {
-        String sql = "UPDATE ratings SET comment = ?, updated_at = CURRENT_TIMESTAMP, confirmed = false " +
-                     "WHERE id = ?";
+    public boolean updateComment(int ratingId, String comment) {
+        return DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "UPDATE ratings SET comment = ?, updated_at = CURRENT_TIMESTAMP, confirmed = false " +
+                         "WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, comment);
-            pstmt.setInt(2, ratingId);
-
-            return pstmt.executeUpdate() > 0;
-        }
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, comment);
+                pstmt.setInt(2, ratingId);
+                return pstmt.executeUpdate() > 0;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     // Delete a rating by ID
-    public boolean deleteRating(int ratingId) throws SQLException {
-        String sql = "DELETE FROM ratings WHERE id = ?";
+    public boolean deleteRating(int ratingId) {
+        return DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "DELETE FROM ratings WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, ratingId);
-            return pstmt.executeUpdate() > 0;
-        }
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, ratingId);
+                return pstmt.executeUpdate() > 0;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     // Get rating by ID
-    public Rating getRatingById(int id) throws SQLException {
-        String sql = "SELECT * FROM ratings WHERE id = ?";
+    public Rating getRatingById(int id) {
+        return DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "SELECT * FROM ratings WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, id);
 
-            pstmt.setInt(1, id);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToRating(rs);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return mapResultSetToRating(rs);
+                    }
                 }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        }
-        return null;
+            return null;
+        });
     }
 
     // Get all ratings for a specific media
-    public List<Rating> getRatingsByMediaId(int mediaId) throws SQLException {
-        String sql = "SELECT * FROM ratings WHERE media_id = ? ORDER BY created_at DESC";
+    public List<Rating> getRatingsByMediaId(int mediaId) {
+        return DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "SELECT * FROM ratings WHERE media_id = ? ORDER BY created_at DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, mediaId);
 
-            pstmt.setInt(1, mediaId);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                List<Rating> ratings = new ArrayList<>();
-                while (rs.next()) {
-                    ratings.add(mapResultSetToRating(rs));
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    List<Rating> ratings = new ArrayList<>();
+                    while (rs.next()) {
+                        ratings.add(mapResultSetToRating(rs));
+                    }
+                    return ratings;
                 }
-                return ratings;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        }
+        });
     }
 
     // Get confirmed ratings for a specific media
-    public List<Rating> getConfirmedRatingsByMediaId(int mediaId) throws SQLException {
-        String sql = "SELECT * FROM ratings WHERE media_id = ? AND confirmed = true ORDER BY created_at DESC";
+    public List<Rating> getConfirmedRatingsByMediaId(int mediaId) {
+        return DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "SELECT * FROM ratings WHERE media_id = ? AND confirmed = true ORDER BY created_at DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, mediaId);
 
-            pstmt.setInt(1, mediaId);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                List<Rating> ratings = new ArrayList<>();
-                while (rs.next()) {
-                    ratings.add(mapResultSetToRating(rs));
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    List<Rating> ratings = new ArrayList<>();
+                    while (rs.next()) {
+                        ratings.add(mapResultSetToRating(rs));
+                    }
+                    return ratings;
                 }
-                return ratings;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        }
+        });
     }
 
     // Get rating by media and user (check if exists)
-    public Rating getRatingByMediaAndUser(int mediaId, String username) throws SQLException {
-        String sql = "SELECT * FROM ratings WHERE media_id = ? AND username = ?";
+    public Rating getRatingByMediaAndUser(int mediaId, String username) {
+        return DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "SELECT * FROM ratings WHERE media_id = ? AND username = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, mediaId);
+                pstmt.setString(2, username);
 
-            pstmt.setInt(1, mediaId);
-            pstmt.setString(2, username);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToRating(rs);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return mapResultSetToRating(rs);
+                    }
                 }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        }
-        return null;
+            return null;
+        });
     }
 
     // Get all ratings by a user
-    public List<Rating> getRatingsByUser(String username) throws SQLException {
-        String sql = "SELECT * FROM ratings WHERE username = ? ORDER BY created_at DESC";
+    public List<Rating> getRatingsByUser(String username) {
+        return DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "SELECT * FROM ratings WHERE username = ? ORDER BY created_at DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, username);
 
-            pstmt.setString(1, username);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                List<Rating> ratings = new ArrayList<>();
-                while (rs.next()) {
-                    ratings.add(mapResultSetToRating(rs));
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    List<Rating> ratings = new ArrayList<>();
+                    while (rs.next()) {
+                        ratings.add(mapResultSetToRating(rs));
+                    }
+                    return ratings;
                 }
-                return ratings;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        }
+        });
     }
 
     // Increment likes for a rating
-    public boolean incrementLikes(int ratingId) throws SQLException {
-        String sql = "UPDATE ratings SET likes = likes + 1 WHERE id = ?";
+    public boolean incrementLikes(int ratingId) {
+        return DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "UPDATE ratings SET likes = likes + 1 WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, ratingId);
-            return pstmt.executeUpdate() > 0;
-        }
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, ratingId);
+                return pstmt.executeUpdate() > 0;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     // Confirm a rating (moderation)
-    public boolean confirmRating(int ratingId) throws SQLException {
-        String sql = "UPDATE ratings SET confirmed = true WHERE id = ?";
+    public boolean confirmRating(int ratingId) {
+        return DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "UPDATE ratings SET confirmed = true WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, ratingId);
-            return pstmt.executeUpdate() > 0;
-        }
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, ratingId);
+                return pstmt.executeUpdate() > 0;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     // Calculate average rating for a media
-    public double getAverageRating(int mediaId) throws SQLException {
-        String sql = "SELECT AVG(stars) as avg_rating FROM ratings WHERE media_id = ? AND confirmed = true";
+    public double getAverageRating(int mediaId) {
+        return DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "SELECT AVG(stars) as avg_rating FROM ratings WHERE media_id = ? AND confirmed = true";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, mediaId);
 
-            pstmt.setInt(1, mediaId);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getDouble("avg_rating");
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getDouble("avg_rating");
+                    }
                 }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        }
-        return 0.0;
+            return 0.0;
+        });
     }
 
     // Helper method to map ResultSet to Rating object

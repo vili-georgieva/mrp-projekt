@@ -11,7 +11,6 @@ import org.example.service.UserService;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +53,7 @@ public class RatingController {
             }
         } catch (NumberFormatException e) {
             sendResponse(exchange, 400, "{\"error\":\"Invalid media ID\"}");
-        } catch (SQLException e) {
+        } catch (RuntimeException e) {
             sendResponse(exchange, 500, "{\"error\":\"Database error\"}");
         }
     }
@@ -79,7 +78,7 @@ public class RatingController {
                 String action = parts[4];
                 switch (action) {
                     case "comment":
-                        if (method.equals("PATCH")) { // patch = update comment
+                        if (method.equals("PATCH")) {
                             handleUpdateComment(exchange, ratingId, user.get());
                         } else if (method.equals("DELETE")) {
                             handleDeleteComment(exchange, ratingId, user.get());
@@ -113,7 +112,7 @@ public class RatingController {
 
         } catch (NumberFormatException e) {
             sendResponse(exchange, 400, "{\"error\":\"Invalid rating ID\"}");
-        } catch (SQLException e) {
+        } catch (RuntimeException e) {
             sendResponse(exchange, 500, "{\"error\":\"Database error\"}");
         }
     }
@@ -132,20 +131,20 @@ public class RatingController {
             List<Rating> ratings = ratingService.getRatingHistory(username);
             String response = objectMapper.writeValueAsString(ratings);
             sendResponse(exchange, 200, response);
-        } catch (SQLException e) {
+        } catch (RuntimeException e) {
             sendResponse(exchange, 500, "{\"error\":\"Database error\"}");
         }
     }
 
     // GET /api/media/{mediaId}/ratings
-    private void handleGetRatings(HttpExchange exchange, int mediaId) throws IOException, SQLException {
+    private void handleGetRatings(HttpExchange exchange, int mediaId) throws IOException {
         List<Rating> ratings = ratingService.getRatingsByMediaId(mediaId);
         String response = objectMapper.writeValueAsString(ratings);
         sendResponse(exchange, 200, response);
     }
 
     // POST /api/media/{mediaId}/ratings
-    private void handleCreateRating(HttpExchange exchange, int mediaId, User user) throws IOException, SQLException {
+    private void handleCreateRating(HttpExchange exchange, int mediaId, User user) throws IOException {
         try {
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             Rating input = objectMapper.readValue(body, Rating.class);
@@ -159,7 +158,7 @@ public class RatingController {
     }
 
     // DELETE /api/ratings/{ratingId}
-    private void handleDeleteRating(HttpExchange exchange, int ratingId, User user) throws IOException, SQLException {
+    private void handleDeleteRating(HttpExchange exchange, int ratingId, User user) throws IOException {
         try {
             boolean deleted = ratingService.deleteRating(ratingId, user.getUsername());
             if (deleted) {
@@ -173,7 +172,7 @@ public class RatingController {
     }
 
     // PATCH /api/ratings/{ratingId}/comment
-    private void handleUpdateComment(HttpExchange exchange, int ratingId, User user) throws IOException, SQLException {
+    private void handleUpdateComment(HttpExchange exchange, int ratingId, User user) throws IOException {
         try {
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             Rating input = objectMapper.readValue(body, Rating.class);
@@ -192,7 +191,7 @@ public class RatingController {
     }
 
     // DELETE /api/ratings/{ratingId}/comment
-    private void handleDeleteComment(HttpExchange exchange, int ratingId, User user) throws IOException, SQLException {
+    private void handleDeleteComment(HttpExchange exchange, int ratingId, User user) throws IOException {
         try {
             boolean deleted = ratingService.deleteComment(ratingId, user.getUsername());
             if (deleted) {
@@ -208,7 +207,7 @@ public class RatingController {
     }
 
     // POST /api/ratings/{ratingId}/like
-    private void handleLikeRating(HttpExchange exchange, int ratingId) throws IOException, SQLException {
+    private void handleLikeRating(HttpExchange exchange, int ratingId) throws IOException {
         boolean success = ratingService.likeRating(ratingId);
         if (success) {
             Rating rating = ratingService.getRatingById(ratingId);
@@ -220,7 +219,7 @@ public class RatingController {
     }
 
     // POST /api/ratings/{ratingId}/confirm
-    private void handleConfirmRating(HttpExchange exchange, int ratingId) throws IOException, SQLException {
+    private void handleConfirmRating(HttpExchange exchange, int ratingId) throws IOException {
         boolean success = ratingService.confirmRating(ratingId);
         if (success) {
             sendResponse(exchange, 200, "{\"message\":\"Rating confirmed\"}");

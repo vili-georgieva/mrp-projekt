@@ -1,103 +1,132 @@
 # Media Ratings Platform (MRP)
 
-## Project Description
-A RESTful HTTP server for managing media content (movies, series, games) with user registration, authentication, ratings, and favorites system.
+## Projektbeschreibung
+RESTful HTTP Server zur Verwaltung von Medieninhalten (Filme, Serien, Spiele) mit User-Registration, Authentifizierung, Bewertungssystem, Favoriten und Empfehlungen.
+
+## Student
+- **Name:** Velichka Georgieva
+- **Matrikelnummer:** if24b265
 
 ## GitHub Repository
 https://github.com/vili-georgieva/mrp-projekt
 
-## Technologies
+## Technologien
 - Java 21
-- Pure HTTP (com.sun.net.httpserver.HttpServer)
-- PostgreSQL Database
-- Jackson (JSON serialization)
+- Pure HTTP (com.sun.net.httpserver.HttpServer) - kein Web-Framework
+- PostgreSQL (Docker)
+- Jackson (JSON Serialisierung)
+- JUnit 5 + Mockito (Unit Tests)
+
+## Voraussetzungen
+- Java 21+
 - Docker & Docker Compose
 
-## Prerequisites
-- Java 21 or higher
-- Maven 3.6+
-- Docker & Docker Compose (empfohlen)
+## Schnellstart
 
-## Projekt starten (mit Docker) - EMPFOHLEN
-
-### 1. PostgreSQL Container starten
+### 1. PostgreSQL starten
 ```bash
-# Im Projekt-Verzeichnis
 docker-compose up -d
 ```
 
-Was passiert:
-- PostgreSQL 16 Container wird gestartet
-- Datenbank `mrp_db` wird automatisch erstellt
-- Schema mit allen Tabellen wird automatisch ausgeführt
-- Container läuft im Hintergrund
-
-### 2. Container-Status prüfen
+### 2. Anwendung starten
 ```bash
-# Status anzeigen
-docker-compose ps
-
-# Logs ansehen
-docker-compose logs -f postgres
-```
-
-### 3. Anwendung starten
-```bash
-# Build und Start
+# In IntelliJ: Main.java ausführen
+# Oder via Maven:
 mvn clean compile exec:java -Dexec.mainClass="org.example.Main"
 ```
 
 Server läuft auf: `http://localhost:8080`
 
-### 4. Container stoppen
+### 3. Tests ausführen
 ```bash
-# Container stoppen (Daten bleiben erhalten)
-docker-compose stop
+# Alle curl-Tests
+./test_all_endpoints.sh
 
-# Container stoppen und entfernen (Daten bleiben im Volume)
-docker-compose down
-
-# Container UND Daten komplett löschen
-docker-compose down -v
+# Oder einzelne Features:
+./test_api.sh           # Basic API Tests
+./test_search.sh        # Search & Filter
+./test_leaderboard.sh   # Leaderboard
+./test_recommendations.sh # Recommendations
 ```
 
-## Alternative: Projekt ohne Docker starten
+### 4. Postman Collection
+Import `MRP_Postman_Collection.json` in Postman.
 
-### PostgreSQL manuell installieren
-```bash
-# Ubuntu/Debian
-sudo apt-get install postgresql postgresql-contrib
+## API Endpoints
 
-# macOS
-brew install postgresql
+### User Management
+| Methode | Endpoint | Beschreibung | Auth |
+|---------|----------|--------------|------|
+| POST | `/api/users/register` | User registrieren | Nein |
+| POST | `/api/users/login` | Login, Token erhalten | Nein |
+| GET | `/api/users/{username}` | Profil + Statistiken | Ja |
+
+### Media Management
+| Methode | Endpoint | Beschreibung | Auth |
+|---------|----------|--------------|------|
+| GET | `/api/media` | Alle Media abrufen | Nein |
+| GET | `/api/media?title=...&genre=...` | Search & Filter | Nein |
+| GET | `/api/media/{id}` | Media by ID | Nein |
+| POST | `/api/media` | Media erstellen | Ja |
+| PUT | `/api/media/{id}` | Media updaten (Owner) | Ja |
+| DELETE | `/api/media/{id}` | Media löschen (Owner) | Ja |
+
+### Rating System
+| Methode | Endpoint | Beschreibung | Auth |
+|---------|----------|--------------|------|
+| POST | `/api/media/{id}/ratings` | Rating erstellen/updaten | Ja |
+| GET | `/api/media/{id}/ratings` | Ratings für Media | Nein |
+| GET | `/api/users/{username}/rating-history` | Rating-Historie | Ja |
+| DELETE | `/api/ratings/{id}` | Rating löschen (Owner) | Ja |
+| PATCH | `/api/ratings/{id}/comment` | Kommentar updaten | Ja |
+| DELETE | `/api/ratings/{id}/comment` | Kommentar löschen | Ja |
+| POST | `/api/ratings/{id}/like` | Rating liken | Ja |
+| POST | `/api/ratings/{id}/confirm` | Rating bestätigen | Ja |
+
+### Favorites System
+| Methode | Endpoint | Beschreibung | Auth |
+|---------|----------|--------------|------|
+| POST | `/api/users/{username}/favorites/{mediaId}` | Zu Favoriten hinzufügen | Ja |
+| DELETE | `/api/users/{username}/favorites/{mediaId}` | Aus Favoriten entfernen | Ja |
+| POST | `/api/users/{username}/favorites/{mediaId}/toggle` | Toggle Favorit | Ja |
+| GET | `/api/users/{username}/favorites` | Alle Favoriten | Ja |
+| GET | `/api/users/{username}/favorites/check/{mediaId}` | Ist Favorit? | Ja |
+
+### Leaderboard & Recommendations
+| Methode | Endpoint | Beschreibung | Auth |
+|---------|----------|--------------|------|
+| GET | `/api/leaderboard?limit=10` | Top User nach Ratings | Nein |
+| GET | `/api/users/{username}/recommendations?limit=10` | Empfehlungen | Nein |
+
+## Authentifizierung
+Token-basierte Authentifizierung via Bearer Token:
+```
+Authorization: Bearer {token}
 ```
 
-### Datenbank erstellen
-```sql
-CREATE DATABASE mrp_db;
+## Projektstruktur
+```
+src/main/java/org/example/
+├── Main.java                 # Entry Point
+├── controller/               # HTTP Request Handler (Presentation Layer)
+├── service/                  # Business Logic Layer
+├── repository/               # Data Access Layer
+├── model/                    # Domain Models
+├── dto/                      # Data Transfer Objects
+├── server/                   # HTTP Server
+└── util/                     # Utilities (DatabaseConnection)
 ```
 
-### Configuration
-Database credentials in `src/main/resources/application.properties`:
-```properties
-db.url=jdbc:postgresql://localhost:5432/mrp_db
-db.username=postgres
-db.password=postgres
-```
+## Unit Tests
+- 53 Unit Tests (JUnit 5 + Mockito)
+- Fokus auf Service Layer (Business Logic)
+- Controller Tests für HTTP Handling
+- Integration Tests für HTTP Routes
 
-### Build und Run
-```bash
-mvn clean compile
-mvn exec:java -Dexec.mainClass="org.example.Main"
-```
-
-
-## Testing
-
-### Automatisches Test-Script
-```bash
-chmod +x test_api_curl.sh
-./test_api_curl.sh
+## Dokumentation
+- `protocol.md` - Entwicklungsbericht, Architektur, SOLID Principles
+- `MRP_Postman_Collection.json` - Postman Collection
+- `test_all_endpoints.sh` - Curl Integration Tests
 ```
 
 ### Manuelle curl-Tests

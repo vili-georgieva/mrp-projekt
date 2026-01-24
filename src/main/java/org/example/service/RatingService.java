@@ -4,7 +4,6 @@ import org.example.model.Rating;
 import org.example.repository.MediaRepository;
 import org.example.repository.RatingRepository;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class RatingService {
@@ -20,7 +19,7 @@ public class RatingService {
     // Create or update a rating for a media entry
     // Business Logic: One user can only have ONE rating per media
     // If rating exists, it will be updated. Otherwise, a new one is created
-    public Rating createOrUpdateRating(int mediaId, String username, int stars, String comment) throws SQLException {
+    public Rating createOrUpdateRating(int mediaId, String username, int stars, String comment) {
         // Validate stars range
         if (stars < 1 || stars > 5) {
             throw new IllegalArgumentException("Stars must be between 1 and 5");
@@ -55,7 +54,7 @@ public class RatingService {
     }
 
     // Delete a rating. Only the owner can delete their rating
-    public boolean deleteRating(int ratingId, String username) throws SQLException {
+    public boolean deleteRating(int ratingId, String username) {
         Rating rating = ratingRepository.getRatingById(ratingId);
 
         if (rating == null) {
@@ -78,7 +77,7 @@ public class RatingService {
     }
 
     // Update only the comment of a rating (owner only)
-    public boolean updateComment(int ratingId, String username, String newComment) throws SQLException {
+    public boolean updateComment(int ratingId, String username, String newComment) {
         Rating rating = ratingRepository.getRatingById(ratingId);
 
         if (rating == null) {
@@ -94,7 +93,7 @@ public class RatingService {
     }
 
     // Delete only the comment of a rating (keeps the stars, owner only)
-    public boolean deleteComment(int ratingId, String username) throws SQLException {
+    public boolean deleteComment(int ratingId, String username) {
         Rating rating = ratingRepository.getRatingById(ratingId);
 
         if (rating == null) {
@@ -111,12 +110,12 @@ public class RatingService {
     }
 
     // Like a rating (increment like counter)
-    public boolean likeRating(int ratingId) throws SQLException {
+    public boolean likeRating(int ratingId) {
         return ratingRepository.incrementLikes(ratingId);
     }
 
     // Confirm a rating (moderation - set confirmed=true)
-    public boolean confirmRating(int ratingId) throws SQLException {
+    public boolean confirmRating(int ratingId) {
         boolean confirmed = ratingRepository.confirmRating(ratingId);
 
         if (confirmed) {
@@ -131,33 +130,33 @@ public class RatingService {
     }
 
     // Get all ratings for a specific media
-    public List<Rating> getRatingsByMediaId(int mediaId) throws SQLException {
+    public List<Rating> getRatingsByMediaId(int mediaId) {
         return ratingRepository.getRatingsByMediaId(mediaId);
     }
 
     // Get only confirmed ratings for a specific media
-    public List<Rating> getConfirmedRatingsByMediaId(int mediaId) throws SQLException {
+    public List<Rating> getConfirmedRatingsByMediaId(int mediaId) {
         return ratingRepository.getConfirmedRatingsByMediaId(mediaId);
     }
 
     // Get rating history for a user
-    public List<Rating> getRatingHistory(String username) throws SQLException {
+    public List<Rating> getRatingHistory(String username) {
         return ratingRepository.getRatingsByUser(username);
     }
 
     // Get a specific rating by ID
-    public Rating getRatingById(int ratingId) throws SQLException {
+    public Rating getRatingById(int ratingId) {
         return ratingRepository.getRatingById(ratingId);
     }
 
     // Check if a user has already rated a media
-    public Rating getUserRatingForMedia(int mediaId, String username) throws SQLException {
+    public Rating getUserRatingForMedia(int mediaId, String username) {
         return ratingRepository.getRatingByMediaAndUser(mediaId, username);
     }
 
     // Calculate and update the average rating for a media entry
     // Only confirmed ratings are included in the average
-    private void updateMediaAverageRating(int mediaId) throws SQLException {
+    private void updateMediaAverageRating(int mediaId) {
         double avgRating = ratingRepository.getAverageRating(mediaId);
         mediaRepository.updateAverageRating(mediaId, avgRating);
     }

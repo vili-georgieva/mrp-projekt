@@ -8,13 +8,24 @@
 ## MUST HAVES (Kritisch - ohne diese keine Abgabe)
 
 ### 1. Unit Tests
-- [x] Mindestens 20 Unit Tests (ERLEDIGT: 20 Tests total)
-  - MediaServiceTest: 8 Tests
-  - UserServiceTest: 6 Tests
-  - RatingServiceTest: 2 Tests
+- [x] Mindestens 20 Unit Tests (ERLEDIGT: 39 Tests total)
+  - UserServiceTest: 7 Tests
+  - MediaServiceTest: 11 Tests
+  - RatingServiceTest: 5 Tests
   - UserControllerTest: 4 Tests
-  - Fokus: 21% Controller, 79% Service, 0% Repository (wie gefordert)
-  - Mockito verwendet (ca. 1/4 der Tests)
+  - FavoriteServiceTest: 4 Tests
+  - **UserRegistrationIntegrationTest: 4 Tests (NEU - JUnit Integration Tests mit HttpClient)**
+  - **MediaCreationIntegrationTest: 4 Tests (NEU - JUnit Integration Tests mit HttpClient)**
+  - Fokus: 13% Controller, 87% Service, 0% Repository (wie gefordert)
+  - Mockito verwendet (isolierte Tests)
+  - **✓ ALLE SWEN Anforderungen erfüllt** (siehe SWEN_ANFORDERUNGEN_PRÜFUNG.md):
+    - JUnit Jupiter 5.10.0
+    - Naming: KlasseTest, funktionTest
+    - Fokus auf PL (Controller) und BLL (Service), keine DAL
+    - Mockito verwendet (wie in tasks_5)
+    - Transaction Handling im Service Layer (nicht Repository)
+    - **✓ 8 Integration Tests mit HttpClient auf echte Routes (wie vom Lektor gefordert)**
+    - **ÜBER Empfehlung: 39 Tests (Empfehlung war 30-35)**
 
 ### 2. Server & Datenbank
 - [x] Java verwendet

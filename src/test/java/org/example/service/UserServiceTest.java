@@ -84,8 +84,10 @@ class UserServiceTest {
     void loginTest() {
         String username = "testuser";
         String password = "testpass";
+        // SHA-256 Hash von "testpass"
+        String hashedPassword = "13d249f2cb4127b40cfa757866850278793f814ded3c587fe5889e889a7a9f6c";
 
-        User mockUser = new User(username, password);
+        User mockUser = new User(username, hashedPassword);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(mockUser));
         doNothing().when(userRepository).updateToken(eq(username), anyString());
 
@@ -97,6 +99,27 @@ class UserServiceTest {
         assertTrue(token.contains("-"));
         verify(userRepository).findByUsername(username);
         verify(userRepository).updateToken(eq(username), anyString());
+    }
+
+    // Test: Login mit falschem Password wirft Exception
+    @Test
+    void loginWithWrongPasswordTest() {
+        String username = "testuser";
+        String wrongPassword = "wrongpass";
+        // SHA-256 Hash von "testpass"
+        String hashedPassword = "13d249f2cb4127b40cfa757866850278793f814ded3c587fe5889e889a7a9f6c";
+
+        User mockUser = new User(username, hashedPassword);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(mockUser));
+
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> userService.login(username, wrongPassword)
+        );
+
+        assertEquals("Invalid username or password", exception.getMessage());
+        verify(userRepository).findByUsername(username);
+        verify(userRepository, never()).updateToken(anyString(), anyString());
     }
 
     // Test: Token-Validierung mit gültigem Token gibt User zurück

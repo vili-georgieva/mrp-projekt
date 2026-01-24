@@ -1,0 +1,349 @@
+
+
+Zoom Meeting 2026-01-20 16-15-18
+
+Transkribiert mit noScribe Vers. 0.6.2
+Audiodatei: D:/Folder/Downloads/Quick Share/Zoom Meeting 2026-01-20 16-15-18.mp4
+(Start (hh:mm:ss):  00:00:00 | Modell: precise | Sprache: German (de) | Sprecher:in erkennen: auto | Überlappende Sprache: 1 | Zeitmarken: 0 | Füllworte: 0 | Pausen markieren: 2)
+
+
+
+S02: Teil den Source-Code dahinter, die Architektur erklären, dann habe ich fünf Minuten Zeit, wo ich euch Fragen stelle, wo ihr das anhand eures Programm-Codes erklären müsst. Ja, und aufgrund dessen ist dann die Benotung, natürlich inklusive des Reviews, den ich dann vom Source-Code mache. (..) Ihr habt die Timeslots, die ihr euch einbuchet, ihr müsst nur zu euren Timeslots da sein, ihr müsst sonst nicht vor Ort sein oder online, es ist allgemein online, aber ihr müsst im Zeitpunkt nicht da sein und zuhören. Das reicht, wenn ihr euch einklingt, in der Zeit, wo ihr Präsentation habt. Ja, das war es, also zehn, 15 Minuten, davon ein Drittel Funktionalität, ein Drittel Architektur, Implementierung und ein Drittel Fragenbeantwortung, also Defensio. Sinn und Zweck von dem Ganzen ist, dass ihr langsam über die Semester dorthin gebracht werdet, dass ihr euch daran gewöhnt, eure Arbeiten zu verteidigen, weil ihr das habt, was ihr dann ganz am Ende bei der Bachelorarbeit auch machen müsst. Also, da müsst ihr auch dann vor einer Kommission eure Bachelorarbeit verteidigen und das jetzt so langsam sukzessive dieses Heranführen. (...) Gibt es Fragen zur Präsentation nächste Woche? (11 Sekunden Pause)
+
+S00: Also, nach der Präsentation weiß man dann, ob man das Projekt positiv absolviert hat oder nicht.
+
+S02: Das kann ich euch nach der Präsentation gleich sagen, ob es allgemein positiv oder negativ ist. Die Note selber, ich muss ein Review vom Source-Code machen, von der Architektur. Wird es dann im Laufe der Woche für alle gemeinsam geben. Also, meistens so vier bis sechs Tage später trage ich dann die Noten an. (.......) Für all jene, die vielleicht doch nicht rechtzeitig abgehen. (........) Wenn ihr bis Ende Februar seid, abzugeben. Ende Februar wird es dann wieder einen zweiten Termin geben für eine Präsentation. Das heißt, ihr bekommt Ende Jänner nicht genügend eingetragen. Und habt den zweiten Termin Ende Februar. Hat keine Implikationen. Außer, dass ihr mehr Zeit habt zum Implementieren. Ihr verliert jetzt keine Mitarbeitspunkte. Ihr verliert jetzt keine Benotungen. Ihr werdet jetzt nicht schlechter benotet. Alles gleich. Ihr habt nur länger Zeit. Also, vier Wochen länger. Und seid es dann hoffentlich positiv. Wenn ihr da nicht abgebt, dann bekommt ihr Anfang März eine neue Aufgabenstellung. Komplett neu. Und habt genau vier Wochen Zeit, die zu lösen. Die müsst ihr dann abgeben. Und dann vor einer Kommission verteidigen. Das heißt, ihr habt so eine Präsentation, Abgabegespräch und Präsentation. Nicht nur vor mir, sondern vor einer Dreierkommission. Dementsprechend empfehle ich euch schwer. Schaut, dass ihr spätestens mit dem zweiten Termin abgeht. (..) Ist ja einfacher. Für euch. (......) Alles klar. (......)
+
+S01: Ich glaube, die meisten müssen nachher mal präsentieren. (.....) Weil wir letzte Woche keine Präsenz hatten.
+
+S02: Wer auch hier präsentieren will, darf jetzt. Wer möchte präsentieren? Wer ist der Erste?
+
+S03: Ich kann gerne.
+
+S02: Warte, ich schaue mal nach, ob es freigeben wird. Ja, ich muss freigeben. (...) So, geht schon. (...)
+
+S03: Ich hatte auch ein interessantes Problem, was ich Sie fragen wollte. Ob Sie vielleicht da eine Lösung hätten. Sehen Sie mal im Bildschirm? Ja. (...) Perfekt. Und zwar habe ich jetzt das Testen gemacht mit Mokita und alles. Und ich teste halt, ich mocke quasi die ganzen Repositories und ich teste halt die ganzen Services. Und aus irgendeinem Grund funktionieren, also kann ich die Tests ausführen mit Java 21, aber nicht mit Java 25.
+
+S02: Mokita-Version.
+
+S03: Schon, oder?
+
+S02: Ja, das habe ich auch gehabt. Und zwar aber umgekehrt. Und zwar die, bei mir hat Mokita nur mit Java 14 funktioniert und nicht ab 17 aufwärts. Und das Beispiel, was jetzt im GitHub oder GitLab von der FH ist, ist mit Java 21 von mir getestet. Da habe ich es abgegradet. Es ist gut möglich, dass du da das Mokita nochmal upgraden musst.
+
+S03: Okay. Okay. Ja, dann werde ich versuchen, weil ich muss dann eben Java 21 separat installieren und dann geht's. Weil sonst bekomme ich irgendwelche Fehler und irgendwie laut KI oder so. zum Beispiel,
+
+
+Zoom Meeting 2026-01-20 16-20-42
+
+Transkribiert mit noScribe Vers. 0.6.2
+Audiodatei: D:/Folder/Downloads/Quick Share/Zoom Meeting 2026-01-20 16-20-42.mp4
+(Start (hh:mm:ss):  00:00:00 | Modell: precise | Sprache: German (de) | Sprecher:in erkennen: auto | Überlappende Sprache: 1 | Zeitmarken: 0 | Füllworte: 0 | Pausen markieren: 2)
+
+(..)
+
+S00: Wie gesagt, die einfachste Lösung wäre, du kannst es auch mit Java 21 abgeben.
+
+S01: Schon, okay. Das reicht auch. //S01: Ja, weil ich meine, es ist//
+
+S00: im POM ist es... Versuch es zum Laufen zu bringen mit Java 25, aber Java 21
+
+S01: reicht es. Okay, na, ich versuche noch. Aber im POM steht eigentlich, dass es mit 21 ist, aber trotzdem, ja.
+
+S00: Wenn du lokal Java 25 installiert hast, läuft es ja dennoch mit Java 25. Nur er erzeugt Source- oder Class-Files, die Java 21 kompatibel sind. Okay. Das kann trotzdem zu Problemen führen.
+
+S01: Okay, na, dann probiere ich auf jeden Fall noch. Und sonst, ich meine, die Tests habe ich jetzt, sind halt teilweise länger, teilweise kürzer. Ich weiß nicht, was da gefragt war, oder ob das eh passt. Aber ich habe jetzt 44 und ich teste halt viele Exceptions, dass die richtig geworfen sind und ich teste halt eigentlich grundsätzlich, also vor allem Services. Ich fand halt, die Repositories, die arbeiten, das sind ja eh eigentlich nur, die sind ganz an der Datenbank dran. Das macht aber wenig Sinn, die zu testen. Und halt für alles habe ich dann auch die Integration-Tests mit Postman. Und deswegen habe ich jetzt mal, oder sollte man da trotzdem noch die Repositories irgendwie testen? Oder auch die Controller? Ja, du solltest zumindest
+
+S00: ein, zwei Tests haben, wo du über die Route reinkommst und das testest.
+
+S01: Ja, zählt das als, also ist das dann quasi Postman, oder ist das... (...)
+
+S00: Laut (..) Aufgabenstellung solltest du es mit JUnit machen. Schon.
+
+S01: Okay.
+
+S00: Aber wenn du 44 Unit-Tests hast, reicht uns ein, zwei Tests machst, wo du es per JUnit-Test wirklich auf die Route losgehst, reicht vollkommen bei der Menge.
+
+S01: Okay. Okay.
+
+
+Zoom Meeting 2026-01-20 16-22-46
+
+Transkribiert mit noScribe Vers. 0.6.2
+Audiodatei: D:/Folder/Downloads/Quick Share/Zoom Meeting 2026-01-20 16-22-46.mp4
+(Start (hh:mm:ss):  00:00:00 | Modell: precise | Sprache: German (de) | Sprecher:in erkennen: auto | Überlappende Sprache: 1 | Zeitmarken: 0 | Füllworte: 0 | Pausen markieren: 2)
+
+
+
+S08: Keine Fragen. (..) Weiß nicht, soll ich irgendwas herzeigen?
+
+S04: Ja, zeig her mal, wie es ein Status ist.
+
+S08: Ja, also generell habe ich es quasi aufgezeigt, bei Controller geht es rein, die handeln halt HTTPS, also HTTP-Sachen. Die haben halt diese Handle-Methode und die rufen dann halt, wie zum Beispiel hier, Handle, Update, Media, die rufen dann eben Services auf. Und in den Services passiert dann halt die ganze Business-Logik. Einzige, was halt in den Handleern noch gecheckt wird, ist, ob man eingeloggt wird. Weiß nicht, ob das so klug ist hier, aber ich habe das, weil hier wird halt extracted der Barrow-Token. Deswegen habe ich das dann in den Controller immer gecheckt, ob er eingeloggt ist. Und dann habe ich das gar nicht an die Services weitergegeben.
+
+S04: Ja, das passt eh. Theoretisch könntest du das abstrahieren in einen Abstract-Controller, von dem jeder erbt und er prüft das immer als ersten Schritt bevor er eine interne macht.
+
+S08: Ja, das habe ich sogar so gemacht, aber das Ding ist, also nicht alle, also ich habe, zumindest beim Off-Controller gibt es halt, zum Beispiel registrieren ist halt ohne diesen Check. Deswegen, aber ich habe sonst generell eh diesen Controller, von dem alle quasi (..) das implementieren und da habe ich da auch dieses Get-Logged-In-Use-ID.
+
+S04: Ja, perfekt. Nächsten Semester macht das dann eher Spring für dich. Das heißt, das ist eigentlich ein Querschnitt-Konzept, was das Spring für dich übernimmt, wenn man braucht, du solltest auch nicht mehr so auf Luft von selbst machen.
+
+S08: Okay. Okay. Ja, auf jeden Fall genau, da hole ich mir das hier, das DTO und dann eben in die Service-Methode gebe ich dann eigentlich nur noch die wichtigsten Parameter, die ich eben aus dem DTO da raus ziehe. Und dann die Service-Methode macht halt die Logik. Also teilweise validiert es am Anfang (....) und macht halt dann die die einzelnen Schritte. Also das gehört eigentlich auch zur Validierung hin dazu. Und dann hier habe ich eigentlich dieses Unit of Work von innen übernommen, was ganz nett ist eigentlich. Und das Einzige, das war eben das Problem, also bevor ich das mit Unit of Work also nicht hatte, ging das Testen. Und das Mocken. Aber mit dem Unit of Work halt dann nicht mehr, weil ich muss das jetzt dann irgendwie halt auch Mocken. Und da habe ich dann eben, da habe ich dann dieses hier (..) quasi gefunden, mit dem man dann eben diese Construct, also quasi den Constructor von Unit of Work Mocken kann, der halt hier drin aufgerufen wird.
+
+S04: Ja, cool.
+
+S08: Aber vielleicht, wenn ich das Upgrade die Methode, also das Mockito, vielleicht geht's dann. Muss noch schauen. Aber ja, genau, dann habe ich eben das Unit of Work und diese Unit of Work passe ich dann rein zu den einzelnen Repositories. Aber ich habe jetzt auch nicht überall halt diese Transaktionslogik drin, weil teilweise sind, also hier macht es noch am ersten Sinn, weil beim Updaten, da passiert vieles auf einmal. Also da werden halt teilweise halt diese Genres gelöscht und dann wieder hinzugefügt und dann halt noch das Media an sich geupdatet, aber teilweise habe ich, ja, ich meine zum Beispiel solche Sachen, aber ich habe es halt hier trotzdem noch, wenn man seletet wird.
+
+S04: Ja, das ist immer in einem Projekt immer so eine philosophische Diskussion. Soll ein reines Select innerhalb einer Transaktion laufen oder nicht? Im Endeffekt ist es egal.
+
+S08: Ja.
+
+S04: Weil egal, ob du innerhalb der Transaktion bist oder nicht, du liest nur committed Daten.
+
+S08: Ja.
+
+S04: Es gibt keinen Unterschied. Die Tools, die du ab nächstem Semester verwendest, also JPS und Entity Manager, die verwenden immer eine Transaktion. Bei denen ist es Usus. Aber rein von der Funktionalität her gibt es nicht wirklich einen brauchbaren Grund, warum man Transaktion verwenden muss. Das ist immer eine Diskussion. Die meisten haben es einfach immer, weil es auch die Tools selbst machen. Aber rein lesend hat keine Verpflichtung, dass du eine verwenden musst. Schon okay.
+
+S08: Ja, okay. Weil es lockt nicht das Komple. Zum Beispiel hier beim Deleten checkt es halt zuerst, ob es existiert und dann deletet es erst. Aber theoretisch könnte es ja sein, dass es quasi hier gelesen wird, es existiert. Dann wird es von einem anderen gelöscht und dann versucht man es hier nochmal zu löschen. Aber ich glaube, da wird die Transaktion trotzdem nicht helfen, oder? Weil das lockt ja nicht die ganze Zeit.
+
+S04: Nein, lockt nicht. Also im Endeffekt, das ist immer dieses Bettern, ich versuche, ich prüfe zuerst, ob ich löschen kann und dann lösche ich, bringt im Endeffekt gar nichts. Weil das kann genau in der einen Millisekunden inzwischen trotzdem gelöscht worden sein. Deswegen ist die möglich, deswegen geht ich normalerweise hin und versuche einfach zu löschen. Du hast nur einen Zugriff und wenn der fliegt, dann kümmerst du dich drum und sagst, okay, war nicht vorhanden, konnte nicht gelöscht werden.
+
+S08: Ach so. Ja, okay.
+
+S04: Also wie gesagt, aber es gibt, siehst immer wieder, dass Leute zuerst lesen und dann löschen und sagen, ich habe eh geprüft vorher. Aber wie du gesagt hast, im Endeffekt bringt es ja nicht wirklich was, weil du lockst es nicht. Dann ist es trotzdem das Problem, dass es weg sein kann.
+
+S08: Mhm. Okay. Ja, okay. Aber ja, trotzdem auf jeden Fall sämtlich dieses Unit of Work. Und dann halt in den Repositories sind eigentlich nur noch, wo ist das Media Repository? Habe ich dann nur noch diese Finds oder halt Saves und die Prepared Statements. Perfekt. Super. Es wiederholt sich ein bisschen, aber
+
+S04: ist normal. Ja. Nee. Das ist das nächste Semester besser.
+
+S08: Voll. Das Verwirrendste, was ich hatte, war das mit diesen Filtern. Das ist bei mir ein bisschen länger. Vielleicht werde ich das noch überarbeiten, wo ich dann diese SQL nach und nach aufbaue. Je nachdem, welcher Filter existiert und welcher nicht. (..) Aber es funktioniert zumindest. Ja.
+
+S04: Sieht aber nicht so schlecht aus. Es ist normal, wenn du viele Filterkriterien hast, dass du dann das Select eher komplex beim Zusammenhang bei uns.
+
+S08: Ja. (..) Prost. Prost. Gut. Dankeschön. Danke.
+
+S04: Wer möchte noch präsentieren? (..)
+
+S01: Ja, ich würde auch gerne präsentieren, wenn es gerade geht. Ja. (10 Sekunden Pause) Können Sie mein Bildschirm erkennen? Ja. Ich werde kurz noch drüber sprechen, was jetzt seit meiner letzten Präsentation noch hinzugefügt worden ist. Nämlich, habe ich nämlich letztes Mal noch keine Request-Klasse verwendet. Und die verwende ich jetzt, um dieses HTTP-Exchange zu parsen. Und das verwende ich dann dann auch im Handler. Weil, was ich am Anfang gemacht habe, was ich noch das letzte Mal präsentiert habe, ist, dass ich in die Service-Layer das HTTP-Exchange sogar noch mitgegeben habe. Und das ist natürlich sehr schlecht fürs Testen gewesen. Und, ja, das habe ich jetzt überarbeitet. Und da hole ich mir zuerst über den Request das Exchange und Parsis. Und da hole mir dann auch schon direkt die IDs oder was genau halt das Service-Layer braucht und gebe es dann so direkt damit. Und was schon getan ist und was noch getan werden muss bei mir, mir fehlen insgesamt noch vier Endpoints. Das sind die Filter-Endpoints, die mein Kollege kurz angesprochen hat. Sonst Tests habe ich schon 24 geschrieben. Ein paar einzelne werde ich, glaube ich, noch hinzufügen. Da habe ich auch größtenteils gemockt. (....) Und ja, also 24 habe ich mal geschrieben und ich werde, glaube ich, noch ein paar hinzufügen, so wie ich noch dazukomme. und ja, (..) sonst, das kann ich auch noch kurz zeigen, (...) sonst habe ich jetzt auch noch eine statische Response-Klasse verwendet, immer um, wenn ich jetzt zum Beispiel zum User das Ergebnis returnen will. Meistens, wenn ich, wenn nichts returnt wird, wenn einfach nur eigentlich ein Code 200 return wird, dann do ich einfach einen leeren JSON-Stream-Return, weil ich habe es mir so gedacht, dass ich immer was returne und wenn, dann einen leeren JSON-String und ja, (..) ich schaue halt noch
+
+S04: dazu. Das werden wir im nächsten, wir müssen uns im nächsten Semester nochmal genauer anschauen, dass wir verschiedene Return-Codes, Status-Codes zurückgeben müssen und es gibt so Standard-Codes für zum Beispiel, wenn du jetzt ein Delete machst. Bei dem Delete gibt es den Standard-Code zurück von ich glaube, 204, also es ist okay und bei dem 204 zum Beispiel darfst du kein Body mitgeben. //S12: Ah, okay.// Du kriegst keinen 200er, sondern einen 204er und der sagt, es ist okay, aber du kriegst keine Antwort im Body. Aber schauen wir uns im nächsten Semester hier an.
+
+S01: Okay. Wollen Sie noch was sehen? (...)
+
+S04: Im Endeffekt nur, wie du, schauen wir irgendein Repository an, wie du das Select zusammenbaust.
+
+S01: Ja, also hier zum Beispiel, hier zum Beispiel bei dem Off-Repository, wo ich mir das Token hole, ein ganz normales Select-Statement mit einem Prepared-Statement. Transactions benutze ich gerade noch gar nicht und ich glaube, ich würde sie, wenn ich sie noch implementieren würde, dann wenn nur bei zwei Endpoints und zwar bei Media und Media Create und Media Update, weil die meisten Endpoints sind wirklich immer nur entweder ein Select-Statement oder ein Insert, wo ich nur ein Table drüber gehe und ja,
+
+S04: normalerweise ist die Regel so, dass sobald du irgendwas Veränderndes machst, dass du eine Transaktion verwendest. Das ist klar eher verpflichtend bis Selects. Wenn du es nur in Select machst, wie man vorher schon diskutiert hat mit Kollegen, ist das ja Geschmackssache. Aber wenn du irgendwas veränderst in der Datenbank, solltest du das Ganze in einer Transaktion partnern. Okay. Das ist so die Regel, so Pi mal Daumen. Okay, passt. (....) Ja, (....) das sieht gut aus.
+
+S11: Dankeschön. (...)
+
+S04: Passt. Nächster. Wer möchte noch? (....)
+
+S06: Ja, ich würde gerne.
+
+S07: Ja, ich würde mal kurz was erzeugen. Oh, er macht zuerst. (...)
+
+S04: So, Patrick. (...) Okay. (18 Sekunden Pause)
+
+S06: Sind Sie mit dem Bildschirm?
+
+S13: Ja.
+
+S06: Okay. Also ich habe an sich dann jetzt noch die anderen Endpoints gemacht. Ich war ja beim Media fast fertig und habe dann die Rating und so weiter gemacht. Beim Media Controller habe ich oder warte, wo war das? (....) Genau bei Search. (...) Da habe ich dann im Repository die (....) da baue ich das Select halt so zusammen, dass ich mir hier die Filter als Strings gesetzt habe und dann den String Builder mal als Basis habe (..) und dann je nachdem was er ich hatte das Problem, dass er die so wie ich das Select zusammengesetzt habe durch den Join und dadurch, dass die Genres eine eigene Tabelle sind bei mir also eine Relationstabelle da manche Medien doppelt geliefert hat deswegen habe ich das dann mit Exists gemacht damit es nur einmal kommt und ich da nicht ein Group By oder sonst was machen muss (...) genau (.......) und am Ende habe ich dann den Filter also die (...) was er dann mitgeliefert bekommen hat und da setze ich dann hier so zusammen als immer eine bestimmte Reihenfolge dann im Endeffekt ist (....)
+
+S04: Ja, du das (..) Transaktionen hast du auch wie ich gesehen habe
+
+S06: Genau alles hat bei mir eine Transaktion (....) Genau (...) und Unit Tests habe ich dabei auch 24 ich habe halt nur das Media Repository Unit Tests gemacht und dann halt für das Rating DTO eingemacht weil der eine so eine Logik drin hat dass man die Sterne nur 0 bis 5 Steine geben kann und nicht weniger oder mehr (...) Genau
+
+S04: Ich glaube, vergesst es nicht im Endeffekt braucht es zumindest ein, zwei Integrationstests wo ihr von außen auf die Route losgeht
+
+S06: Genau da habe ich die Media Integration Tests geschrieben wo ich einfach (...) kurz mit dem Postgres Datenbank mocke und dann halt das komplett durchgehe mit einem HTTP-Client und dann halt schaue, was ich zurückbekomme das so passt das Medium so zurückkommt wie ich es erwarten würde
+
+S04: Super gut aus (..) Dann bist du schon fast fertig (...) Genau (......) Perfekt Danke (..) Philipp du wolltest Ja (27 Sekunden Pause) So (25 Sekunden Pause)
+
+S07: sieht man meinen Screen
+
+S12: Ja
+
+S07: Ah ok Hier habe ich zum Beispiel das Media Filter (...) Ich kann es mal kurz mit dem Posten zeigen (......) Ja genau da gebe ich zum Beispiel einen Titel Genre und das Sautball mit (..) Da bekommen wir dann die ganzen Medios (...) und da wird halt zuerst ein Privat Statement zusammengebaut also das sind die ganzen Wehr und das wird am Ende mit dem String Format mit dem ZDX Statement zusammen addiert (...) und da unten das Comment ist gerade null weil der Kommentar von einem anderen User noch nicht konflirrend wurde Ich bin gerade mit User 2 eingeloggt und wenn ich jetzt mit User 1 dasselbe mache (....) der kann dann seinen eigenen Kommentar sehen (...) Super (....) Und Recommendations ich schauen mal da (....) Ja genau also bei Genre da wird also der User hat zuerst einen Rating auf Media 1 mit 5 Sterne vergeben und (...) der schaut dann ob die Matching Genres also die Anzahl davon zumindest die Hälfte der kleineren Liste ist also in dem Fall haben wir die kleinere Liste und die Hälfte davon ist halt 1 und da sehen wir dass Skyfi zumindest die Hälfte (...) mit dem Media 1 zusammenpasst wenn wir das zum Beispiel zu etwas anderes ändern da haben wir jetzt gar keine Matching Genres mehr müssen wir nochmal ausführen dann bekommen wir nichts mehr empfohlen (12 Sekunden Pause) und da gibt es bei Media 1 Recommendation das noch einen anderen Typen und zwar Content (....) da wird natürlich zuerst auf Media Type Release hier Media Type Genres und Age Restriction geschaut also auf die 3 hier (...) und sobald 2 von den 3 ein zusammenpasst dann wird dieses Media eben empfohlen (...) an dem (...) Pfeil haben wir Serious Movie das passt nicht zusammen Release Year passt zusammen Genres passt zusammen Age Restrictions nichts (.....) wenn wir zum Beispiel das hier auf 16 ändern (.......) hier (.........) dann haben wir eben Genres und Age Restrictions haben wir 2 von 3 (...) erfüllt und (.....)
+
+S04: wie hast du es im Select gelöst (....) beim (....)
+
+S07: Recommendations oder
+
+S04: nicht das 2 von 3 das nur 2 von 3 erfüllt
+
+S07: also (..) es wird zuerst ganz am Anfang die Historie in den Favorites herausgeholt (........) und (......) beim Content da wird geschaut ob der User diesen Media schon angeschaut hat weil es wäre jetzt nicht sinnvoll wenn wir jetzt irgendwas empfehlen was die User sich schon angeschaut hat oder bewertet hat
+
+S04: ach so du ladest die Daten in den Java rein ja so wird
+
+S07: im Stream dann ausgefüllt und ja da wird auf Age Restrictions Media Type und Genres geprüft und wenn es 2 davon passen dann (..) also (..) 2 oder 3 zusammenpassen dann wird der Media empfohlen (..) ja (..)
+
+S04: sieht gut aus ja
+
+S07: und im Token Store habe ich jetzt so eingeändert dass (...) die Tokens nach einer Inaktivität von 10 Minuten dann ablaufen cool also solange die User irgendwas auf irgendwas zugreift dann sollte eingeloggt bleiben das
+
+S04: mit Autorefresh sollte drauf zugreifen passt
+
+S07: ja was ich noch gefunden habe ist das Testen es gibt so eine Embedded Postgres (..) und da kann ich zum Beispiel beim User Service Test so einen Mini Postgres Server hochfahren und da bekomme ich die OL raus (....) da wird (....) halt dann die Connection zu der Test Datenbank gestellt (.....) und das Gute ist das funktioniert ziemlich gut mit GitHub Actions da muss man ja nicht extra die Docker Container im Workflow angeben das ist komplex ich habe
+
+S04: geschätzt immer nur H2 Datenbanken oder SQLites verwendet Postgres als Embedded ist eine gute Idee
+
+S07: ja also mit Spring da wird halt mit H2 das noch einfacher aber ja die
+
+S04: H2 könnte //S07: selbst// hochfahren theoretisch aber Embedded Postgres ist eine coole Idee das habe ich noch nie tropiert (..) ja (..)
+
+S07: es funktioniert ziemlich gut ich denke man kann sogar mehrere starten weil der Port null ist das bekommt man in zufälligen offenen Port einfach (.....)
+
+S04: perfekt sieht sehr gut aus
+
+S07: ja da haben wir einfach noch Controller Tests (..) die werden einfach die ganze Zeit auf die Status Codes geschaut was
+
+S04: noch hoffen sieht es ja ziemlich fertig aus schon
+
+S07: ja ich meine ich kann es eigentlich schon abgeben (...)
+
+S04: bis auf einen
+
+S07: Bug im Test aber schaue ich mir noch kurz an aber (...)
+
+S04: Perfekt danke (..) wer möchte das nächste präsentieren
+
+S09: ich würde gerne
+
+S04: bitte (10 Sekunden Pause)
+
+S09: ja genau also ich will jetzt eher die Unit Tests anzeigen die habe ich letztes mal gemacht und ich habe neben Mokito auch einige Stubs von Repositories gemacht wo ich eigentlich eine Extension von die normale Media Repositories gemacht habe und alle Funktionen mit sehr einfacher zum Beispiel hier eine List oder hier mit einer mit einer Hashmap dann quasi gemuckt habe und ich habe das benutzt damit ich die Media Service Mokin kann weil mein Media Service benutzt Dependency Injections und da brauchte ich eine (...) Parameter für die Repositories und genau das hätte eine Lösung gewesen
+
+S11: passt
+
+S09: das
+
+S04: Lane Effekt ist so wie es ab nächsten Semester mit Spring sein wird das geht in die gleiche Richtung (...)
+
+S09: Gibt es dafür schon ein Framework im Spring oder wie
+
+S04: Spring selber ist das Freelag (...) das kümmert sich genau um diese Dependency Injection du musst es nicht mehr selbst machen sondern du deklarierst das nur und Spring kümmert sich selbst um das Erzeugen und Einfügen von den Objekten aber das lernen wir nächstes Semester (..)
+
+S09: und genau und sonst könnte ich auch das selber erklären wie die anderen Kollegen ich habe auch die Services hauptsächlich getestet weil da es die meiste Logik findet ich habe daneben noch einige Setters und Getters hier getestet aber nur Kleinigkeiten und einige Helper Funktionen wie zum Beispiel die Token Generation habe ich auch getestet ob alles funktioniert und ich habe insgesamt 37 Tests
+
+S04: schauen wir uns mal den Authentication Service Test Out Service Test ja (...) ja
+
+S09: habe ich genauso eine habe ich die Hasher auch hier mit das macht auch mit Mocking und ich teste eine Register mit zwei Fälle einmal mit einem neuen User und einmal mit einer schon registrierten User also mit die Name und Passwort die schon existiert ich benutze jetzt kein E-Mail im Datenbank also die die Username ist auch sozusagen eine primary key außer dem ID und und Login habe ich noch hier also diese drei (...) das
+
+S04: sieht gut
+
+S09: aus danke
+
+S04: was ist bei dir noch offen
+
+S09: ich muss noch die Protokolle ein bisschen anpassen und ich möchte die wirklich alle Ports und Endpoints testen weil ich finde immer noch einige kleine fehlerhaften Fehler die ich noch korrigieren muss
+
+S04: aber sieht wirklich schon gut aus
+
+S09: danke (...)
+
+S04: nächster (....) könnte (....)
+
+S13: ich ja klar (12 Sekunden Pause) können (10 Sekunden Pause) sie (10 Sekunden Pause)
+
+S05: meinen Bildschirm sehen
+
+S11: ja
+
+S05: also bei mir ist ein bisschen mehr offen weil ich meine Händlerstruktur also die Dateien umschreiben musste ich versucht habe alle Mediahändler in einer Datei zu haben und deswegen gab es die überflüssigen Balanzierungen zum Beispiel das da war mein Hauptproblem ganz trivial aber ich habe gekämpft und also ich hatte Probleme mit Grut und deswegen (.....) hat es erst vor kurzem wirklich funktioniert außerdem verändere ich meine Datenbank ungern wegen Flyway zum Beispiel die kleineren Dateien also was ich so noch vorhabe und die Ratings sind zum Beispiel noch nicht in der Datenbank aber die sind die Favorites noch nicht (..) dafür hatte ich Ratings bereits bekommen ich habe eine Realisierung von Media Repository also (....)
+
+S04: Du wolltest vorher wissen was die das Unique Feature ist oder?
+
+S05: Genau Du
+
+S04: verwendest Flyway das wäre schon Unique
+
+S05: Das wäre meine Frage ich hatte vor zwei Versions also Datenbank Versions zu verwenden vielleicht für eine saisonelle Rating also Leaderboard dass es dann sich wieder löst weil sonst braucht man keine mehr Versionen für so ein
+
+S04: Aber //S05: allein dass du// Flyway drin hast und das Funktioniert ist schon Unique Feature
+
+S05: Eigentlich schon aber das finde ich nicht besonders Glück von meiner Seite weil ich es einfach gegoogelt habe und das funktioniert hat außerdem sind die kleinen Sachen auch gefixt zum Beispiel das ist On a body als Responsible geben wird aber ja ich habe jetzt Favorites und Ratings fertig zu machen weil ich gerne Flyway droppe also die Datenbank droppe und ja ich glaube ich schaffe es weil ich jetzt ein besseres Verständnis habe was mir fehlt also sieht
+
+S04: gut aus und ich finde es cool dass der Flyway verwendest das macht sonst keiner es
+
+S05: gibt auch Nachteile weil ich die Tabelle jedes Mal droppen muss oder also repaire muss oder die checksum manuell ändern muss was nicht so schön ist
+
+S04: ja ich bin ich bin mal hingegangen habe die Tabelle von habe einfach alle Tabellen getroppt auch die Tabelle vom Flyway dann merkt er ist es nicht da legt sie an und fängt von neu an
+
+S05: wenn man dabei beim testen ist es ist relativ unangenehm weil alles getroppt wird also super (..)
+
+S04: danke (.....) nächster wer möchte noch präsentieren (........) gibt's (........) noch wen kann man wieder entschuldigt (...)
+
+S00: bitte (28 Sekunden Pause)
+
+S04: ja (..)
+
+S00: also ich hatte letztes mal das problem mit meiner datenbank dass irgendwie habe ich das (...) passwort in dem main gegeben und jetzt habe ich das gemacht also ich habe jetzt database connection und es nimmt die die name und also die name und passwort für den database von den file also von diesen properties (.....) dann (...) also neue sachen bei mir sind die favorite und die rating und ich habe auch ich kann zumindest (..) in (..) den favorites was zeigen also (....) das ist ich den Händler für den get post und die andere request und dann ganze logik passiert hier in den services und (.....) dann in repositories wo sehe ich habe ich auch den prepared statements wo ich brauche natürlich und auch hier mache ich die connection mit den database ich überprüfe ob alles richtig ist ich muss noch noch mehr unites machen weil ich habe nicht viel also ich habe nur zehn oder elf glaube ich (....) also (...) ich (...) habe (...) für den controller ich habe den basic sachen also die sind nicht basic aber so ob man kann sich registrieren ob man kann sich logen auch mit dem token und so und auch letztes mal hatte ich den token und das passwort auch nicht (....) ist das passwort gehashed und auch den token war irgendwie (..) falsch also jetzt auch normale token (....) und hier habe ich auch paar Sachen für die media ob man kann nur die medias die auch von anderen leute loschen oder so weil man darf nicht man darf nur die eigenen medias bearbeiten oder loschen das habe ich auch getestet (..) hast (..)
+
+S04: du in mediaservice und ratingservice zum beispiel transaktionshandling drinnen also (.....) in den (.....)
+
+S00: tests oder
+
+S04: nein im service selber (.....) das (....) was die kollegen hatten mit unit of work zum beispiel das das transaktionshandling
+
+S00: nein das habe ich noch nicht (...) ja (...)
+
+S04: solltest der anschaue ich müsste im excel nachschauen ob das ein verpflichtendes kriterium ist das //S00: kannst// im excel nachschauen (27 Sekunden Pause) ja (27 Sekunden Pause) ich (27 Sekunden Pause)
+
+S00: kann dann auch später (...) klar (..) ja (..)
+
+S04: muss schauen (...) ja (...) passt sieht gut aus (..) geht (..) sich los bei dir wirst du fertig (....) sagen (....)
+
+S00: zu tun auf jeden fall ich muss noch mindestens 25 unit testen und ich will noch (..) auch (..) den (..) medial und alles testen weil ich habe es getestet und es funktioniert aber vielleicht finde ich noch was ich kann besser machen weil ich habe gesehen dass ich habe zwei Funktionen die sehr ähnlich sind und ich kann nur eine machen und dann die andere so verwenden noch ein paar Zeile dazu also ich muss nicht dasselbe funktionieren zwei verschiedene Dateien haben
+
+S04: was super danke (.....) wer (....) möchte noch präsentieren (23 Sekunden Pause) gut (23 Sekunden Pause)
+
+S11: dann
+
+S04: noch (...) viel Erfolg beim Fertig Implementieren ihr habt bis Ende Sonntag am Abend ab der Zeit Termine habe ich eingetragen für nächste Woche Präsentationstermine sind eingetragen wie gesagt vergesst nicht euch wenn ihr abgeben wollt im ersten Schritt euch einzutragen Termin zu wählen und dann einfach in euren Timeslot auch aufzutauchen und dann schauen wir weiter //S13: ich würde// mal fragen wenn sicher (........)
+
+S02: also und ich wollte fragen also ich habe ich verwende ein Curl Script und ich habe halt (..) diese (11 Sekunden Pause) ich habe so eine Version oder wo man halt alles manuell selber machen muss im Menü oder muss ich auch etwas machen wo alles extra halt automatisch durchläuft und wo man die Ergebnisse schon direkt sieht ohne dass man es jedes Mal selber machen muss
+
+S04: nein musst du nicht machen das reicht so vollkommen das einzige was du machen musst du musst JUnit Tests haben dazu noch trotzdem die mindestens 20
+
+S12: aber wie du es
+
+S04: aufrufst ist dir überlassen ob du es so machst oder über ein Curl Script das durchläuft oder ein Postman ist völlig überlassen aber sieht sehr gut aus hat bis jetzt noch nie jemand gemacht (...) //S04: ja sonst habe ich//
+
+S02: auch wie die anderen Kollegen ein Controller Package worüber die HTTP (...) Anfragen an die Services weitergeleitet werden (..) ich habe hier die Database Connection da wird es mit einer Retry Logik aber auch implementiert weil das mit Docker sonst Probleme machen kann dann werden die nötigen Tabellen wenn sie noch nicht schon da sind alle erstellt (...) hier sind die Modellklassen wo die ganzen Daten sind damit sie schön abgekapselt sind vom ganzen gesamten Code (..) dann schaut mal die Services an die Services also hier wird die ganze Logik umgesetzt Register für Authentication Login Login Get User für den Token der wird hier generiert (..) dann das Leaderboard wird hier angezeigt die wichtigen Funktionen für die Medien dass es geupdatet wird dass es created wird
+
+S04: Transaktionshandling müsstest du noch anschauen das (......)
+
+S02: das habe ich glaube ich noch nicht implementiert
+
+S04: und das Select solltest du eher im Repository haben und nicht im Service weil du teilweise Select Statements im Service drin hast
+
+S02: beim Leaderboard meinst du
+
+S04: genau das sollte eher das was du jetzt hier im Service hast sollte in ein Repo gehen (....) das Repo hat halt die Aufgabe wirklich alles was unsere Datenbank zugriffen hat zu kapseln und zu verstecken (...) das heißt du jetzt dann ein Leaderboard Repo wo genau das Select drin ist oder fast eigentlich die Implementierung die du drin hast in Röder ja
+
+S13: und sonst (......) //S11: habe ich noch 39//
+
+S02: Unit Tests da wo die wichtigsten Funktionen einfach getestet werden (12 Sekunden Pause)
+
+S11: das sieht gut aus (.........)
+
+S04: passt sieht gut aus bist du fertig also ich muss (...)
+
+S02: noch die Dokumentation auf jeden Fall besser machen und sonst wie sie gesagt haben halt das beim Leaderboard ins Repository packen und allgemein den Code vielleicht besser noch kommentieren
+
+S04: Transaktionshandling solltest du wie gesagt dann schon
+
+S02: und das auch
+
+S04: Transaktionshandling drin aber sonst sieht es gut aus sieht nach Endspurt aus passt danke (....) nächster der möchte noch (........)
+
+S03: Elektor darf ich sowas fragen wegen Thema Anwesenheit ja bitte werden sie bezüglich heute und der letzten Einheit die halt rein theoretisch stattgefunden hätte noch eine Anwesenheit für uns alle eintragen haben sie das vor ja kann ich das wäre sehr nett danke weil leider habe ich ein bisschen sonst kleine Probleme mit meiner Anwesenheit dass ich die 75% nicht erreichen würde aber passt vielen Dank ich habe mich aus
+
+S04: ich habe noch die erst mal gleich
+
+S10: ich habe auch //S04: eine kleine// Frage wegen den Präsentationen (...) bitte (.....) nämlich habe ich also müsste man insgesamt ich habe jetzt einmal präsentiert gehabt schon und für den 27. habe ich mir die finale Präsentation genommen reicht das aus oder müsste ich noch eine dritte zwischen machen oder nicht also brauche ich insgesamt drei oder reichen zwei
+
+S04: du brauchst zwei davor und am 27. die Abschluss also drei insgesamt (......) so ich habe mir notiert dass ich die Anwesenheit (...) eintrage für heute und letzte Woche (...) obwohl ich letzte Woche nicht aufgedacht bin in meinem Lusau (..) stressiger Tag und sorry nochmal für die Verwirrung letzte Woche und gestern man sollte nicht gleichzeitig arbeiten und E-Mails schreiben (....) passt tschüss
+
+S11: bitte bitte (22 Sekunden Pause) Untertitelung des ZDF, 2020

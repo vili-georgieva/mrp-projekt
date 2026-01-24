@@ -3,6 +3,7 @@ package org.example.service;
 import org.example.model.User;
 import org.example.repository.UserRepository;
 
+import java.util.HexFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,6 @@ public class UserService {
         // Generate secure token with UUID
         String token = generateSecureToken();
         userRepository.updateToken(username, token);
-        System.out.println("User " + username + " logged in with token: " + token);
         return token;
     }
 
@@ -80,15 +80,7 @@ public class UserService {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-            return hexString.toString();
+            return HexFormat.of().formatHex(hash);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("SHA-256 algorithm not found", e);
         }

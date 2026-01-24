@@ -30,7 +30,7 @@ class RatingServiceTest {
         assertEquals("Stars must be between 1 and 5", exception.getMessage());
     }
 
-    // Test: Rating mit ungültigen Sternen (> 5) wirft Exception
+    // Test: Rating with invalid stars (> 5) throws exception
     @Test
     void createRatingWithTooManyStarsTest() {
         IllegalArgumentException exception = assertThrows(
@@ -39,5 +39,29 @@ class RatingServiceTest {
         );
 
         assertEquals("Stars must be between 1 and 5", exception.getMessage());
+    }
+
+    // Test: Rating with valid stars (1) is accepted
+    @Test
+    void createRatingWithMinStarsTest() {
+        assertDoesNotThrow(
+            () -> ratingService.createOrUpdateRating(1, "testuser", 1, "Minimum rating")
+        );
+    }
+
+    // Test: Rating with valid stars (5) is accepted
+    @Test
+    void createRatingWithMaxStarsTest() {
+        assertDoesNotThrow(
+            () -> ratingService.createOrUpdateRating(1, "testuser", 5, "Maximum rating")
+        );
+    }
+
+    // Test: Rating with null comment is accepted
+    @Test
+    void createRatingWithNullCommentTest() {
+        assertDoesNotThrow(
+            () -> ratingService.createOrUpdateRating(1, "testuser", 4, null)
+        );
     }
 }

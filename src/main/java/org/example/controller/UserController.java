@@ -117,22 +117,7 @@ public class UserController {
         }
 
         try {
-            // Parse limit from query parameter (default 10)
-            int limit = 10;
-            String query = exchange.getRequestURI().getQuery();
-            if (query != null) {
-                String[] params = query.split("&");
-                for (String param : params) {
-                    if (param.startsWith("limit=")) {
-                        try {
-                            limit = Integer.parseInt(param.substring(6));
-                        } catch (NumberFormatException e) {
-                            // Keep default
-                        }
-                    }
-                }
-            }
-
+            int limit = parseLimitParam(exchange.getRequestURI().getQuery(), 10);
             var leaderboard = userService.getLeaderboard(limit);
             String response = objectMapper.writeValueAsString(leaderboard);
             sendResponse(exchange, 200, response);
@@ -158,22 +143,7 @@ public class UserController {
             }
 
             String username = parts[3];
-
-            // Parse limit from query parameter (default 10)
-            int limit = 10;
-            String query = exchange.getRequestURI().getQuery();
-            if (query != null) {
-                String[] params = query.split("&");
-                for (String param : params) {
-                    if (param.startsWith("limit=")) {
-                        try {
-                            limit = Integer.parseInt(param.substring(6));
-                        } catch (NumberFormatException e) {
-                            // Keep default
-                        }
-                    }
-                }
-            }
+            int limit = parseLimitParam(exchange.getRequestURI().getQuery(), 10);
 
             var recommendations = userService.getRecommendations(username, limit);
             String response = objectMapper.writeValueAsString(recommendations);
@@ -181,6 +151,21 @@ public class UserController {
         } catch (RuntimeException e) {
             sendResponse(exchange, 500, "{\"error\":\"Database error\"}");
         }
+    }
+
+    // Parses limit parameter from query string, returns defaultValue if not found
+    private int parseLimitParam(String query, int defaultValue) {
+        if (query == null) return defaultValue;
+        for (String param : query.split("&")) {
+            if (param.startsWith("limit=")) {
+                try {
+                    return Integer.parseInt(param.substring(6));
+                } catch (NumberFormatException e) {
+                    return defaultValue;
+                }
+            }
+        }
+        return defaultValue;
     }
 
     // Authenticates request via token in Authorization header

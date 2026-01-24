@@ -1,10 +1,10 @@
-# Protocol - Media Ratings Platform (MRP) Intermediate Submission
+# Protocol - Media Ratings Platform (MRP)
 
 ## Student Information
-- **Name:** Velichka Georgieva
-- **Student ID:** if24b265
-- **Date:** October 20, 2025
-- **Submission:** Intermediate (Class 13)
+- **Name:** David
+- **Student ID:** if25b113
+- **Date:** January 24, 2026
+- **Submission:** Final
 
 ## Project Overview
 Implementation of a RESTful HTTP server for a Media Ratings Platform using pure Java HTTP libraries (HttpServer) without web frameworks like Spring or JSP.
@@ -328,45 +328,87 @@ Use a proper logging framework (SLF4J, Log4j) instead of System.out.println:
 ## Unit Testing Strategy and Coverage
 
 ### Test Distribution
-The project includes 20 unit tests distributed across layers:
-- **Controller Layer**: 4 tests (20%)
-- **Service Layer**: 16 tests (80%)
-- **Repository Layer**: 0 tests (by design)
+The project includes 53 unit tests distributed across layers:
+- **Controller Layer (PL)**: 19 tests (36%)
+- **Service Layer (BLL)**: 27 tests (51%)
+- **Integration Tests (HTTP Routes)**: 7 tests (13%)
 
-This distribution follows best practices:
-- Repository tests would require real database (integration tests)
-- Service layer contains most business logic (highest value to test)
-- Controller tests validate HTTP handling basics
+This distribution follows the lecturer's recommendation:
+- Focus on Presentation Layer (Controller tests)
+- Medium coverage on Business Logic Layer (Service tests)
+- Minimal/None on Data Access Layer (Repository - tested via integration)
 
 ### Test Categories
 
-#### UserServiceTest (6 tests)
+#### UserServiceTest (7 tests)
 - `registerTest`: Validates successful user registration with password hashing
 - `registerWithExistingUsernameTest`: Ensures duplicate username prevention
 - `registerWithEmptyUsernameTest`: Validates input validation
 - `loginTest`: Verifies login flow and UUID token generation
+- `loginWithWrongPasswordTest`: Tests wrong password rejection
 - `validateTokenTest`: Tests token validation logic
 - `validateTokenWithInvalidTokenTest`: Ensures invalid tokens are rejected
 
-#### MediaServiceTest (8 tests)
+#### MediaServiceTest (11 tests)
 - `createMediaTest`: Validates media creation with creator assignment
 - `createMediaWithEmptyTitleTest`: Tests title validation
+- `createMediaWithoutMediaTypeTest`: Tests media type validation
 - `updateMediaTest`: Verifies ownership check on updates
 - `updateMediaByDifferentUserTest`: Ensures only owner can update
 - `updateNonexistentMediaTest`: Tests error handling for missing media
 - `deleteMediaTest`: Validates deletion with ownership check
 - `deleteMediaByDifferentUserTest`: Ensures only owner can delete
 - `getAllMediaTest`: Tests retrieval of all media entries
+- `getMediaByIdTest`: Tests retrieval by ID
+- `getMediaByIdNotFoundTest`: Tests non-existent media handling
 
-#### RatingServiceTest (2 tests)
-- `createRatingWithInvalidStarsTest`: Validates star value constraints (1-5)
-- `createRatingWithTooManyStarsTest`: Tests upper bound validation
+#### RatingServiceTest (5 tests)
+- `createRatingWithInvalidStarsTest`: Validates star value constraints (< 1)
+- `createRatingWithTooManyStarsTest`: Tests upper bound validation (> 5)
+- `createRatingWithMinStarsTest`: Tests minimum valid stars (1)
+- `createRatingWithMaxStarsTest`: Tests maximum valid stars (5)
+- `createRatingWithNullCommentTest`: Tests null comment handling
+
+#### FavoriteServiceTest (4 tests)
+- `addFavoriteTest`: Tests adding media to favorites
+- `addFavoriteAlreadyExistsTest`: Tests duplicate favorite prevention
+- `toggleFavoriteAddTest`: Tests toggle to add
+- `toggleFavoriteRemoveTest`: Tests toggle to remove
 
 #### UserControllerTest (4 tests)
-- `testHandleRegister`: Validates HTTP POST for registration
-- `testHandleLogin`: Tests HTTP POST for login
-- `testHandleGetUser`: Verifies authenticated GET request
-- `testHandleGetUserUnauthorized`: Ensures unauthorized access is blocked
+- `handleRegisterTest`: Validates HTTP POST for registration (201)
+- `handleRegisterWithExistingUsernameTest`: Tests duplicate user (400)
+- `handleLoginTest`: Tests HTTP POST for login (200)
+- `handleLoginWithInvalidCredentialsTest`: Tests invalid login (401)
+
+#### MediaControllerTest (6 tests)
+- `handleGetAllMediaTest`: Tests GET /api/media (200)
+- `handleCreateMediaWithoutTokenTest`: Tests unauthorized create (401)
+- `handleCreateMediaWithValidTokenTest`: Tests authorized create (201)
+- `handleDeleteMediaWithoutTokenTest`: Tests unauthorized delete (401)
+- `handleUpdateMediaWithoutTokenTest`: Tests unauthorized update (401)
+- `handleUnsupportedMethodTest`: Tests invalid method (405)
+
+#### RatingControllerTest (5 tests)
+- `handleGetRatingsForMediaTest`: Tests GET ratings (200)
+- `handleCreateRatingWithoutTokenTest`: Tests unauthorized rating (401)
+- `handleCreateRatingWithValidTokenTest`: Tests authorized rating (201)
+- `handleInvalidMediaIdTest`: Tests invalid ID (400)
+- `handleUnsupportedMethodTest`: Tests invalid method (405)
+
+#### FavoriteControllerTest (4 tests)
+- `handleGetFavoritesWithoutTokenTest`: Tests unauthorized access (401)
+- `handleAddFavoriteWithoutTokenTest`: Tests unauthorized add (401)
+- `handleToggleFavoriteWithValidTokenTest`: Tests toggle with token (200)
+- `handleCheckFavoriteTest`: Tests check favorite (200)
+
+#### RouteIntegrationTest (7 tests)
+- `registerUserViaRouteTest`: Tests real HTTP POST /api/users/register
+- `loginUserViaRouteTest`: Tests real HTTP POST /api/users/login
+- `getMediaViaRouteTest`: Tests real HTTP GET /api/media
+- `createMediaWithoutTokenViaRouteTest`: Tests unauthorized access (401)
+- `getUserProfileViaRouteTest`: Tests real HTTP GET /api/users/{username}
+- `loginWithWrongCredentialsViaRouteTest`: Tests wrong credentials (401)
 
 ### Mockito Strategy
 Mockito is used extensively to isolate unit tests:

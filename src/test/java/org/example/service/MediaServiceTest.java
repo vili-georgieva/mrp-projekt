@@ -191,4 +191,49 @@ class MediaServiceTest {
         verify(mediaRepository).findById(999);
         verify(mediaRepository, never()).update(any(MediaEntry.class));
     }
+
+    // Test: Creating media without MediaType throws exception
+    @Test
+    void createMediaWithoutMediaTypeTest() {
+        MediaEntry media = new MediaEntry();
+        media.setTitle("Test Movie");
+        media.setMediaType(null);
+
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> mediaService.createMedia(media, testUser)
+        );
+
+        assertEquals("Media type cannot be empty", exception.getMessage());
+        verify(mediaRepository, never()).save(any(MediaEntry.class));
+    }
+
+    // Test: Get media by ID returns correct media
+    @Test
+    void getMediaByIdTest() {
+        MediaEntry existingMedia = new MediaEntry();
+        existingMedia.setId(1);
+        existingMedia.setTitle("Test Movie");
+        existingMedia.setMediaType(MediaType.MOVIE);
+
+        when(mediaRepository.findById(1)).thenReturn(Optional.of(existingMedia));
+
+        Optional<MediaEntry> result = mediaService.getMediaById(1);
+
+        assertTrue(result.isPresent());
+        assertEquals("Test Movie", result.get().getTitle());
+        assertEquals(1, result.get().getId());
+        verify(mediaRepository).findById(1);
+    }
+
+    // Test: Get non-existent media by ID returns empty
+    @Test
+    void getMediaByIdNotFoundTest() {
+        when(mediaRepository.findById(999)).thenReturn(Optional.empty());
+
+        Optional<MediaEntry> result = mediaService.getMediaById(999);
+
+        assertFalse(result.isPresent());
+        verify(mediaRepository).findById(999);
+    }
 }

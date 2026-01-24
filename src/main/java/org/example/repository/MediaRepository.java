@@ -77,7 +77,7 @@ public class MediaRepository {
     }
 
     // Get media by ID (returns null if not found)
-    public MediaEntry getMediaById(int id) throws SQLException {
+    public MediaEntry getMediaById(int id) {
         return findById(id).orElse(null);
     }
 

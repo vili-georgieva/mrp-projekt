@@ -12,9 +12,9 @@ public class DatabaseConnection {
     private static final String dbUsername;  // DB Username
     private static final String dbPassword;  // DB Passwort
 
-    static { // static because we want to load it once when the class is first used
+    static { // static weil wir Config nur einmal beim ersten Laden der Klasse initialisieren wollen
         try {
-            // Load DB configuration
+            // Lädt DB-Konfiguration
             Properties props = new Properties();
             // Lädt application.properties aus resources-Ordner
             try (InputStream input = DatabaseConnection.class.getClassLoader()
@@ -42,7 +42,7 @@ public class DatabaseConnection {
         return DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
     }
 
-    // Executes a transaction and returns a result (use null for void operations)
+    // Führt Transaction aus und gibt Ergebnis zurück (null für void Operationen)
     // Transaction: Alle DB-Operationen werden zusammen ausgeführt oder komplett zurückgerollt
     public static <T> T executeInTransaction(Function<Connection, T> operation) {
         try (Connection conn = getConnection()) {

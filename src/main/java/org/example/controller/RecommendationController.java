@@ -59,7 +59,7 @@ public class RecommendationController implements HttpHandler {
                 return;
             }
 
-            List<Map<String, Object>> recommendations = recommendationService.getRecommendations(username, limit);
+            var recommendations = recommendationService.getRecommendations(username, limit);
             String response = objectMapper.writeValueAsString(recommendations);
             sendResponse(exchange, 200, response);
         } catch (IllegalArgumentException e) {

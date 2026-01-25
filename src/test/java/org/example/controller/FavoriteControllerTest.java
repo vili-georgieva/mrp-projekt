@@ -19,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-// Unit Tests for FavoriteController - Presentation Layer
-// Tests HTTP request handling for favorite endpoints
+// Unit Tests für FavoriteController - Presentation Layer
+// Testet HTTP Request Handling für Favorite Endpoints
 @ExtendWith(MockitoExtension.class)
 class FavoriteControllerTest {
 
@@ -44,7 +44,7 @@ class FavoriteControllerTest {
         responseHeaders = new Headers();
     }
 
-    // Test: GET favorites without token returns 401 Unauthorized
+    // Test: GET Favorites ohne Token gibt 401 Unauthorized zurück
     @Test
     void handleGetFavoritesWithoutTokenTest() throws Exception {
         when(exchange.getRequestHeaders()).thenReturn(new Headers());
@@ -57,7 +57,7 @@ class FavoriteControllerTest {
         assertTrue(responseBody.toString().contains("error"));
     }
 
-    // Test: POST add favorite without token returns 401
+    // Test: POST Favorite hinzufügen ohne Token gibt 401 zurück
     @Test
     void handleAddFavoriteWithoutTokenTest() throws Exception {
         when(exchange.getRequestHeaders()).thenReturn(new Headers());
@@ -69,7 +69,7 @@ class FavoriteControllerTest {
         verify(exchange).sendResponseHeaders(eq(401), anyLong());
     }
 
-    // Test: Toggle favorite with valid token works
+    // Test: Toggle Favorite mit gültigem Token funktioniert
     @Test
     void handleToggleFavoriteWithValidTokenTest() throws Exception {
         User mockUser = new User("testuser", "hashedpass");
@@ -92,7 +92,7 @@ class FavoriteControllerTest {
         verify(favoriteService).toggleFavorite("testuser", 1);
     }
 
-    // Test: Check favorite with valid token works
+    // Test: Check Favorite mit gültigem Token funktioniert
     @Test
     void handleCheckFavoriteTest() throws Exception {
         User mockUser = new User("testuser", "hashedpass");

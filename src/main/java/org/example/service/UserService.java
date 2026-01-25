@@ -26,7 +26,7 @@ public class UserService {
     // Registriert neuen User mit Username und Passwort
     // Passwort wird gehasht gespeichert
     public User register(String username, String password) {
-        // Check if user already exists
+        // Prüft ob User bereits existiert
         Optional<User> existing = userRepository.findByUsername(username);
         if (existing.isPresent()) {
             throw new IllegalArgumentException("Username already exists");
@@ -40,14 +40,14 @@ public class UserService {
             throw new IllegalArgumentException("Password cannot be empty");
         }
 
-        // Hash password for better security
+        // Hasht Passwort für bessere Sicherheit
         String hashedPassword = hashPassword(password);
         User user = new User(username, hashedPassword);
         userRepository.save(user);
         return user;
     }
 
-    // Login: Prüft Credentials und gibt Session-Token zurück
+    // Login: prüft Username/Passwort und gibt sicheren Token zurück
     public String login(String username, String password) {
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isEmpty()) {
@@ -61,7 +61,7 @@ public class UserService {
             throw new IllegalArgumentException("Invalid username or password");
         }
 
-        // Generate secure token with UUID
+        // Generiert sicheren Token mit UUID
         String token = generateSecureToken();
         userRepository.updateToken(username, token);  // Speichert Token in DB
         return token;
@@ -80,7 +80,7 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    // Updates user password
+    // Aktualisiert User-Passwort
     public void updatePassword(String username, String newPassword) {
         if (newPassword == null || newPassword.trim().isEmpty()) {
             throw new IllegalArgumentException("Password cannot be empty");
@@ -89,13 +89,13 @@ public class UserService {
         userRepository.updatePassword(username, hashedPassword);
     }
 
-    // Generates a secure token with UUID
+    // Generiert einen sicheren Token mit UUID
     // UUID = Universal Unique Identifier (garantiert eindeutig)
     private String generateSecureToken() {
         return UUID.randomUUID().toString() + "-" + UUID.randomUUID().toString();
     }
 
-    // Hashes password with SHA-256
+    // Hasht Passwort mit SHA-256
     // SHA-256 = Kryptographischer Hash-Algorithmus (nicht umkehrbar)
     private String hashPassword(String password) {
         try {
@@ -107,7 +107,7 @@ public class UserService {
         }
     }
 
-    // Returns user statistics (media count, rating count, favorites, average stars)
+    // Gibt User-Statistiken zurück (Media-Count, Rating-Count, Favorites, durchschnittliche Stars)
     public Map<String, Object> getUserStatistics(String username) {
         Map<String, Object> stats = new HashMap<>();
         stats.put("mediaCount", userRepository.getMediaCount(username));
@@ -118,12 +118,12 @@ public class UserService {
         return stats;
     }
 
-    // Returns leaderboard (top users by rating count)
+    // Gibt Leaderboard zurück (top User nach Rating-Count)
     public List<Map<String, Object>> getLeaderboard(int limit) {
         return userRepository.getLeaderboard(limit);
     }
 
-    // Returns recommendations for user based on genre similarity
+    // Gibt Empfehlungen für User basierend auf Genre-Ähnlichkeit zurück
     public List<Map<String, Object>> getRecommendations(String username, int limit) {
         return userRepository.getRecommendations(username, limit);
     }

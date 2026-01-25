@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-// Unit Tests for MediaController - Presentation Layer
-// Tests HTTP request handling for media endpoints
+// Unit Tests für MediaController - Presentation Layer
+// Testet HTTP Request Handling für Media Endpoints
 @ExtendWith(MockitoExtension.class)
 class MediaControllerTest {
 
@@ -49,7 +49,7 @@ class MediaControllerTest {
         responseHeaders = new Headers();
     }
 
-    // Test: GET /api/media returns all media (200 OK)
+    // Test: GET /api/media gibt alle Media zurück (200 OK)
     @Test
     void handleGetAllMediaTest() throws Exception {
         MediaEntry media1 = new MediaEntry();
@@ -78,7 +78,7 @@ class MediaControllerTest {
         assertTrue(responseBody.toString().contains("Test Series"));
     }
 
-    // Test: POST /api/media without token returns 401 Unauthorized
+    // Test: POST /api/media ohne Token gibt 401 Unauthorized zurück
     @Test
     void handleCreateMediaWithoutTokenTest() throws Exception {
         when(exchange.getRequestMethod()).thenReturn("POST");
@@ -93,7 +93,7 @@ class MediaControllerTest {
         assertTrue(responseBody.toString().contains("Unauthorized"));
     }
 
-    // Test: POST /api/media with valid token creates media (201 Created)
+    // Test: POST /api/media mit gültigem Token erstellt Media (201 Created)
     @Test
     void handleCreateMediaWithValidTokenTest() throws Exception {
         String requestBody = "{\"title\":\"New Movie\",\"mediaType\":\"MOVIE\",\"description\":\"Test description\"}";
@@ -124,7 +124,7 @@ class MediaControllerTest {
         verify(mediaService).createMedia(any(MediaEntry.class), eq(mockUser));
     }
 
-    // Test: DELETE /api/media/{id} without token returns 401 Unauthorized
+    // Test: DELETE /api/media/{id} ohne Token gibt 401 Unauthorized zurück
     @Test
     void handleDeleteMediaWithoutTokenTest() throws Exception {
         when(exchange.getRequestMethod()).thenReturn("DELETE");
@@ -139,7 +139,7 @@ class MediaControllerTest {
         assertTrue(responseBody.toString().contains("Unauthorized"));
     }
 
-    // Test: PUT /api/media/{id} without token returns 401 Unauthorized
+    // Test: PUT /api/media/{id} ohne Token gibt 401 Unauthorized zurück
     @Test
     void handleUpdateMediaWithoutTokenTest() throws Exception {
         when(exchange.getRequestMethod()).thenReturn("PUT");
@@ -154,7 +154,7 @@ class MediaControllerTest {
         assertTrue(responseBody.toString().contains("Unauthorized"));
     }
 
-    // Test: Unsupported HTTP method returns 405 Method Not Allowed
+    // Test: Nicht unterstützte HTTP-Methode gibt 405 Method Not Allowed zurück
     @Test
     void handleUnsupportedMethodTest() throws Exception {
         when(exchange.getRequestMethod()).thenReturn("PATCH");

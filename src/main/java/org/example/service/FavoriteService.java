@@ -19,41 +19,41 @@ public class FavoriteService {
         this.mediaRepository = mediaRepository;
     }
 
-    // Default constructor (production use)
+    // Default Constructor 
     public FavoriteService() {
         this(new FavoriteRepository(), new MediaRepository());
     }
 
-    // Toggles favorite status (add if not present, remove if present)
-    // Returns true if added, false if removed
+    // Wechselt Favorite-Status (fügt hinzu wenn nicht vorhanden, entfernt wenn vorhanden)
+    // Gibt true zurück wenn hinzugefügt, false wenn entfernt
     public boolean toggleFavorite(String username, int mediaId) {
-        // Check if media exists
+        // Prüft ob Media existiert
         MediaEntry media = mediaRepository.getMediaById(mediaId);
         if (media == null) {
             throw new IllegalArgumentException("Media with ID " + mediaId + " does not exist");
         }
 
-        // Check if already marked as favorite
+        // Prüft ob bereits als Favorite markiert
         if (favoriteRepository.isFavorite(username, mediaId)) {
-            // Remove favorite
+            // Entfernt Favorite
             favoriteRepository.removeFavorite(username, mediaId);
             return false;  // Wurde entfernt
         } else {
-            // Add favorite
+            // Fügt Favorite hinzu
             favoriteRepository.addFavorite(username, mediaId);
             return true;  // Wurde hinzugefügt
         }
     }
 
-    // Adds a media to a user's favorites
+    // Fügt ein Media zu den Favorites eines Users hinzu
     public void addFavorite(String username, int mediaId) {
-        // Check if media exists
+        // Prüft ob Media existiert
         MediaEntry media = mediaRepository.getMediaById(mediaId);
         if (media == null) {
             throw new IllegalArgumentException("Media with ID " + mediaId + " does not exist");
         }
 
-        // Check if already marked as favorite
+        // Prüft ob bereits als Favorite markiert
         if (favoriteRepository.isFavorite(username, mediaId)) {
             throw new IllegalStateException("Media is already in favorites");
         }
@@ -61,9 +61,9 @@ public class FavoriteService {
         favoriteRepository.addFavorite(username, mediaId);
     }
 
-    // Removes a media from a user's favorites
+    // Entfernt ein Media aus den Favorites eines Users
     public void removeFavorite(String username, int mediaId) {
-        // Check if marked as favorite
+        // Prüft ob als Favorite markiert
         if (!favoriteRepository.isFavorite(username, mediaId)) {
             throw new IllegalStateException("Media is not in favorites");
         }
@@ -71,22 +71,22 @@ public class FavoriteService {
         favoriteRepository.removeFavorite(username, mediaId);
     }
 
-    // Gets all favorites of a user
+    // Holt alle Favorites eines Users
     public List<MediaEntry> getFavorites(String username) {
         return favoriteRepository.getFavoritesByUser(username);
     }
 
-    // Checks if a media was favorited by the user
+    // Prüft ob ein Media vom User favorisiert wurde
     public boolean isFavorite(String username, int mediaId) {
         return favoriteRepository.isFavorite(username, mediaId);
     }
 
-    // Gets the number of users who favorited a specific media
+    // Holt die Anzahl der User die ein spezifisches Media favorisiert haben
     public int getFavoriteCount(int mediaId) {
         return favoriteRepository.getFavoriteCount(mediaId);
     }
 
-    // Gets all favorite IDs of a user
+    // Holt alle Favorite-IDs eines Users
     public List<Integer> getFavoriteIds(String username) {
         return favoriteRepository.getFavoriteIdsByUser(username);
     }

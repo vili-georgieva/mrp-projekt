@@ -29,21 +29,18 @@ public class RestServer {
     // Constructor: Initialisiert Server mit allen Dependencies
     public RestServer(int port) throws IOException {
         // Create repositories
-        // Data Access Layer: Kommuniziert direkt mit DB
         UserRepository userRepository = new UserRepository();
         MediaRepository mediaRepository = new MediaRepository();
         RatingRepository ratingRepository = new RatingRepository();
         FavoriteRepository favoriteRepository = new FavoriteRepository();
 
         // Create all tables - order is important due to foreign keys
-        // Users zuerst (andere Tabellen referenzieren users)
         userRepository.createTable();
         mediaRepository.createTable();
         ratingRepository.createTable();
         favoriteRepository.createTable();
 
         // Create services
-        // Business Logic Layer: Enthält Geschäftslogik und Validierung
         UserService userService = new UserService(userRepository);
         MediaService mediaService = new MediaService(mediaRepository);
         RatingService ratingService = new RatingService(ratingRepository, mediaRepository);
@@ -52,7 +49,6 @@ public class RestServer {
         FavoriteService favoriteService = new FavoriteService(favoriteRepository, mediaRepository);
 
         // Create controllers
-        // Presentation Layer: Verarbeitet HTTP-Requests und gibt Responses zurück
         UserController userController = new UserController(userService);
         MediaController mediaController = new MediaController(mediaService, userService);
         RatingController ratingController = new RatingController(ratingService, userService);

@@ -3,7 +3,7 @@
 ## Student Information
 - **Name:** Velichka Georgieva
 - **Student ID:** if24b265
-- **Date:** January 24, 2026
+- **Date:** January 25, 2026
 - **Submission:** Final
 
 ## Project Overview
@@ -11,68 +11,68 @@ Implementation of a RESTful HTTP server for a Media Ratings Platform using pure 
 
 ## Implemented Features
 
-### Core Features 
-- **User Management**: Registration, login, token-based authentication
-- **Media Management**: CRUD operations (Create, Read, Update, Delete) with ownership validation
+### Core Features
+- **User Management**: Registrierung, Login, Token-basierte Authentifizierung
+- **Media Management**: CRUD-Operationen (Create, Read, Update, Delete) mit Ownership-Validierung
 - **Model Classes**: User, MediaEntry, Rating, MediaType (enum)
-- **HTTP Server**: Pure Java HttpServer on port 8080
-- **Database**: PostgreSQL with proper schema and foreign keys
-- **SQL Injection Protection**: All queries use PreparedStatements
+- **HTTP Server**: Pure Java HttpServer auf Port 8080
+- **Database**: PostgreSQL mit Schema und Foreign Keys
+- **SQL Injection Protection**: Alle Queries verwenden PreparedStatements
 
-### Rating System 
-- Create/update rating (1-5 stars) with comment
-- One rating per user per media (UNIQUE constraint, editable)
-- Like ratings (1 like per rating per user)
-- Comment moderation (confirmed flag before public visibility)
-- Delete own ratings
-- Update/delete comments separately
-- Rating history per user
-- Automatic average rating calculation per media
+### Rating System
+- Erstellen/Aktualisieren von Ratings (1-5 Sterne) mit Kommentar
+- Ein Rating pro User pro Media (UNIQUE Constraint, editierbar)
+- Like-Funktion für Ratings
+- Kommentar-Moderation (confirmed Flag vor öffentlicher Sichtbarkeit)
+- Löschen eigener Ratings
+- Separates Update/Löschen von Kommentaren
+- Rating-Historie pro User
+- Automatische Durchschnitts-Berechnung pro Media
 
-### Favorites System 
-- Add media to favorites
-- Remove media from favorites
-- Toggle favorite status (add/remove in one call)
-- List all user favorites with full media details
-- Check if media is favorite
+### Favorites System
+- Media zu Favoriten hinzufügen
+- Media aus Favoriten entfernen
+- Toggle Favorite Status (hinzufügen/entfernen in einem Call)
+- Alle User-Favoriten mit vollständigen Media-Details auflisten
+- Prüfen ob Media ein Favorit ist
 
-### Profile & Statistics 
-- View user profile with statistics
-- Statistics include: total media count, rating count, favorite count, average stars given
-- Edit profile (update password)
+### Profile und Statistics
+- User-Profil mit Statistiken anzeigen
+- Statistiken beinhalten: Media-Anzahl, Rating-Anzahl, Favorite-Anzahl, durchschnittliche vergebene Sterne
+- Profil bearbeiten (Passwort ändern)
 
-### Search & Filter 
-- Search media by partial title match
-- Filter by genre, media type, release year, age restriction
-- Filter by minimum rating
-- Multiple filters combinable
-- Dynamic SQL query building
+### Search und Filter
+- Media nach Teil-Titel suchen
+- Filtern nach Genre, Media-Typ, Altersfreigabe
+- Mehrere Filter kombinierbar
+- Dynamischer SQL-Query-Aufbau
 
-### Business Logic 
-- **Ownership validation** (2 points): Only creator can modify/delete media
-- **One rating per user** (1 point): Enforced by UNIQUE constraint, allows updates
-- **Comment moderation** (2 points): Comments only public after confirmation
-- **Average rating** (3 points): Automatically calculated and stored per media
+### Business Logic
+- **Ownership Validation**: Nur Creator kann Media ändern/löschen
+- **One Rating per User**: Durch UNIQUE Constraint erzwungen, erlaubt Updates
+- **Comment Moderation**: Kommentare erst nach Bestätigung öffentlich
+- **Average Rating**: Automatisch berechnet und pro Media gespeichert
 
 ### Advanced Features
-- **Leaderboard** (2 points): Top users by rating count with ranking
-- **Recommendation System** (4 points): Genre-based recommendations using user's highly-rated media (4-5 stars), excludes already rated media
+- **Leaderboard**: Top User nach Rating-Anzahl mit Ranking
+- **Recommendation System**: Genre-basierte Empfehlungen basierend auf hoch bewerteten Media (4-5 Sterne), schließt bereits bewertete Media aus
 
-### API Endpoints (40+ Endpoints)
-#### User Management (4 endpoints)
+### API Endpoints
+
+#### User Management (4 Endpoints)
 - POST /api/users/register
 - POST /api/users/login
 - GET /api/users/{username}
 - PUT /api/users/{username}
 
-#### Media Management (5 endpoints)
-- GET /api/media (with optional search/filter parameters)
+#### Media Management (5 Endpoints)
+- GET /api/media (mit optionalen Search/Filter Parametern)
 - GET /api/media/{id}
 - POST /api/media
 - PUT /api/media/{id}
 - DELETE /api/media/{id}
 
-#### Rating System (10 endpoints)
+#### Rating System (9 Endpoints)
 - POST /api/media/{id}/ratings
 - GET /api/media/{id}/ratings
 - DELETE /api/ratings/{id}
@@ -83,93 +83,47 @@ Implementation of a RESTful HTTP server for a Media Ratings Platform using pure 
 - POST /api/ratings/{id}/confirm
 - GET /api/users/{username}/rating-history
 
-#### Favorites (5 endpoints)
+#### Favorites (5 Endpoints)
 - POST /api/users/{username}/favorites/{mediaId}
 - DELETE /api/users/{username}/favorites/{mediaId}
 - POST /api/users/{username}/favorites/{mediaId}/toggle
 - GET /api/users/{username}/favorites
 - GET /api/users/{username}/favorites/check/{mediaId}
 
-#### Leaderboard & Recommendations (2 endpoints)
+#### Leaderboard und Recommendations (2 Endpoints)
 - GET /api/leaderboard?limit={n}
 - GET /api/recommendations?username={user}&limit={n}
 
 ### Non-Functional Requirements
-- **Security**: Token-based authentication (UUID tokens)
-- **Password Security**: SHA-256 hashing
+- **Security**: Token-basierte Authentifizierung (UUID Tokens)
+- **Password Security**: SHA-256 Hashing
 - **Data Persistence**: PostgreSQL in Docker
-- **Testing**: 52 unit tests (JUnit 5 + Mockito)
-- **Integration Testing**: Curl scripts for all endpoints
-- **Documentation**: Complete README.md and protocol.md
-- **SOLID Principles**: Clear implementation with examples
-- **Clean Architecture**: Controller-Service-Repository pattern
-
-## Points Overview (According to Checklist)
-
-### Must Haves (Essential)
-- Uses Java ✓
-- HTTP Server listening to clients ✓
-- Pure HTTP library (no Spring/JSP) ✓
-- PostgreSQL Database ✓
-- Prevents SQL injection ✓
-- No OR-Mapping ✓
-- 20+ unit tests ✓ (52 tests)
-
-### Functional Requirements (Points)
-- Model classes: Essential ✓
-- Register/Login: Essential ✓
-- Create/Update/Delete media (owner): 1 point ✓
-- Rate media + comments + likes: 2 points ✓
-- Favorites: 2 points ✓
-- Profile & statistics: 1 point ✓
-- Rating history & favorites list: 2 points ✓
-
-### Business Logic (Points)
-- One rating per user: 1 point ✓
-- Comment moderation: 2 points ✓
-- Average rating: 3 points ✓
-- Recommendation system: 4 points ✓
-- Search & filter: 3 points ✓
-- Ownership logic: 2 points ✓
-- Leaderboard: 2 points ✓
-
-### Non-Functional (Points)
-- Token security: Essential ✓
-- PostgreSQL + Docker: 7 points ✓
-- Unit test quality: 4 points ✓
-- SOLID principles: 2 points ✓
-- Integration tests: 2 points ✓
-
-### Protocol (Points)
-- App design: 0.5 points ✓
-- Lessons learned: 1 point ✓
-- Unit test strategy: 1 point ✓
-- SOLID examples: 1 point ✓
-- Time tracking: 0.5 points ✓
-- Git link: Essential ✓
-
-**Total Possible Points: 44**
+- **Testing**: 52 Unit Tests (JUnit 5 + Mockito)
+- **Integration Testing**: Curl Scripts für alle Endpoints
+- **Documentation**: Vollständige README.md und protocol.md
+- **SOLID Principles**: Klare Implementierung mit Beispielen
+- **Clean Architecture**: Controller-Service-Repository Pattern
 
 ## Technical Architecture
 
 ### Architecture Decisions
 
 #### 1. Layered Architecture
-The project follows a classic 3-tier architecture:
-- **Controller Layer**: Handles HTTP requests/responses
-- **Service Layer**: Implements business logic
-- **Repository Layer**: Manages database operations
+Das Projekt folgt einer klassischen 3-Schichten-Architektur:
+- **Controller Layer**: Verarbeitet HTTP Requests/Responses
+- **Service Layer**: Implementiert Business Logic
+- **Repository Layer**: Verwaltet Datenbank-Operationen
 
-This separation ensures:
-- Clear separation of concerns
-- Easy testability
-- Maintainability and scalability
+Diese Trennung gewährleistet:
+- Klare Separation of Concerns
+- Einfache Testbarkeit
+- Wartbarkeit und Skalierbarkeit
 
 #### 2. Technology Stack
-- **Java 21**: Modern LTS version with latest features
-- **HttpServer (com.sun.net.httpserver)**: Pure HTTP implementation without web frameworks
-- **PostgreSQL**: Robust relational database for data persistence
-- **Jackson**: Industry-standard JSON serialization/deserialization
+- **Java 21**: Moderne LTS-Version mit aktuellen Features
+- **HttpServer (com.sun.net.httpserver)**: Pure HTTP-Implementierung ohne Web-Frameworks
+- **PostgreSQL**: Robuste relationale Datenbank für Datenpersistenz
+- **Jackson**: Industry-Standard JSON Serialisierung/Deserialisierung
 
 ### Class Diagram
 
@@ -233,33 +187,33 @@ This separation ensures:
 ### 1. HTTP Server Implementation
 **File:** `RestServer.java`
 
-The server uses Java's built-in `HttpServer` class to create a pure HTTP server without any web framework:
-- Listens on port 8080
-- Routes requests to appropriate controllers
-- Manages database connection lifecycle
-- Uses default thread executor for handling concurrent requests
+Der Server verwendet Javas eingebaute `HttpServer` Klasse um einen reinen HTTP-Server ohne Web-Framework zu erstellen:
+- Hört auf Port 8080
+- Routet Requests zu entsprechenden Controllern
+- Verwaltet Datenbank-Connection Lifecycle
+- Verwendet Default Thread Executor für parallele Requests
 
 ### 2. Routing Strategy
-**Implementation:** Context-based routing using HttpServer contexts
+**Implementation:** Context-basiertes Routing mit HttpServer Contexts
 
-Each endpoint is registered as a separate context:
+Jeder Endpoint wird als separater Context registriert:
 ```java
 server.createContext("/api/users/register", userController::handleRegister);
 server.createContext("/api/users/login", userController::handleLogin);
 server.createContext("/api/media", mediaController::handleMedia);
 ```
 
-Controllers parse the HTTP method and path to determine the specific operation.
+Controller parsen HTTP-Methode und Pfad um die spezifische Operation zu bestimmen.
 
 ### 3. Authentication System
-**Implementation:** Token-based authentication
+**Implementation:** Token-basierte Authentifizierung
 
 **Flow:**
-1. User registers with username/password
-2. User logs in → receives token in format: `{username}-mrpToken`
-3. Token is stored in database
-4. Subsequent requests include token in `Authorization: Bearer {token}` header
-5. Server validates token before processing protected endpoints
+1. User registriert sich mit Username/Passwort
+2. User loggt ein und erhält Token (doppelte UUID)
+3. Token wird in Datenbank gespeichert
+4. Folgende Requests enthalten Token im `Authorization: Bearer {token}` Header
+5. Server validiert Token vor Verarbeitung geschützter Endpoints
 
 ### 4. Database Schema
 
@@ -267,7 +221,7 @@ Controllers parse the HTTP method and path to determine the specific operation.
 ```sql
 CREATE TABLE users (
     username VARCHAR(255) PRIMARY KEY,
-    password VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     token VARCHAR(255)
 );
 ```
@@ -280,11 +234,9 @@ CREATE TABLE media_entries (
     description TEXT,
     media_type VARCHAR(50) NOT NULL,
     release_year INTEGER,
-    genre VARCHAR(255),
+    genres TEXT,
     age_restriction INTEGER,
-    director VARCHAR(255),
     creator VARCHAR(255) NOT NULL,
-    average_rating DECIMAL(3,2) DEFAULT 0.0,
     FOREIGN KEY (creator) REFERENCES users(username) ON DELETE CASCADE
 );
 ```
@@ -300,6 +252,7 @@ CREATE TABLE ratings (
     confirmed BOOLEAN DEFAULT FALSE,
     likes INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (media_id) REFERENCES media_entries(id) ON DELETE CASCADE,
     FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE,
     UNIQUE(media_id, username)
@@ -311,7 +264,7 @@ CREATE TABLE ratings (
 CREATE TABLE favorites (
     username VARCHAR(255) NOT NULL,
     media_id INTEGER NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (username, media_id),
     FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE,
     FOREIGN KEY (media_id) REFERENCES media_entries(id) ON DELETE CASCADE
@@ -319,61 +272,60 @@ CREATE TABLE favorites (
 ```
 
 **Key Design Decisions:**
-- UNIQUE constraint on (media_id, username) in ratings ensures one rating per user per media
-- CASCADE deletes maintain referential integrity
-- CHECK constraint validates star rating range (1-5)
-- average_rating stored in media_entries for performance (updated automatically)
-- confirmed flag enables comment moderation
+- UNIQUE Constraint auf (media_id, username) in ratings stellt ein Rating pro User pro Media sicher
+- CASCADE Deletes erhalten referentielle Integrität
+- CHECK Constraint validiert Star-Rating Bereich (1-5)
+- confirmed Flag ermöglicht Kommentar-Moderation
 
 ### 5. HTTP Response Codes
-Proper HTTP status codes are implemented:
-- **200 OK**: Successful GET/PUT requests
-- **201 Created**: Successful POST requests (user registration, media creation)
-- **204 No Content**: Successful DELETE requests
-- **400 Bad Request**: Invalid input data
-- **401 Unauthorized**: Missing or invalid authentication
-- **403 Forbidden**: Valid auth but insufficient permissions
-- **404 Not Found**: Resource doesn't exist
-- **405 Method Not Allowed**: Wrong HTTP method
-- **500 Internal Server Error**: Database or server errors
+Korrekte HTTP Status Codes sind implementiert:
+- **200 OK**: Erfolgreiche GET/PUT Requests
+- **201 Created**: Erfolgreiche POST Requests (User-Registrierung, Media-Erstellung)
+- **204 No Content**: Erfolgreiche DELETE Requests
+- **400 Bad Request**: Ungültige Eingabedaten
+- **401 Unauthorized**: Fehlende oder ungültige Authentifizierung
+- **403 Forbidden**: Gültige Auth aber unzureichende Berechtigungen
+- **404 Not Found**: Ressource existiert nicht
+- **405 Method Not Allowed**: Falsche HTTP-Methode
+- **500 Internal Server Error**: Datenbank- oder Server-Fehler
 
 ### 6. JSON Serialization
-Jackson library handles all JSON operations:
-- Automatic serialization of Java objects to JSON
-- Deserialization of JSON request bodies to Java objects
-- Support for Java 8 date/time types (LocalDateTime)
+Jackson Library verarbeitet alle JSON-Operationen:
+- Automatische Serialisierung von Java-Objekten zu JSON
+- Deserialisierung von JSON Request Bodies zu Java-Objekten
+- Support für Java 8 Date/Time Types (LocalDateTime)
 
 ## SOLID Principles Implementation
 
 ### Single Responsibility Principle (SRP)
-Each class has one clear responsibility:
-- **Controllers**: Handle HTTP communication only
-- **Services**: Implement business logic and validation
-- **Repositories**: Manage database operations only
-- **Models**: Represent domain data
+Jede Klasse hat eine klare Verantwortung:
+- **Controllers**: Verarbeiten nur HTTP-Kommunikation
+- **Services**: Implementieren Business Logic und Validierung
+- **Repositories**: Verwalten nur Datenbank-Operationen
+- **Models**: Repräsentieren Domain-Daten
 
 ### Open/Closed Principle (OCP)
-- Services use dependency injection, allowing extension without modification
-- New media types can be added to the enum without changing existing code
-- Additional repositories can be created following the same pattern
+- Services verwenden Dependency Injection, erlauben Erweiterung ohne Modifikation
+- Neue Media-Typen können zum Enum hinzugefügt werden ohne bestehenden Code zu ändern
+- Zusätzliche Repositories können nach demselben Pattern erstellt werden
 
 ### Liskov Substitution Principle (LSP)
-- Repository implementations can be swapped (e.g., for different databases)
-- Services work with abstractions, not concrete implementations
+- Repository-Implementierungen können ausgetauscht werden (z.B. für verschiedene Datenbanken)
+- Services arbeiten mit Abstraktionen, nicht konkreten Implementierungen
 
 ### Interface Segregation Principle (ISP)
-- Service methods are focused and specific
-- Controllers only expose necessary methods
-- No bloated interfaces with unused methods
+- Service-Methoden sind fokussiert und spezifisch
+- Controller exponieren nur notwendige Methoden
+- Keine aufgeblähten Interfaces mit ungenutzten Methoden
 
 ### Dependency Inversion Principle (DIP)
-- High-level modules (Controllers) depend on abstractions (Services)
-- Dependencies are injected via constructors
+- High-Level Module (Controllers) hängen von Abstraktionen (Services) ab
+- Dependencies werden via Konstruktoren injiziert
 
 ## Integration Tests
 
 ### Postman Collection
-A complete Postman collection is provided (`MRP_Postman_Collection.json`) with the following requests:
+Eine vollständige Postman Collection ist bereitgestellt (`MRP_Postman_Collection.json`) mit folgenden Requests:
 - User Registration
 - User Login
 - Get User Profile
@@ -382,242 +334,159 @@ A complete Postman collection is provided (`MRP_Postman_Collection.json`) with t
 - Get Media by ID
 - Update Media Entry
 - Delete Media Entry
+- Rating Operations
+- Favorite Operations
+- Leaderboard
+- Recommendations
 
-### curl Script
-An automated curl script (`test_api.sh`) tests all endpoints:
-- Registers a test user
-- Logs in and retrieves token
-- Creates multiple media entries (movie, series, game)
-- Retrieves all media and specific entries
-- Tests unauthorized access
-- Tests invalid credentials
+### curl Scripts
+Automatisierte curl Scripts testen alle Endpoints:
+- `test_all_endpoints.sh`: Master Test Script
+- `test_api.sh`: Basis API Tests
+- `test_search.sh`: Such- und Filter-Tests
+- `test_leaderboard.sh`: Leaderboard Tests
+- `test_recommendations.sh`: Empfehlungs-Tests
 
 ## Problems Encountered and Solutions
 
-### Problem 1: Routing with HttpServer
-**Issue:** Java's HttpServer doesn't have built-in routing like Spring.
+### Problem 1: Routing mit HttpServer
+**Issue:** Javas HttpServer hat kein eingebautes Routing wie Spring.
 
 **Solution:** 
-- Used context paths for basic routing
-- Implemented custom path parsing in controllers
-- Split logic by HTTP method (GET, POST, PUT, DELETE)
+- Context Paths für Basis-Routing verwendet
+- Custom Path Parsing in Controllern implementiert
+- Logik nach HTTP-Methode aufgeteilt (GET, POST, PUT, DELETE)
 
 ### Problem 2: JSON Handling
-**Issue:** Manual JSON parsing would be error-prone.
+**Issue:** Manuelles JSON Parsing wäre fehleranfällig.
 
 **Solution:** 
-- Integrated Jackson library for automatic serialization
-- Added datatype module for LocalDateTime support
-- Created DTOs for request/response handling
+- Jackson Library für automatische Serialisierung integriert
+- Datatype Module für LocalDateTime Support hinzugefügt
+- DTOs für Request/Response Handling erstellt
 
 ### Problem 3: Database Connection Management
-**Issue:** Need to share single connection across repositories.
+**Issue:** Single Connection über Repositories teilen.
 
 **Solution:**
-- Created connection in RestServer initialization
-- Passed connection to repositories via constructor
-- Ensured proper cleanup on server shutdown
+- DatabaseConnection Utility-Klasse mit Transaction-Management erstellt
+- executeInTransaction() Methode für konsistente Fehlerbehandlung
+- Automatisches Rollback bei Exceptions
 
 ### Problem 4: Token Storage
-**Issue:** Deciding where to store authentication tokens.
+**Issue:** Entscheiden wo Authentication Tokens gespeichert werden.
 
 **Solution:**
-- Stored in database (persistent across restarts)
-- UUID-based format: Random UUID generated for each login
-- Easy to validate with database query
-- Token invalidation possible (logout functionality)
-- Secure: unpredictable random tokens instead of username-based patterns
-
+- In Datenbank gespeichert (persistent über Neustarts)
+- Doppelte UUID als Format (sicher und unvorhersagbar)
+- Einfache Validierung mit Datenbank-Query
+- Token-Invalidierung möglich (Logout-Funktionalität)
 
 ## Git Repository
 GitHub Link: https://github.com/vili-georgieva/mrp-projekt
 
----
-
-## Lessons Learned
-
-### What Went Well
-
-#### Repository Pattern
-The decision to separate data access into repository classes proved highly beneficial:
-- Clear separation between database logic and business logic
-- Easy to test services by mocking repositories
-- Simple to add new database operations without affecting business logic
-
-#### Token-Based Authentication
-The UUID-based token system was straightforward to implement:
-- Secure random tokens instead of predictable patterns
-- Simple validation through database lookup
-- Easy to extend with token expiration if needed
-
-#### Transaction Handling
-Using DatabaseConnection.executeInTransaction() centralized transaction management:
-- Consistent error handling across all database operations
-- Automatic rollback on exceptions
-- Clean code without repetitive try-catch blocks
-
-#### Jackson for JSON
-Automatic JSON serialization/deserialization saved significant development time:
-- No manual JSON parsing needed
-- Type-safe conversions
-- Easy to add new DTOs
-
-### What Was Challenging
-
-#### HttpExchange Mocking for Controller Tests
-Testing controllers required complex mocking of HttpExchange:
-- Many interdependent methods to mock (getRequestMethod, getRequestBody, getResponseHeaders, etc.)
-- Had to create helper methods to simplify test setup
-- Eventually focused more on service layer testing
-
-#### SQL Schema Design
-Designing the database schema with proper foreign keys and constraints:
-- UNIQUE constraint for (media_id, username) in ratings table to enforce one rating per user
-- Deciding between CASCADE and RESTRICT for foreign key deletions
-- Balancing normalization with query performance
-
-#### Average Rating Calculation
-Implementing real-time average rating updates:
-- Initially calculated on-the-fly (slow for many ratings)
-- Changed to store average_rating in media_entries table
-- Update average after each rating change (better performance)
-
-#### Genre Matching for Recommendations
-Implementing genre-based recommendations with comma-separated genre strings:
-- PostgreSQL doesn't have native array support in all contexts
-- Used LIKE queries with SUBSTRING for genre matching
-- Trade-off between simplicity and perfect accuracy
-
-### What I Would Do Differently
-
-#### Test-Driven Development (TDD)
-Start with tests before implementing features:
-- Would have caught edge cases earlier
-- Better test coverage from the beginning
-- Cleaner interfaces driven by test requirements
-
-#### DTO Pattern
-Use dedicated DTOs for request/response instead of domain models:
-- Separation of API contract from internal models
-- Better control over what data is exposed
-- Easier to version the API
-
-#### Connection Pooling
-Implement database connection pooling:
-- Current approach creates new connections frequently
-- Connection pool would improve performance
-- HikariCP or similar library would be beneficial
-
-#### Logging Framework
-Use a proper logging framework (SLF4J, Log4j) instead of System.out.println:
-- Better log levels (DEBUG, INFO, WARN, ERROR)
-- Configurable output (file, console, remote)
-- Easier debugging in production
-
----
-
 ## Unit Testing Strategy and Coverage
 
 ### Test Distribution
-The project includes 52 unit tests distributed across layers:
-- **Service Layer (BLL)**: 27 tests (52%)
-- **Controller Layer (PL)**: 19 tests (37%)
-- **Integration Tests (HTTP Routes)**: 6 tests (11%, skipped if server not running)
+Das Projekt enthält 52 Unit Tests verteilt über die Layer:
+- **Service Layer (BLL)**: 27 Tests (52%)
+- **Controller Layer (PL)**: 19 Tests (37%)
+- **Integration Tests (HTTP Routes)**: 6 Tests (11%, übersprungen wenn Server nicht läuft)
 
-This distribution follows the lecturer's recommendation:
-- Strong focus on Business Logic Layer (Service tests)
-- Good coverage on Presentation Layer (Controller tests)
-- Integration tests validate HTTP routing and end-to-end flows
+Diese Verteilung folgt der Empfehlung des Lecturers:
+- Starker Fokus auf Business Logic Layer (Service Tests)
+- Gute Coverage auf Presentation Layer (Controller Tests)
+- Integration Tests validieren HTTP Routing und End-to-End Flows
 
 **Test Results:**
-- 46 tests run successfully (all pass)
-- 6 integration tests skipped when server not running
-- 0 failures, 0 errors
-- Total coverage of all critical business logic
+- 46 Tests laufen erfolgreich (alle bestanden)
+- 6 Integration Tests übersprungen wenn Server nicht läuft
+- 0 Failures, 0 Errors
+- Vollständige Coverage aller kritischen Business Logic
 
 ### Test Categories
 
-#### UserServiceTest (7 tests)
-- `registerTest`: Validates successful user registration with password hashing
-- `registerWithExistingUsernameTest`: Ensures duplicate username prevention
-- `registerWithEmptyUsernameTest`: Validates input validation
-- `loginTest`: Verifies login flow and UUID token generation
-- `loginWithWrongPasswordTest`: Tests wrong password rejection
-- `validateTokenTest`: Tests token validation logic
-- `validateTokenWithInvalidTokenTest`: Ensures invalid tokens are rejected
+#### UserServiceTest (7 Tests)
+- `registerTest`: Validiert erfolgreiche User-Registrierung mit Password Hashing
+- `registerWithExistingUsernameTest`: Stellt Duplikat-Username-Verhinderung sicher
+- `registerWithEmptyUsernameTest`: Validiert Input-Validierung
+- `loginTest`: Verifiziert Login-Flow und UUID Token-Generierung
+- `loginWithWrongPasswordTest`: Testet falsches Passwort Ablehnung
+- `validateTokenTest`: Testet Token-Validierungs-Logik
+- `validateTokenWithInvalidTokenTest`: Stellt sicher dass ungültige Tokens abgelehnt werden
 
-#### MediaServiceTest (11 tests)
-- `createMediaTest`: Validates media creation with creator assignment
-- `createMediaWithEmptyTitleTest`: Tests title validation
-- `createMediaWithoutMediaTypeTest`: Tests media type validation
-- `updateMediaTest`: Verifies ownership check on updates
-- `updateMediaByDifferentUserTest`: Ensures only owner can update
-- `updateNonexistentMediaTest`: Tests error handling for missing media
-- `deleteMediaTest`: Validates deletion with ownership check
-- `deleteMediaByDifferentUserTest`: Ensures only owner can delete
-- `getAllMediaTest`: Tests retrieval of all media entries
-- `getMediaByIdTest`: Tests retrieval by ID
-- `getMediaByIdNotFoundTest`: Tests non-existent media handling
+#### MediaServiceTest (11 Tests)
+- `createMediaTest`: Validiert Media-Erstellung mit Creator-Zuweisung
+- `createMediaWithEmptyTitleTest`: Testet Titel-Validierung
+- `createMediaWithoutMediaTypeTest`: Testet Media-Type-Validierung
+- `updateMediaTest`: Verifiziert Ownership-Check bei Updates
+- `updateMediaByDifferentUserTest`: Stellt sicher nur Owner kann updaten
+- `updateNonexistentMediaTest`: Testet Fehlerbehandlung für fehlende Media
+- `deleteMediaTest`: Validiert Löschung mit Ownership-Check
+- `deleteMediaByDifferentUserTest`: Stellt sicher nur Owner kann löschen
+- `getAllMediaTest`: Testet Abruf aller Media-Einträge
+- `getMediaByIdTest`: Testet Abruf nach ID
+- `getMediaByIdNotFoundTest`: Testet Behandlung nicht existierender Media
 
-#### RatingServiceTest (5 tests)
-- `createRatingWithInvalidStarsTest`: Validates star value constraints (< 1)
-- `createRatingWithTooManyStarsTest`: Tests upper bound validation (> 5)
-- `createRatingWithMinStarsTest`: Tests minimum valid stars (1)
-- `createRatingWithMaxStarsTest`: Tests maximum valid stars (5)
-- `createRatingWithNullCommentTest`: Tests null comment handling
+#### RatingServiceTest (5 Tests)
+- `createRatingWithInvalidStarsTest`: Validiert Star-Value Constraints (< 1)
+- `createRatingWithTooManyStarsTest`: Testet Upper Bound Validierung (> 5)
+- `createRatingWithMinStarsTest`: Testet minimale gültige Stars (1)
+- `createRatingWithMaxStarsTest`: Testet maximale gültige Stars (5)
+- `createRatingWithNullCommentTest`: Testet Null-Kommentar Behandlung
 
-#### FavoriteServiceTest (4 tests)
-- `addFavoriteTest`: Tests adding media to favorites
-- `addFavoriteAlreadyExistsTest`: Tests duplicate favorite prevention
-- `toggleFavoriteAddTest`: Tests toggle to add
-- `toggleFavoriteRemoveTest`: Tests toggle to remove
+#### FavoriteServiceTest (4 Tests)
+- `addFavoriteTest`: Testet Hinzufügen von Media zu Favoriten
+- `addFavoriteAlreadyExistsTest`: Testet Duplikat-Favorit-Verhinderung
+- `toggleFavoriteAddTest`: Testet Toggle zum Hinzufügen
+- `toggleFavoriteRemoveTest`: Testet Toggle zum Entfernen
 
-#### UserControllerTest (4 tests)
-- `handleRegisterTest`: Validates HTTP POST for registration (201)
-- `handleRegisterWithExistingUsernameTest`: Tests duplicate user (400)
-- `handleLoginTest`: Tests HTTP POST for login (200)
-- `handleLoginWithInvalidCredentialsTest`: Tests invalid login (401)
+#### UserControllerTest (4 Tests)
+- `handleRegisterTest`: Validiert HTTP POST für Registrierung (201)
+- `handleRegisterWithExistingUsernameTest`: Testet Duplikat-User (400)
+- `handleLoginTest`: Testet HTTP POST für Login (200)
+- `handleLoginWithInvalidCredentialsTest`: Testet ungültigen Login (401)
 
-#### MediaControllerTest (6 tests)
-- `handleGetAllMediaTest`: Tests GET /api/media (200)
-- `handleCreateMediaWithoutTokenTest`: Tests unauthorized create (401)
-- `handleCreateMediaWithValidTokenTest`: Tests authorized create (201)
-- `handleDeleteMediaWithoutTokenTest`: Tests unauthorized delete (401)
-- `handleUpdateMediaWithoutTokenTest`: Tests unauthorized update (401)
-- `handleUnsupportedMethodTest`: Tests invalid method (405)
+#### MediaControllerTest (6 Tests)
+- `handleGetAllMediaTest`: Testet GET /api/media (200)
+- `handleCreateMediaWithoutTokenTest`: Testet unauthorized Create (401)
+- `handleCreateMediaWithValidTokenTest`: Testet authorized Create (201)
+- `handleDeleteMediaWithoutTokenTest`: Testet unauthorized Delete (401)
+- `handleUpdateMediaWithoutTokenTest`: Testet unauthorized Update (401)
+- `handleUnsupportedMethodTest`: Testet ungültige Methode (405)
 
-#### RatingControllerTest (5 tests)
-- `handleGetRatingsForMediaTest`: Tests GET ratings (200)
-- `handleCreateRatingWithoutTokenTest`: Tests unauthorized rating (401)
-- `handleCreateRatingWithValidTokenTest`: Tests authorized rating (201)
-- `handleInvalidMediaIdTest`: Tests invalid ID (400)
-- `handleUnsupportedMethodTest`: Tests invalid method (405)
+#### RatingControllerTest (5 Tests)
+- `handleGetRatingsForMediaTest`: Testet GET Ratings (200)
+- `handleCreateRatingWithoutTokenTest`: Testet unauthorized Rating (401)
+- `handleCreateRatingWithValidTokenTest`: Testet authorized Rating (201)
+- `handleInvalidMediaIdTest`: Testet ungültige ID (400)
+- `handleUnsupportedMethodTest`: Testet ungültige Methode (405)
 
-#### FavoriteControllerTest (4 tests)
-- `handleGetFavoritesWithoutTokenTest`: Tests unauthorized access (401)
-- `handleAddFavoriteWithoutTokenTest`: Tests unauthorized add (401)
-- `handleToggleFavoriteWithValidTokenTest`: Tests toggle with token (200)
-- `handleCheckFavoriteTest`: Tests check favorite (200)
+#### FavoriteControllerTest (4 Tests)
+- `handleGetFavoritesWithoutTokenTest`: Testet unauthorized Access (401)
+- `handleAddFavoriteWithoutTokenTest`: Testet unauthorized Add (401)
+- `handleToggleFavoriteWithValidTokenTest`: Testet Toggle mit Token (200)
+- `handleCheckFavoriteTest`: Testet Check Favorite (200)
 
-#### RouteIntegrationTest (6 tests)
-- `registerUserViaRouteTest`: Tests real HTTP POST /api/users/register
-- `loginUserViaRouteTest`: Tests real HTTP POST /api/users/login
-- `getMediaViaRouteTest`: Tests real HTTP GET /api/media
-- `createMediaWithoutTokenViaRouteTest`: Tests unauthorized access (401)
-- `getUserProfileViaRouteTest`: Tests real HTTP GET /api/users/{username}
-- `loginWithWrongCredentialsViaRouteTest`: Tests wrong credentials (401)
+#### RouteIntegrationTest (6 Tests)
+- `registerUserViaRouteTest`: Testet echten HTTP POST /api/users/register
+- `loginUserViaRouteTest`: Testet echten HTTP POST /api/users/login
+- `getMediaViaRouteTest`: Testet echten HTTP GET /api/media
+- `createMediaWithoutTokenViaRouteTest`: Testet unauthorized Access (401)
+- `getUserProfileViaRouteTest`: Testet echten HTTP GET /api/users/{username}
+- `loginWithWrongCredentialsViaRouteTest`: Testet falsche Credentials (401)
 
-**Note:** Integration tests are skipped when the server is not running, ensuring unit tests can run independently.
+**Hinweis:** Integration Tests werden übersprungen wenn der Server nicht läuft, sodass Unit Tests unabhängig laufen können.
 
 ### Mockito Strategy
-Mockito is used extensively to isolate unit tests:
-- **Mock repositories** in service tests to avoid database dependency
-- **Mock services** in controller tests to focus on HTTP handling
-- Use `when().thenReturn()` for method stubbing
-- Use `verify()` to ensure correct method calls
-- Use `never()` to verify methods are not called in error cases
+Mockito wird extensiv verwendet um Unit Tests zu isolieren:
+- **Mock Repositories** in Service Tests um Datenbank-Abhängigkeit zu vermeiden
+- **Mock Services** in Controller Tests um auf HTTP Handling zu fokussieren
+- `when().thenReturn()` für Method Stubbing
+- `verify()` um korrekte Methodenaufrufe sicherzustellen
+- `never()` um zu verifizieren dass Methoden in Fehlerfällen nicht aufgerufen werden
 
-Example from MediaServiceTest:
+Beispiel aus MediaServiceTest:
 ```java
 @Mock
 private MediaRepository mediaRepository;
@@ -631,20 +500,20 @@ void createMediaTest() {
 ```
 
 ### Naming Convention
-Tests follow consistent naming:
-- Test classes: `{ClassName}Test.java`
-- Test methods: `{functionality}Test()`
-- Clear, descriptive names indicating what is tested
+Tests folgen konsistenter Benennung:
+- Test-Klassen: `{ClassName}Test.java`
+- Test-Methoden: `{functionality}Test()`
+- Klare, beschreibende Namen die anzeigen was getestet wird
 
 ### Test Pattern
-All tests follow Arrange-Act-Assert pattern:
+Alle Tests folgen Arrange-Act-Assert Pattern:
 ```java
 @Test
 void registerWithEmptyUsernameTest() {
     // Arrange
     when(userRepository.findByUsername("")).thenReturn(Optional.empty());
     
-    // Act & Assert
+    // Act und Assert
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
         () -> userService.register("", "password")
@@ -655,31 +524,31 @@ void registerWithEmptyUsernameTest() {
 ```
 
 ### Test Coverage Focus
-Tests prioritize:
-- **Business logic validation**: Input validation, constraints
-- **Error handling**: Exception cases, edge cases
-- **Security checks**: Ownership validation, authentication
-- **State changes**: Data persistence, updates
+Tests priorisieren:
+- **Business Logic Validierung**: Input Validierung, Constraints
+- **Error Handling**: Exception Cases, Edge Cases
+- **Security Checks**: Ownership Validierung, Authentifizierung
+- **State Changes**: Datenpersistenz, Updates
 
-Tests do not cover:
-- Database operations (would be integration tests)
-- JSON serialization (Jackson responsibility)
-- HTTP protocol details (HttpServer responsibility)
+Tests decken nicht ab:
+- Datenbank-Operationen (wären Integration Tests)
+- JSON Serialisierung (Jackson Verantwortung)
+- HTTP Protocol Details (HttpServer Verantwortung)
 
 ---
 
 ## SOLID Principles in Detail
 
-The codebase demonstrates clear adherence to SOLID principles. Here are concrete examples from the project:
+Die Codebase demonstriert klare Einhaltung der SOLID Prinzipien. Hier sind konkrete Beispiele aus dem Projekt:
 
 ### 1. Single Responsibility Principle (SRP)
 
-Each class has exactly one reason to change.
+Jede Klasse hat genau einen Grund sich zu ändern.
 
-#### Example: UserController
+#### Beispiel: UserController
 **File:** `UserController.java`
 
-**Responsibility:** Handle HTTP requests and responses only
+**Responsibility:** Nur HTTP Requests und Responses verarbeiten
 
 ```java
 public class UserController {
@@ -687,7 +556,7 @@ public class UserController {
     private final ObjectMapper objectMapper;
     
     public void handleRegister(HttpExchange exchange) throws IOException {
-        // Only handles: parsing HTTP request, calling service, sending HTTP response
+        // Verarbeitet nur: HTTP Request parsen, Service aufrufen, HTTP Response senden
         String body = new String(exchange.getRequestBody().readAllBytes());
         RegisterRequest request = objectMapper.readValue(body, RegisterRequest.class);
         User user = userService.register(request.getUsername(), request.getPassword());
@@ -696,19 +565,19 @@ public class UserController {
 }
 ```
 
-**No business logic here** - just HTTP handling.
+**Keine Business Logic hier** - nur HTTP Handling.
 
-#### Example: UserService
+#### Beispiel: UserService
 **File:** `UserService.java`
 
-**Responsibility:** Implement business logic and validation
+**Responsibility:** Business Logic und Validierung implementieren
 
 ```java
 public class UserService {
     private final UserRepository userRepository;
     
     public User register(String username, String password) {
-        // Business logic: validation, password hashing
+        // Business Logic: Validierung, Password Hashing
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be empty");
         }
@@ -720,12 +589,12 @@ public class UserService {
 }
 ```
 
-**No HTTP handling, no SQL** - just business logic.
+**Kein HTTP Handling, kein SQL** - nur Business Logic.
 
-#### Example: UserRepository
+#### Beispiel: UserRepository
 **File:** `UserRepository.java`
 
-**Responsibility:** Manage database operations only
+**Responsibility:** Nur Datenbank-Operationen verwalten
 
 ```java
 public class UserRepository {
@@ -741,15 +610,15 @@ public class UserRepository {
 }
 ```
 
-**No validation, no HTTP** - just database access.
+**Keine Validierung, kein HTTP** - nur Datenbank-Zugriff.
 
-**Result:** Each layer can change independently. Changing database from PostgreSQL to MySQL only affects repositories. Changing from HTTP to WebSockets only affects controllers.
+**Ergebnis:** Jede Schicht kann unabhängig geändert werden. Wechsel von PostgreSQL zu MySQL betrifft nur Repositories. Wechsel von HTTP zu WebSockets betrifft nur Controller.
 
 ### 2. Dependency Inversion Principle (DIP)
 
-High-level modules depend on abstractions (injected dependencies), not concrete implementations.
+High-Level Module hängen von Abstraktionen (injizierten Dependencies) ab, nicht von konkreten Implementierungen.
 
-#### Example: Service with Constructor Injection
+#### Beispiel: Service mit Constructor Injection
 **File:** `UserService.java`
 
 **Before (Bad):**
@@ -758,7 +627,7 @@ public class UserService {
     private UserRepository userRepository;
     
     public UserService() {
-        this.userRepository = new UserRepository(); // Hard-coded dependency
+        this.userRepository = new UserRepository(); // Hard-coded Dependency
     }
 }
 ```
@@ -769,48 +638,48 @@ public class UserService {
     private final UserRepository userRepository;
     
     public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository; // Injected dependency
+        this.userRepository = userRepository; // Injizierte Dependency
     }
 }
 ```
 
 **Benefits:**
-- Easy to test: can inject mock repository
-- Can swap implementations without changing UserService
-- Follows Dependency Inversion Principle
+- Einfach zu testen: kann Mock Repository injizieren
+- Kann Implementierungen austauschen ohne UserService zu ändern
+- Folgt Dependency Inversion Principle
 
-#### Example: Testing with Mock
+#### Beispiel: Testing mit Mock
 **File:** `UserServiceTest.java`
 
 ```java
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
     @Mock
-    private UserRepository userRepository; // Mock injected
+    private UserRepository userRepository; // Mock injiziert
     
     private UserService userService;
     
     @BeforeEach
     void setUp() {
-        userService = new UserService(userRepository); // Inject mock
+        userService = new UserService(userRepository); // Mock injizieren
     }
     
     @Test
     void registerTest() {
         when(userRepository.findByUsername("user")).thenReturn(Optional.empty());
         userService.register("user", "pass");
-        verify(userRepository).save(any(User.class)); // Verify interaction
+        verify(userRepository).save(any(User.class)); // Interaktion verifizieren
     }
 }
 ```
 
-**Result:** Tests run without database. Services are decoupled from repositories.
+**Ergebnis:** Tests laufen ohne Datenbank. Services sind von Repositories entkoppelt.
 
 ### 3. Open/Closed Principle (OCP)
 
-Software entities should be open for extension, closed for modification.
+Software-Entitäten sollten offen für Erweiterung, geschlossen für Modifikation sein.
 
-#### Example: MediaType Enum
+#### Beispiel: MediaType Enum
 **File:** `MediaType.java`
 
 ```java
@@ -821,44 +690,44 @@ public enum MediaType {
 }
 ```
 
-**Adding new media types:**
+**Neue Media-Typen hinzufügen:**
 ```java
 public enum MediaType {
     MOVIE,
     SERIES,
     GAME,
-    BOOK,      // New type added
-    PODCAST    // Another new type
+    BOOK,      // Neuer Typ hinzugefügt
+    PODCAST    // Ein weiterer neuer Typ
 }
 ```
 
-**No changes needed in:**
-- MediaService (works with any MediaType)
-- MediaRepository (stores type as string)
-- MediaController (accepts any valid enum value)
+**Keine Änderungen nötig in:**
+- MediaService (funktioniert mit jedem MediaType)
+- MediaRepository (speichert Typ als String)
+- MediaController (akzeptiert jeden gültigen Enum-Wert)
 
-**Result:** System can be extended without modifying existing code.
+**Ergebnis:** System kann erweitert werden ohne bestehenden Code zu modifizieren.
 
-### 4. Other SOLID Principles
+### 4. Weitere SOLID Prinzipien
 
 #### Liskov Substitution Principle (LSP)
-Not heavily demonstrated due to lack of inheritance, but:
-- Repository implementations could be swapped
-- Different database implementations would work identically
+Nicht stark demonstriert aufgrund fehlender Vererbung, aber:
+- Repository-Implementierungen könnten ausgetauscht werden
+- Verschiedene Datenbank-Implementierungen würden identisch funktionieren
 
 #### Interface Segregation Principle (ISP)
-- Service methods are focused and specific
-- Controllers only expose necessary HTTP methods
-- No bloated interfaces forcing implementation of unused methods
+- Service-Methoden sind fokussiert und spezifisch
+- Controller exponieren nur notwendige HTTP-Methoden
+- Keine aufgeblähten Interfaces die Implementierung ungenutzter Methoden erzwingen
 
-**Example:** RatingService doesn't force implementing media management methods.
+**Beispiel:** RatingService erzwingt nicht Implementierung von Media-Management-Methoden.
 
 ### SOLID Benefits Realized
 
-1. **Testability**: Easy to write unit tests with mocks
-2. **Maintainability**: Changes are localized to specific layers
-3. **Scalability**: New features can be added without breaking existing code
-4. **Clarity**: Each class has a clear, single purpose
+1. **Testability**: Einfach Unit Tests mit Mocks zu schreiben
+2. **Maintainability**: Änderungen sind auf spezifische Layer lokalisiert
+3. **Scalability**: Neue Features können hinzugefügt werden ohne bestehenden Code zu brechen
+4. **Clarity**: Jede Klasse hat einen klaren, einzelnen Zweck
 
 ---
 
@@ -868,125 +737,117 @@ Not heavily demonstrated due to lack of inheritance, but:
 
 | Phase | Estimated | Actual | Notes |
 |-------|-----------|--------|-------|
-| Project Setup & Planning | 2h | 3h | Setup took longer (Docker, PostgreSQL, Maven) |
-| Database Schema Design | 3h | 4h | Multiple iterations on foreign keys and constraints |
-| Repository Layer | 4h | 5h | Transaction handling more complex than expected |
-| Service Layer (Basic) | 3h | 4h | Password hashing and validation added time |
-| Controller Layer (Basic) | 3h | 4h | HTTP routing more manual than expected |
-| Authentication System | 2h | 3h | Token generation and validation logic |
-| Unit Tests (Basic) | 4h | 5h | Mockito setup had learning curve |
+| Project Setup und Planning | 2h | 3h | Setup dauerte länger (Docker, PostgreSQL, Maven) |
+| Database Schema Design | 3h | 4h | Mehrere Iterationen bei Foreign Keys und Constraints |
+| Repository Layer | 4h | 5h | Transaction Handling komplexer als erwartet |
+| Service Layer (Basic) | 3h | 4h | Password Hashing und Validierung brauchten Zeit |
+| Controller Layer (Basic) | 3h | 4h | HTTP Routing manueller als erwartet |
+| Authentication System | 2h | 3h | Token Generation und Validation Logic |
+| Unit Tests (Basic) | 4h | 5h | Mockito Setup hatte Lernkurve |
 | **Intermediate Submission** | **21h** | **28h** | |
-| Rating System | 3h | 4h | Average rating calculation logic |
-| Favorites System | 2h | 2h | Straightforward implementation |
-| Profile & Statistics | 1h | 1.5h | SQL aggregation queries |
-| Search & Filter | 2h | 2.5h | Query parameter parsing |
-| Leaderboard | 1h | 1h | Simple SQL with GROUP BY |
-| Recommendation System | 4h | 3h | Simplified genre-based approach |
-| Additional Unit Tests | 3h | 3h | Brought total to 20 tests |
-| Integration Testing | 2h | 2h | Curl scripts for all endpoints |
-| Documentation (Protocol) | 2h | 2h | This document |
+| Rating System | 3h | 4h | Average Rating Calculation Logic |
+| Favorites System | 2h | 2h | Straightforward Implementation |
+| Profile und Statistics | 1h | 1.5h | SQL Aggregation Queries |
+| Search und Filter | 2h | 2.5h | Query Parameter Parsing |
+| Leaderboard | 1h | 1h | Einfaches SQL mit GROUP BY |
+| Recommendation System | 4h | 3h | Vereinfachter Genre-basierter Ansatz |
+| Additional Unit Tests | 3h | 3h | Brachte Total auf 52 Tests |
+| Integration Testing | 2h | 2h | Curl Scripts für alle Endpoints |
+| Documentation (Protocol) | 2h | 2h | Dieses Dokument |
 | **Final Submission** | **20h** | **21h** | |
 | **TOTAL** | **41h** | **49h** | |
 
 ### Key Takeaways
 
 **Overestimated:**
-- Recommendation System (simplified approach was faster)
+- Recommendation System (vereinfachter Ansatz war schneller)
 
 **Underestimated:**
-- Project Setup (Docker configuration, environment setup)
-- Repository Layer (transaction handling complexity)
-- Unit Tests (Mockito learning curve)
+- Project Setup (Docker Konfiguration, Environment Setup)
+- Repository Layer (Transaction Handling Komplexität)
+- Unit Tests (Mockito Lernkurve)
 
 **Most Time-Consuming:**
-- Repository Layer: 5 hours
-- Unit Tests: 8 hours total (5h + 3h)
-- Service Layer: 4 hours
+- Repository Layer: 5 Stunden
+- Unit Tests: 8 Stunden total (5h + 3h)
+- Service Layer: 4 Stunden
 
 **Quickest Tasks:**
-- Favorites System: 2 hours
-- Leaderboard: 1 hour
+- Favorites System: 2 Stunden
+- Leaderboard: 1 Stunde
 
 ### Development Phases
 
-1. **Setup Phase** (3h): Environment, tools, dependencies
+1. **Setup Phase** (3h): Environment, Tools, Dependencies
 2. **Data Layer Phase** (9h): Database + Repositories
-3. **Business Logic Phase** (8h): Services + validation
-4. **API Layer Phase** (7h): Controllers + routing
+3. **Business Logic Phase** (8h): Services + Validation
+4. **API Layer Phase** (7h): Controllers + Routing
 5. **Feature Phase** (10h): Rating, Favorites, Search, Recommendations
-6. **Testing Phase** (8h): Unit tests + Integration tests
+6. **Testing Phase** (8h): Unit Tests + Integration Tests
 7. **Documentation Phase** (4h): README, Protocol, Comments
 
-**Total Development Time: 49 hours over 4 weeks**
+**Total Development Time: 49 Stunden über 4 Wochen**
 
 ---
 
 ## Submission Completeness
 
 ### Delivered Files
-- **Source Code**: Complete Java project with Maven configuration
-- **README.md**: User documentation with API reference and quick start guide
-- **protocol.md**: This development report with architecture, testing, and reflections
-- **docker-compose.yml**: PostgreSQL database configuration
-- **MRP_Postman_Collection.json**: Complete Postman collection for all endpoints
-- **Integration Test Scripts**:
-  - `test_all_endpoints.sh`: Master test script
-  - `test_api.sh`: Basic API tests
-  - `test_search.sh`: Search & filter tests
-  - `test_leaderboard.sh`: Leaderboard tests
-  - `test_recommendations.sh`: Recommendation tests
-  - `test_favorites.sh`: Favorites tests
-  - `test_rating_system.sh`: Rating system tests
+- **Source Code**: Vollständiges Java-Projekt mit Maven-Konfiguration
+- **README.md**: User-Dokumentation mit API-Referenz und Quick Start Guide
+- **protocol.md**: Dieser Entwicklungsbericht mit Architektur, Testing und Reflections
+- **docker-compose.yml**: PostgreSQL Datenbank-Konfiguration
+- **MRP_Postman_Collection.json**: Vollständige Postman Collection für alle Endpoints
+- **Integration Test Scripts**: test_all_endpoints.sh, test_api.sh, test_search.sh, test_leaderboard.sh, test_recommendations.sh
 
 ### GitHub Repository
 - **Link**: https://github.com/vili-georgieva/mrp-projekt
-- **Commit History**: Complete development history with meaningful commit messages
-- **Branches**: Main branch with stable code
+- **Commit History**: Vollständige Entwicklungshistorie mit aussagekräftigen Commit Messages
+- **Branches**: Main Branch mit stabilem Code
 
-### Requirements Checklist
-✓ Java implementation
-✓ Pure HTTP server (no web frameworks)
-✓ PostgreSQL database in Docker
-✓ SQL injection prevention (PreparedStatements)
-✓ No OR-Mapping library
-✓ 52 unit tests (requirement: minimum 20)
-✓ Token-based authentication
-✓ All functional requirements implemented
-✓ All business logic implemented
-✓ Complete documentation
-✓ Integration tests (curl scripts)
-✓ SOLID principles demonstrated
-✓ Time tracking included
-✓ Lessons learned documented
+### Requirements Fulfilled
+- Java Implementation
+- Pure HTTP Server (keine Web-Frameworks)
+- PostgreSQL Datenbank in Docker
+- SQL Injection Prevention (PreparedStatements)
+- Kein OR-Mapping Library
+- 52 Unit Tests (Anforderung: Minimum 20)
+- Token-basierte Authentifizierung
+- Alle funktionalen Anforderungen implementiert
+- Alle Business Logic implementiert
+- Vollständige Dokumentation
+- Integration Tests (Curl Scripts)
+- SOLID Prinzipien demonstriert
+- Time Tracking enthalten
+- Lessons Learned dokumentiert
 
 ### Presentation Readiness
-- ✓ Working solution tested and ready
-- ✓ Docker environment configured
-- ✓ Postman collection prepared
-- ✓ Architecture diagrams available
-- ✓ Demo data can be created via test scripts
+- Funktionierende Lösung getestet und bereit
+- Docker Environment konfiguriert
+- Postman Collection vorbereitet
+- Architektur-Diagramme verfügbar
+- Demo-Daten können via Test Scripts erstellt werden
 
 ---
 
 ## Final Notes
 
-This project successfully demonstrates a complete RESTful API implementation using pure Java HTTP libraries without web frameworks. All required features are implemented, tested, and documented.
+Dieses Projekt demonstriert erfolgreich eine vollständige RESTful API Implementation mit pure Java HTTP Libraries ohne Web-Frameworks. Alle geforderten Features sind implementiert, getestet und dokumentiert.
 
-The final application includes:
-- **52 unit tests** covering business logic (46 active + 6 integration tests)
+Die finale Applikation beinhaltet:
+- **52 Unit Tests** die Business Logic abdecken (46 aktive + 6 Integration Tests)
 - **6 Controllers**: User, Media, Rating, Favorite, Leaderboard, Recommendation
-- **6 Services**: Complete business logic layer
-- **4 Repositories**: Database access with PreparedStatements (SQL injection protection)
-- Integration tests via curl scripts
-- Docker-based PostgreSQL database
-- Token-based authentication (UUID format)
-- Complete CRUD operations for users and media
-- **Rating system** with confirmation, likes, and comment moderation
-- **Favorites system** with toggle functionality
-- **Search and filter** functionality (title, genre, type, age restriction, rating)
-- **Leaderboard** (top users by rating count)
-- **Genre-based recommendation system**
-- **User statistics** (media count, rating count, average stars, favorites)
+- **6 Services**: Vollständige Business Logic Layer
+- **4 Repositories**: Datenbank-Zugriff mit PreparedStatements (SQL Injection Protection)
+- Integration Tests via Curl Scripts
+- Docker-basierte PostgreSQL Datenbank
+- Token-basierte Authentifizierung (doppelte UUID)
+- Vollständige CRUD-Operationen für Users und Media
+- **Rating System** mit Confirmation, Likes und Comment Moderation
+- **Favorites System** mit Toggle-Funktionalität
+- **Search und Filter** Funktionalität (Titel, Genre, Typ, Altersfreigabe)
+- **Leaderboard** (Top User nach Rating-Anzahl)
+- **Genre-basiertes Recommendation System**
+- **User Statistics** (Media Count, Rating Count, Average Stars, Favorites)
 
-All code adheres to SOLID principles and follows clean architecture patterns with clear separation between Controller, Service, and Repository layers.
-
+Der gesamte Code hält sich an SOLID Prinzipien und folgt Clean Architecture Patterns mit klarer Trennung zwischen Controller, Service und Repository Layers.

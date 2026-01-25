@@ -22,8 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-// Unit Tests for RatingController - Presentation Layer
-// Tests HTTP request handling for rating endpoints
+// Unit Tests für RatingController - Presentation Layer
+// Testet HTTP Request Handling für Rating Endpoints
 @ExtendWith(MockitoExtension.class)
 class RatingControllerTest {
 
@@ -47,7 +47,7 @@ class RatingControllerTest {
         responseHeaders = new Headers();
     }
 
-    // Test: GET /api/media/{id}/ratings returns ratings for media
+    // Test: GET /api/media/{id}/ratings gibt Ratings für Media zurück
     @Test
     void handleGetRatingsForMediaTest() throws Exception {
         Rating rating1 = new Rating();
@@ -70,7 +70,7 @@ class RatingControllerTest {
         verify(ratingService).getRatingsByMediaId(1);
     }
 
-    // Test: POST /api/media/{id}/ratings without token returns 401
+    // Test: POST /api/media/{id}/ratings ohne Token gibt 401 zurück
     @Test
     void handleCreateRatingWithoutTokenTest() throws Exception {
         when(exchange.getRequestMethod()).thenReturn("POST");
@@ -85,7 +85,7 @@ class RatingControllerTest {
         assertTrue(responseBody.toString().contains("Unauthorized"));
     }
 
-    // Test: POST /api/media/{id}/ratings with valid token creates rating
+    // Test: POST /api/media/{id}/ratings mit gültigem Token erstellt Rating
     @Test
     void handleCreateRatingWithValidTokenTest() throws Exception {
         String requestBody = "{\"stars\":5,\"comment\":\"Great movie!\"}";
@@ -118,7 +118,7 @@ class RatingControllerTest {
         verify(ratingService).createOrUpdateRating(1, "testuser", 5, "Great movie!");
     }
 
-    // Test: Invalid media ID returns 400 Bad Request
+    // Test: Ungültige Media-ID gibt 400 Bad Request zurück
     @Test
     void handleInvalidMediaIdTest() throws Exception {
         when(exchange.getRequestMethod()).thenReturn("GET");
@@ -132,7 +132,7 @@ class RatingControllerTest {
         assertTrue(responseBody.toString().contains("Invalid media ID"));
     }
 
-    // Test: Unsupported method returns 405
+    // Test: Nicht unterstützte Methode gibt 405 zurück
     @Test
     void handleUnsupportedMethodTest() throws Exception {
         when(exchange.getRequestMethod()).thenReturn("DELETE");

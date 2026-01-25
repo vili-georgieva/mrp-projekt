@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
-// Controller for rating operations (create, read, update, delete ratings)
+// Controller für Rating-Operationen (erstellen, lesen, aktualisieren, löschen von Ratings)
 public class RatingController {
     private final RatingService ratingService;
     private final UserService userService;
@@ -27,7 +27,7 @@ public class RatingController {
         this.objectMapper.registerModule(new JavaTimeModule());
     }
 
-    // Handler for /api/media/{mediaId}/ratings
+    // Handler für /api/media/{mediaId}/ratings
     public void handleMediaRatings(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
@@ -58,7 +58,7 @@ public class RatingController {
         }
     }
 
-    // Handler for /api/ratings/{ratingId}
+    // Handler für /api/ratings/{ratingId}
     public void handleRating(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
@@ -73,7 +73,7 @@ public class RatingController {
 
             int ratingId = Integer.parseInt(parts[3]);
 
-            // Sub-paths: /api/ratings/{id}/comment, /api/ratings/{id}/like, /api/ratings/{id}/confirm
+            // Sub-Pfade: /api/ratings/{id}/comment, /api/ratings/{id}/like, /api/ratings/{id}/confirm
             if (parts.length == 5) {
                 String action = parts[4];
                 switch (action) {
@@ -103,7 +103,7 @@ public class RatingController {
                 }
             }
 
-            // PUT /api/ratings/{id} - Update eigenes Rating
+            // PUT /api/ratings/{id} - Aktualisiert eigenes Rating
             if (method.equals("PUT")) {
                 handleUpdateRating(exchange, ratingId, user.get());
                 return;
@@ -123,7 +123,7 @@ public class RatingController {
         }
     }
 
-    // Handler for /api/users/{username}/rating-history
+    // Handler für /api/users/{username}/rating-history
     public void handleRatingHistory(HttpExchange exchange) throws IOException {
         if (!exchange.getRequestMethod().equals("GET")) {
             sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
@@ -177,20 +177,20 @@ public class RatingController {
         }
     }
 
-    // PUT /api/ratings/{ratingId} - Update eigenes Rating (stars und comment)
+    // PUT /api/ratings/{ratingId} - Aktualisiert eigenes Rating (stars und comment)
     private void handleUpdateRating(HttpExchange exchange, int ratingId, User user) throws IOException {
         try {
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             Rating input = objectMapper.readValue(body, Rating.class);
 
-            // Hole bestehendes Rating zur Ownership-Prüfung
+            // Holt bestehendes Rating zur Ownership-Prüfung
             Rating existing = ratingService.getRatingById(ratingId);
             if (existing == null) {
                 sendResponse(exchange, 404, "{\"error\":\"Rating not found\"}");
                 return;
             }
 
-            // Prüfe ob User der Owner ist
+            // Prüft ob User der Owner ist
             if (!existing.getUsername().equals(user.getUsername())) {
                 sendResponse(exchange, 403, "{\"error\":\"You can only update your own ratings\"}");
                 return;
@@ -268,7 +268,7 @@ public class RatingController {
         }
     }
 
-    // Token validation
+    // Token-Validierung
     private Optional<User> authenticateRequest(HttpExchange exchange) {
         String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {

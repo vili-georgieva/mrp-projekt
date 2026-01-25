@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 // Data Access Layer für User
-// Verwaltet alle Datenbankoperationen für User-Tabelle
 public class UserRepository {
 
     // Erstellt User-Tabelle beim Server-Start (wenn nicht vorhanden)
@@ -102,7 +101,7 @@ public class UserRepository {
         });
     }
 
-    // Updates user password
+    // Aktualisiert User-Passwort
     public void updatePassword(String username, String hashedPassword) {
         DatabaseConnection.executeInTransaction(conn -> {
             String sql = "UPDATE users SET password_hash = ? WHERE username = ?";
@@ -138,7 +137,7 @@ public class UserRepository {
         });
     }
 
-    // Counts media created by user
+    // Zählt vom User erstellte Media
     public int getMediaCount(String username) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT COUNT(*) FROM media_entries WHERE creator = ?";
@@ -155,7 +154,7 @@ public class UserRepository {
         });
     }
 
-    // Counts ratings created by user
+    // Zählt vom User erstellte Ratings
     public int getRatingCount(String username) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT COUNT(*) FROM ratings WHERE username = ?";
@@ -172,7 +171,7 @@ public class UserRepository {
         });
     }
 
-    // Counts favorites marked by user
+    // Zählt vom User markierte Favorites
     public int getFavoriteCount(String username) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT COUNT(*) FROM favorites WHERE username = ?";
@@ -189,7 +188,7 @@ public class UserRepository {
         });
     }
 
-    // Calculates average stars given by user
+    // Berechnet durchschnittliche Stars vom User vergeben
     public double getAverageStars(String username) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT AVG(stars) FROM ratings WHERE username = ?";
@@ -206,7 +205,7 @@ public class UserRepository {
         });
     }
 
-    // Gets leaderboard (top users by rating count)
+    // Holt Leaderboard (top User nach Rating-Count)
     public List<java.util.Map<String, Object>> getLeaderboard(int limit) {
         return DatabaseConnection.executeInTransaction(conn -> {
             // JOIN-Query: User + Anzahl Ratings, sortiert nach Anzahl
@@ -235,10 +234,10 @@ public class UserRepository {
         });
     }
 
-    // Gets recommendations for user based on genres from highly rated media
+    // Holt Empfehlungen für User basierend auf Genres von hoch bewerteten Media
     public List<java.util.Map<String, Object>> getRecommendations(String username, int limit) {
         return DatabaseConnection.executeInTransaction(conn -> {
-            // Find genres from user's highly rated media (4-5 stars)
+            // Findet Genres von hoch bewerteten Media des Users (4-5 Sterne)
             // Komplexe Query: Findet Media mit ähnlichen Genres wie die vom User hoch bewerteten
             String sql = "SELECT DISTINCT m.id, m.title, m.media_type, m.genres, m.average_rating " +
                         "FROM media_entries m " +

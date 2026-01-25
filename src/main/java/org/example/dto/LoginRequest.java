@@ -1,7 +1,6 @@
 package org.example.dto;
 
-// Data Transfer Object für Login Request
-// Empfängt Username und Passwort vom Client
+ // data transfer object für Login Requests
 public class LoginRequest {
     private String username;
     private String password;

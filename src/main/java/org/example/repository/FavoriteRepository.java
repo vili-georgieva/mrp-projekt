@@ -13,10 +13,9 @@ import java.util.Arrays;
 import java.util.List;
 
 // Data Access Layer für Favorites
-// Verwaltet Favorite-Markierungen von Usern für Media
 public class FavoriteRepository {
 
-    // Creates favorites table on server start
+    // Erstellt Favorites-Tabelle beim Server-Start
     public void createTable() {
         DatabaseConnection.executeInTransaction(conn -> {
             String sql = "CREATE TABLE IF NOT EXISTS favorites (" +
@@ -36,7 +35,7 @@ public class FavoriteRepository {
         });
     }
 
-    // Adds a media to a user's favorites
+    // Fügt ein Media zu den Favorites eines Users hinzu
     public boolean addFavorite(String username, int mediaId) {
         return DatabaseConnection.executeInTransaction(conn -> {
             // ON CONFLICT DO NOTHING: Ignoriert Fehler wenn schon favorisiert (statt Exception)
@@ -52,7 +51,7 @@ public class FavoriteRepository {
         });
     }
 
-    // Removes a media from a user's favorites
+    // Entfernt ein Media aus den Favorites eines Users
     public boolean removeFavorite(String username, int mediaId) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "DELETE FROM favorites WHERE username = ? AND media_id = ?";
@@ -67,7 +66,7 @@ public class FavoriteRepository {
         });
     }
 
-    // Checks if a media is in a user's favorites
+    // Prüft ob ein Media in den Favorites eines Users ist
     public boolean isFavorite(String username, int mediaId) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT COUNT(*) FROM favorites WHERE username = ? AND media_id = ?";
@@ -88,7 +87,7 @@ public class FavoriteRepository {
         });
     }
 
-    // Gets all favorites of a user (returns complete MediaEntry objects)
+    // Holt alle Favorites eines Users (gibt vollständige MediaEntry Objects zurück)
     public List<MediaEntry> getFavoritesByUser(String username) {
         return DatabaseConnection.executeInTransaction(conn -> {
             // INNER JOIN: Verbindet favorites mit media_entries Tabelle
@@ -133,7 +132,7 @@ public class FavoriteRepository {
         });
     }
 
-    // Gets all favorite media IDs of a user
+    // Holt alle Favorite Media-IDs eines Users
     public List<Integer> getFavoriteIdsByUser(String username) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT media_id FROM favorites WHERE username = ? ORDER BY added_at DESC";
@@ -156,7 +155,7 @@ public class FavoriteRepository {
         });
     }
 
-    // Gets the number of users who favorited a specific media
+    // Holt die Anzahl der User die ein spezifisches Media favorisiert haben
     public int getFavoriteCount(int mediaId) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT COUNT(*) FROM favorites WHERE media_id = ?";

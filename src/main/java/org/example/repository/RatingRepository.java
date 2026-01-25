@@ -11,7 +11,7 @@ import java.util.List;
 // Verwaltet CRUD-Operationen für ratings Tabelle
 public class RatingRepository {
 
-    // Creates ratings table on server start
+    // Erstellt Ratings-Tabelle beim Server-Start
     public void createTable() {
         DatabaseConnection.executeInTransaction(conn -> {
             String sql = "CREATE TABLE IF NOT EXISTS ratings (" +
@@ -37,7 +37,7 @@ public class RatingRepository {
         });
     }
 
-    // Create a new rating or update existing one
+    // Erstellt neues Rating oder aktualisiert bestehendes
     public Rating createRating(Rating rating) {
         return DatabaseConnection.executeInTransaction(conn -> {
             // ON CONFLICT: Wenn Rating schon existiert (UNIQUE constraint), dann UPDATE statt INSERT
@@ -68,7 +68,7 @@ public class RatingRepository {
         });
     }
 
-    // Update an existing rating
+    // Aktualisiert ein bestehendes Rating
     public boolean updateRating(int ratingId, int stars, String comment) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "UPDATE ratings SET stars = ?, comment = ?, updated_at = CURRENT_TIMESTAMP " +
@@ -85,7 +85,7 @@ public class RatingRepository {
         });
     }
 
-    // Update only the comment of a rating
+    // Aktualisiert nur den Kommentar eines Ratings
     public boolean updateComment(int ratingId, String comment) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "UPDATE ratings SET comment = ?, updated_at = CURRENT_TIMESTAMP, confirmed = false " +
@@ -101,7 +101,7 @@ public class RatingRepository {
         });
     }
 
-    // Delete a rating by ID
+    // Löscht Rating nach ID
     public boolean deleteRating(int ratingId) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "DELETE FROM ratings WHERE id = ?";
@@ -115,7 +115,7 @@ public class RatingRepository {
         });
     }
 
-    // Get rating by ID
+    // Holt Rating nach ID
     public Rating getRatingById(int id) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT * FROM ratings WHERE id = ?";
@@ -135,7 +135,7 @@ public class RatingRepository {
         });
     }
 
-    // Get all ratings for a specific media
+    // Holt alle Ratings für ein spezifisches Media
     public List<Rating> getRatingsByMediaId(int mediaId) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT * FROM ratings WHERE media_id = ? ORDER BY created_at DESC";
@@ -156,7 +156,7 @@ public class RatingRepository {
         });
     }
 
-    // Get confirmed ratings for a specific media
+    // Holt bestätigte Ratings für ein spezifisches Media
     public List<Rating> getConfirmedRatingsByMediaId(int mediaId) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT * FROM ratings WHERE media_id = ? AND confirmed = true ORDER BY created_at DESC";
@@ -177,7 +177,7 @@ public class RatingRepository {
         });
     }
 
-    // Get rating by media and user (check if exists)
+    // Holt Rating nach Media und User (prüft ob existiert)
     public Rating getRatingByMediaAndUser(int mediaId, String username) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT * FROM ratings WHERE media_id = ? AND username = ?";
@@ -198,7 +198,7 @@ public class RatingRepository {
         });
     }
 
-    // Get all ratings by a user
+    // Holt alle Ratings eines Users
     public List<Rating> getRatingsByUser(String username) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT * FROM ratings WHERE username = ? ORDER BY created_at DESC";
@@ -219,7 +219,7 @@ public class RatingRepository {
         });
     }
 
-    // Increment likes for a rating
+    // Erhöht Likes für ein Rating
     public boolean incrementLikes(int ratingId) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "UPDATE ratings SET likes = likes + 1 WHERE id = ?";
@@ -233,7 +233,7 @@ public class RatingRepository {
         });
     }
 
-    // Confirm a rating (moderation)
+    // Bestätigt ein Rating (Moderation)
     public boolean confirmRating(int ratingId) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "UPDATE ratings SET confirmed = true WHERE id = ?";
@@ -247,7 +247,7 @@ public class RatingRepository {
         });
     }
 
-    // Calculate average rating for a media
+    // Berechnet durchschnittliche Bewertung für ein Media
     public double getAverageRating(int mediaId) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT AVG(stars) as avg_rating FROM ratings WHERE media_id = ? AND confirmed = true";
@@ -267,7 +267,7 @@ public class RatingRepository {
         });
     }
 
-    // Helper method to map ResultSet to Rating object
+    // Helper-Methode zum Konvertieren von ResultSet zu Rating Object
     // Konvertiert DB-Zeile (ResultSet) zu Rating Java-Object
     private Rating mapResultSetToRating(ResultSet rs) throws SQLException {
         Rating rating = new Rating();

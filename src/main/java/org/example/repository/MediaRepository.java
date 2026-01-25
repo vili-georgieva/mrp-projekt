@@ -14,7 +14,7 @@ import java.util.Optional;
 // Verwaltet CRUD-Operationen für media_entries Tabelle
 public class MediaRepository {
 
-    // Creates table for media entries
+    // Erstellt Tabelle für Media-Einträge
     public void createTable() {
         DatabaseConnection.executeInTransaction(conn -> {
             String sql = "CREATE TABLE IF NOT EXISTS media_entries (" +
@@ -37,7 +37,7 @@ public class MediaRepository {
         });
     }
 
-    // Saves new media entry
+    // Speichert neuen Media-Eintrag
     public int save(MediaEntry media) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "INSERT INTO media_entries (title, description, media_type, release_year, genres, age_restriction, creator) " +
@@ -52,7 +52,7 @@ public class MediaRepository {
                 stmt.setString(7, media.getCreator());
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
-                    return rs.getInt("id"); // Returns generated ID
+                    return rs.getInt("id"); // Gibt generierte ID zurück
                 }
                 throw new SQLException("Failed to create media entry");
             } catch (SQLException e) {
@@ -61,7 +61,7 @@ public class MediaRepository {
         });
     }
 
-    // Finds media entry by ID (empty if not found)
+    // Sucht Media-Eintrag nach ID (leer wenn nicht gefunden)
     public Optional<MediaEntry> findById(int id) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT * FROM media_entries WHERE id = ?";
@@ -78,12 +78,12 @@ public class MediaRepository {
         });
     }
 
-    // Get media by ID (returns null if not found)
+    // Holt Media nach ID (gibt null zurück wenn nicht gefunden)
     public MediaEntry getMediaById(int id) {
         return findById(id).orElse(null);
     }
 
-    // Gets all media entries from database
+    // Lädt alle Media-Einträge aus Datenbank
     public List<MediaEntry> findAll() {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT * FROM media_entries";
@@ -100,7 +100,7 @@ public class MediaRepository {
         });
     }
 
-    // Updates existing media entry (creator remains unchanged)
+    // Aktualisiert bestehenden Media-Eintrag (Creator bleibt unverändert)
     public void update(MediaEntry media) {
         DatabaseConnection.executeInTransaction(conn -> {
             String sql = "UPDATE media_entries SET title = ?, description = ?, media_type = ?, " +
@@ -121,7 +121,7 @@ public class MediaRepository {
         });
     }
 
-    // Deletes media entry from database
+    // Löscht Media-Eintrag aus Datenbank
     public void delete(int id) {
         DatabaseConnection.executeInTransaction(conn -> {
             String sql = "DELETE FROM media_entries WHERE id = ?";
@@ -135,7 +135,7 @@ public class MediaRepository {
         });
     }
 
-    // Update average rating for a media entry
+    // Aktualisiert durchschnittliche Bewertung für Media-Eintrag
     public void updateAverageRating(int mediaId, double avgRating) {
         DatabaseConnection.executeInTransaction(conn -> {
             String sql = "UPDATE media_entries SET average_rating = ? WHERE id = ?";
@@ -150,7 +150,7 @@ public class MediaRepository {
         });
     }
 
-    // Converts database row (ResultSet) to MediaEntry object
+    // Konvertiert Datenbank-Zeile (ResultSet) zu MediaEntry Object
     // Helper-Methode um DB-Zeile in Java-Object zu konvertieren
     private MediaEntry mapResultSetToMedia(ResultSet rs) throws SQLException {
         MediaEntry media = new MediaEntry();
@@ -168,7 +168,7 @@ public class MediaRepository {
         return media;
     }
 
-    // Searches media with optional filters (null = ignore filter)
+    // Sucht Media mit optionalen Filtern (null = Filter ignorieren)
     public List<MediaEntry> searchMedia(String title, String genre, MediaType mediaType,
                                         Integer minRating, Integer ageRestriction) {
         return DatabaseConnection.executeInTransaction(conn -> {
@@ -176,25 +176,25 @@ public class MediaRepository {
             StringBuilder sql = new StringBuilder("SELECT * FROM media_entries WHERE 1=1");
             List<Object> params = new ArrayList<>();
 
-            // Filter by title (case-insensitive partial match)
+            // Filtert nach Titel (case-insensitive Teilstring-Match)
             if (title != null && !title.trim().isEmpty()) {
                 sql.append(" AND LOWER(title) LIKE LOWER(?)");  // LIKE für Teilstring-Suche
                 params.add("%" + title + "%");  // % = Wildcard (beliebige Zeichen)
             }
 
-            // Filter by genre (partial match in comma-separated list)
+            // Filtert nach Genre (Teilstring-Match in komma-separierter Liste)
             if (genre != null && !genre.trim().isEmpty()) {
                 sql.append(" AND LOWER(genres) LIKE LOWER(?)");
                 params.add("%" + genre + "%");
             }
 
-            // Filter by media type
+            // Filtert nach Media-Typ
             if (mediaType != null) {
                 sql.append(" AND media_type = ?");
                 params.add(mediaType.name());
             }
 
-            // Filter by age restriction (max age)
+            // Filtert nach Altersfreigabe (maximales Alter)
             if (ageRestriction != null) {
                 sql.append(" AND age_restriction <= ?");  // <= um alle bis zur Altersgrenze zu finden
                 params.add(ageRestriction);

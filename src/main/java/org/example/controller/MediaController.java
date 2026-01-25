@@ -14,11 +14,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
-// Controller for media management (CRUD operations for movies, series, games)
+// Controller für Media-Management (CRUD Operationen für Filme, Serien, Spiele)
 public class MediaController {
     private final MediaService mediaService;
     private final UserService userService;
-    private final ObjectMapper objectMapper;  // Jackson: JSON <-> Java object conversion
+    private final ObjectMapper objectMapper;  // Jackson: JSON <-> Java Object Konvertierung
 
     public MediaController(MediaService mediaService, UserService userService) {
         this.mediaService = mediaService;
@@ -26,18 +26,18 @@ public class MediaController {
         this.objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules();
     }
-    // Main handler for /api/media endpoint
-    // exchange = HTTP request object (automatically passed by HttpServer)
+    // Haupt-Handler für /api/media Endpoint
+    // exchange = HTTP Request Object (automatisch vom HttpServer übergeben)
     public void handleMedia(HttpExchange exchange) throws IOException {
-        Optional<User> user = authenticateRequest(exchange);  // Check token (optional for GET)
+        Optional<User> user = authenticateRequest(exchange);  // Prüft Token (optional für GET)
 
         String method = exchange.getRequestMethod(); // GET, POST, PUT, DELETE
-        String path = exchange.getRequestURI().getPath(); // /api/media or /api/media/{id}
+        String path = exchange.getRequestURI().getPath(); // /api/media oder /api/media/{id}
 
         try {
             switch (method) {
                 case "GET":
-                    handleGetMedia(exchange, path);  // No token required
+                    handleGetMedia(exchange, path);  // Kein Token erforderlich
                     break;
                 case "POST":
                     if (user.isEmpty()) {
@@ -68,16 +68,16 @@ public class MediaController {
         }
     }
 
-    // Get all or specific media
+    // Lädt alle oder spezifisches Media
     private void handleGetMedia(HttpExchange exchange, String path) throws IOException {
         String[] parts = path.split("/");
 
         if (parts.length == 3) {
-            // GET /api/media - get all media OR search with query parameters
+            // GET /api/media - lädt alle Media ODER Suche mit Query-Parametern
             String query = exchange.getRequestURI().getQuery();
 
             if (query != null && !query.isEmpty()) {
-                // Parse query parameters for search
+                // Parst Query-Parameter für Suche
                 String title = getQueryParam(query, "title");
                 String genre = getQueryParam(query, "genre");
                 String typeStr = getQueryParam(query, "mediaType");
@@ -89,7 +89,7 @@ public class MediaController {
                     try {
                         mediaType = MediaType.valueOf(typeStr.toUpperCase());
                     } catch (IllegalArgumentException e) {
-                        // Invalid media type, ignore
+                        // Ungültiger Media-Typ, ignorieren
                     }
                 }
 
@@ -100,15 +100,15 @@ public class MediaController {
                 String response = objectMapper.writeValueAsString(results);
                 sendResponse(exchange, 200, response);
             } else {
-                // No query parameters, return all media
+                // gibt alle Media zurück
                 List<MediaEntry> media = mediaService.getAllMedia();
                 String response = objectMapper.writeValueAsString(media);  // List -> JSON
                 sendResponse(exchange, 200, response);
             }
         } else if (parts.length == 4) {
-            // GET /api/media/{id} - get specific media
+            // GET /api/media/{id} - lädt spezifisches Media
             try {
-                int id = Integer.parseInt(parts[3]);  // Extract ID from URL
+                int id = Integer.parseInt(parts[3]);  // Extrahiert ID aus URL
                 Optional<MediaEntry> media = mediaService.getMediaById(id);
                 if (media.isPresent()) {
                     String response = objectMapper.writeValueAsString(media.get());
@@ -117,21 +117,21 @@ public class MediaController {
                     sendResponse(exchange, 404, "{\"error\":\"Media not found\"}");  // 404 = Not Found
                 }
             } catch (NumberFormatException e) {
-                sendResponse(exchange, 400, "{\"error\":\"Invalid media ID\"}");  // ID is not a number
+                sendResponse(exchange, 400, "{\"error\":\"Invalid media ID\"}");  // ID ist keine Zahl
             }
         } else {
             sendResponse(exchange, 400, "{\"error\":\"Invalid request\"}");
         }
     }
 
-    // POST /api/media - Creates new media entry
+    // POST /api/media - Erstellt neuen Media-Eintrag
     private void handleCreateMedia(HttpExchange exchange, User user) throws IOException {
         try {
-            // Read JSON from request body
+            // Liest JSON vom Request Body
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             MediaEntry media = objectMapper.readValue(body, MediaEntry.class);  // JSON -> MediaEntry
 
-            MediaEntry created = mediaService.createMedia(media, user);  // Save to DB
+            MediaEntry created = mediaService.createMedia(media, user);  // Speichert in DB
             String response = objectMapper.writeValueAsString(created);  // MediaEntry -> JSON
             sendResponse(exchange, 201, response);  // 201 = Created
         } catch (IllegalArgumentException e) {
@@ -139,16 +139,16 @@ public class MediaController {
         }
     }
 
-    // PUT /api/media/{id} - Updates media entry (only creator can update)
+    // PUT /api/media/{id} - Aktualisiert Media-Eintrag (nur Creator darf updaten)
     private void handleUpdateMedia(HttpExchange exchange, String path, User user) throws IOException {
         String[] parts = path.split("/");
-        if (parts.length != 4) {  // Must be /api/media/{id}
+        if (parts.length != 4) {  // Muss /api/media/{id} sein
             sendResponse(exchange, 400, "{\"error\":\"Invalid request\"}");
             return;
         }
 
         try {
-            int id = Integer.parseInt(parts[3]);  // Extract ID from URL
+            int id = Integer.parseInt(parts[3]);  // Extrahiert ID aus URL
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             MediaEntry media = objectMapper.readValue(body, MediaEntry.class);
             MediaEntry updated = mediaService.updateMedia(id, media, user);
@@ -161,7 +161,7 @@ public class MediaController {
         }
     }
 
-    // DELETE /api/media/{id} (only creator can delete)
+    // DELETE /api/media/{id} (nur Creator darf löschen)
     private void handleDeleteMedia(HttpExchange exchange, String path, User user) throws IOException {
         String[] parts = path.split("/");
         if (parts.length != 4) {
@@ -171,42 +171,42 @@ public class MediaController {
 
         try {
             int id = Integer.parseInt(parts[3]);
-            mediaService.deleteMedia(id, user);  // Service checks if user = creator
-            sendResponse(exchange, 204, "");  // 204 = No Content (successfully deleted)
+            mediaService.deleteMedia(id, user);  // Service prüft ob user = creator
+            sendResponse(exchange, 204, "");  // 204 = No Content (erfolgreich gelöscht)
         } catch (NumberFormatException e) {
             sendResponse(exchange, 400, "{\"error\":\"Invalid media ID\"}");
         } catch (IllegalArgumentException e) {
-            sendResponse(exchange, 403, "{\"error\":\"" + e.getMessage() + "\"}");  // Not authorized
+            sendResponse(exchange, 403, "{\"error\":\"" + e.getMessage() + "\"}");  // Nicht autorisiert
         }
     }
 
-    // Authenticates request via token in Authorization header
+    // Authentifiziert Request via Token im Authorization Header
     private Optional<User> authenticateRequest(HttpExchange exchange) {
         try {
-            // Read Authorization header: "Bearer {token}"
+            // Liest Authorization Header: "Bearer {token}"
             String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return Optional.empty();  // No token present
+                return Optional.empty();  // Kein Token vorhanden
             }
 
-            String token = authHeader.substring(7);  // Remove "Bearer ", get only token
-            return userService.validateToken(token);  // Check token in DB
+            String token = authHeader.substring(7);  // Entfernt "Bearer ", nimmt nur Token
+            return userService.validateToken(token);  // Prüft Token in DB
         } catch (RuntimeException e) {
-            return Optional.empty();  // Not authenticated
+            return Optional.empty();  // Nicht authentifiziert
         }
     }
 
-    // Sends HTTP response with JSON content
+    // Sendet HTTP Response mit JSON Content
     private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
-        exchange.getResponseHeaders().set("Content-Type", "application/json");  // Set JSON header
+        exchange.getResponseHeaders().set("Content-Type", "application/json");  // Setzt JSON Header
         byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
         exchange.sendResponseHeaders(statusCode, bytes.length);  // Status + Content-Length
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(bytes);  // Write response body
+            os.write(bytes);  // Schreibt Response Body
         }
     }
 
-    // Extracts query parameter from query string (e.g. "?title=Matrix&genre=Action")
+    // Extrahiert Query-Parameter aus Query-String (z.B. "?title=Matrix&genre=Action")
     private String getQueryParam(String query, String paramName) {
         if (query == null) return null;
         String[] params = query.split("&");
@@ -219,7 +219,7 @@ public class MediaController {
         return null;
     }
 
-    // Parses Integer from String, returns null if invalid
+    // Parst Integer aus String, gibt null zurück wenn ungültig
     private Integer parseIntegerParam(String value) {
         if (value == null || value.isEmpty()) return null;
         try {

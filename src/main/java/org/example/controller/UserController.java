@@ -12,10 +12,10 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-// Controller for User HTTP endpoints (registration, login, user info)
+// Controller für User HTTP Endpoints (Registrierung, Login, User Info)
 public class UserController {
     private final UserService userService;
-    private final ObjectMapper objectMapper;  // Jackson: JSON <-> Java object conversion
+    private final ObjectMapper objectMapper;  // Jackson: JSON <-> Java Object Konvertierung
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -30,11 +30,11 @@ public class UserController {
         }
 
         try {
-            // Read JSON from request body
+            // Liest JSON vom Request Body
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-            RegisterRequest request = objectMapper.readValue(body, RegisterRequest.class);  // JSON -> Java object
+            RegisterRequest request = objectMapper.readValue(body, RegisterRequest.class);  // JSON -> Java Object
 
-            User user = userService.register(request.getUsername(), request.getPassword()); // Register user
+            User user = userService.register(request.getUsername(), request.getPassword()); // Registriert User
 
             String response = objectMapper.writeValueAsString(new ResponseMessage("User registered successfully"));
             sendResponse(exchange, 201, response);  // 201 = Created
@@ -45,7 +45,7 @@ public class UserController {
         }
     }
 
-    // POST /api/users/login - Authenticates user and returns token
+    // POST /api/users/login - Authentifiziert User und gibt Token zurück
     public void handleLogin(HttpExchange exchange) throws IOException {
         if (!"POST".equals(exchange.getRequestMethod())) {
             sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
@@ -53,11 +53,11 @@ public class UserController {
         }
 
         try {
-            // Read login data from request
+            // Liest Login-Daten vom Request
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             LoginRequest request = objectMapper.readValue(body, LoginRequest.class);
 
-            String token = userService.login(request.getUsername(), request.getPassword()); // Perform login -> returns token
+            String token = userService.login(request.getUsername(), request.getPassword()); // Führt Login durch -> gibt Token zurück
 
             sendResponse(exchange, 200, "\"" + token + "\"");  // 200 = OK
         } catch (IllegalArgumentException e) {
@@ -67,7 +67,7 @@ public class UserController {
         }
     }
 
-    // PUT /api/users/{username} - Update user profile (password)
+    // PUT /api/users/{username} - Aktualisiert User-Profil (Passwort)
     public void handleUpdateProfile(HttpExchange exchange) throws IOException {
         if (!"PUT".equals(exchange.getRequestMethod())) {
             sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
@@ -75,14 +75,14 @@ public class UserController {
         }
 
         try {
-            // Check authentication
+            // Prüft Authentifizierung
             Optional<User> user = authenticateRequest(exchange);
             if (user.isEmpty()) {
                 sendResponse(exchange, 401, "{\"error\":\"Unauthorized\"}");
                 return;
             }
 
-            // Extract username from path
+            // Extrahiert Username aus Pfad
             String path = exchange.getRequestURI().getPath();
             String[] parts = path.split("/");
             if (parts.length < 4) {
@@ -92,13 +92,13 @@ public class UserController {
 
             String username = parts[3];
 
-            // User can only update own profile
+            // User kann nur eigenes Profil aktualisieren
             if (!username.equals(user.get().getUsername())) {
                 sendResponse(exchange, 403, "{\"error\":\"Forbidden\"}");
                 return;
             }
 
-            // Read new password from request body
+            // Liest neues Passwort vom Request Body
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             var updateData = objectMapper.readValue(body, java.util.Map.class);
 
@@ -108,7 +108,7 @@ public class UserController {
                 return;
             }
 
-            // Update password
+            // Aktualisiert Passwort
             userService.updatePassword(username, newPassword);
 
             sendResponse(exchange, 200, "{\"message\":\"Profile updated successfully\"}");
@@ -125,7 +125,7 @@ public class UserController {
         }
 
         try {
-            // Check token in Authorization header
+            // Prüft Token im Authorization Header
             Optional<User> user = authenticateRequest(exchange);
             if (user.isEmpty()) {
                 sendResponse(exchange, 401, "{\"error\":\"Unauthorized\"}");
@@ -133,7 +133,7 @@ public class UserController {
             }
 
             String path = exchange.getRequestURI().getPath();
-            String[] parts = path.split("/"); // Extract username from URL: /api/users/{username}
+            String[] parts = path.split("/"); // Extrahiert Username aus URL: /api/users/{username}
 
             if (parts.length < 4) {
                 sendResponse(exchange, 400, "{\"error\":\"Invalid request\"}");
@@ -141,13 +141,13 @@ public class UserController {
             }
 
             String username = parts[3];
-            // Identify user
+            // Identifiziert User
             if (!username.equals(user.get().getUsername())) {
                 sendResponse(exchange, 403, "{\"error\":\"Forbidden\"}");
                 return;
             }
 
-            // Build response with user data and statistics
+            // Baut Response mit User-Daten und Statistiken
             var responseData = new java.util.HashMap<String, Object>();
             responseData.put("username", user.get().getUsername());
             responseData.put("statistics", userService.getUserStatistics(username));
@@ -159,10 +159,10 @@ public class UserController {
         }
     }
 
-    // GET /api/leaderboard?limit=10 - requires authentication
+    // GET /api/leaderboard?limit=10 - benötigt Authentifizierung
 
 
-    // Parses limit parameter from query string, returns defaultValue if not found
+    // Parst Limit-Parameter aus Query String, gibt defaultValue zurück wenn nicht gefunden
     private int parseLimitParam(String query, int defaultValue) {
         if (query == null) return defaultValue;
         for (String param : query.split("&")) {
@@ -177,29 +177,29 @@ public class UserController {
         return defaultValue;
     }
 
-    // Authenticates request via token in Authorization header
+    // Authentifiziert Request via Token im Authorization Header
     private Optional<User> authenticateRequest(HttpExchange exchange) {
         String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return Optional.empty();  // No token present
+            return Optional.empty();  // Kein Token vorhanden
         }
 
-        // Extract token (remove "Bearer " prefix), "Bearer " = 7 characters
+        // Extrahiert Token (entfernt "Bearer " Prefix), "Bearer " = 7 Zeichen
         String token = authHeader.substring(7);
-        return userService.validateToken(token);  // Check token in DB
+        return userService.validateToken(token);  // Prüft Token in DB
     }
 
-    // Sends HTTP response with JSON content
+    // Sendet HTTP Response mit JSON Content
     private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
-        exchange.getResponseHeaders().set("Content-Type", "application/json");  // Set JSON header
+        exchange.getResponseHeaders().set("Content-Type", "application/json");  // Setzt JSON Header
         byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
         exchange.sendResponseHeaders(statusCode, bytes.length);  // Status + Content-Length
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(bytes);  // Write response body
+            os.write(bytes);  // Schreibt Response Body
         }
     }
 
-    // Simple JSON responses with "message" field
+    // Einfache JSON Response mit "message" Feld
     private static class ResponseMessage {
         public String message;
 

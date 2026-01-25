@@ -78,7 +78,7 @@ public class FavoriteController implements HttpHandler {
             return;
         }
 
-        // /api/users/{username}/favorites/check/{mediaId} or /{mediaId}/toggle
+        // /api/users/{username}/favorites/check/{mediaId} oder /{mediaId}/toggle
         if (pathLength == 7) {
             if (parts[5].equals("check") && method.equals("GET")) {
                 int mediaId = parseMediaId(parts[6]);
@@ -142,7 +142,7 @@ public class FavoriteController implements HttpHandler {
             sendError(exchange, 404, e.getMessage());
         }
     }
-    // Toggle favorite: add if not present, remove if present
+    // Toggle Favorite: fügt hinzu wenn nicht vorhanden, entfernt wenn vorhanden
     private void handleToggleFavorite(HttpExchange exchange, String username, int mediaId) throws IOException {
         try {
             boolean added = favoriteService.toggleFavorite(username, mediaId);

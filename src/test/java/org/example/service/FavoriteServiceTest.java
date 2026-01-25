@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-// Unit Tests for FavoriteService - Business Logic Layer
+// Unit Tests für FavoriteService - Business Logic Layer
 // Tests favorite management logic (add, remove, toggle, check)
 @ExtendWith(MockitoExtension.class)
 class FavoriteServiceTest {

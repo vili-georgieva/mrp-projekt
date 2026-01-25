@@ -36,7 +36,7 @@ class RouteIntegrationTest {
                 .build();
         testUsername = "integrationtest_" + System.currentTimeMillis();
 
-        // Check if server is running
+        // Prüft ob Server läuft
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(BASE_URL + "/api/media"))
@@ -55,7 +55,7 @@ class RouteIntegrationTest {
         return serverRunning;
     }
 
-    // Test: POST /api/users/register - User Registration via HTTP Route
+    // Test: POST /api/users/register - User-Registrierung via HTTP Route
     @Test
     @Order(1)
     @EnabledIf("isServerRunning")
@@ -75,7 +75,7 @@ class RouteIntegrationTest {
         assertTrue(response.body().contains("registered"));
     }
 
-    // Test: POST /api/users/login - User Login via HTTP Route
+    // Test: POST /api/users/login - User-Login via HTTP Route
     @Test
     @Order(2)
     @EnabledIf("isServerRunning")
@@ -93,7 +93,7 @@ class RouteIntegrationTest {
         // Status 200 = OK
         assertEquals(200, response.statusCode());
 
-        // Token Format: plain token string
+        // Token Format: einfacher Token String
         authToken = response.body().replace("\"", "");
         assertFalse(authToken.isEmpty());
     }
@@ -136,7 +136,7 @@ class RouteIntegrationTest {
         assertTrue(response.body().contains("Unauthorized"));
     }
 
-    // Test: GET /api/users/{username} - User Profile via HTTP Route
+    // Test: GET /api/users/{username} - User-Profil via HTTP Route
     @Test
     @Order(5)
     @EnabledIf("isServerRunning")

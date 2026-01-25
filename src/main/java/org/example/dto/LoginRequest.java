@@ -1,9 +1,13 @@
 package org.example.dto;
 
+// Data Transfer Object für Login Request
+// Empfängt Username und Passwort vom Client
 public class LoginRequest {
     private String username;
     private String password;
+
     //constructors
+    // Standard-Konstruktor (für Jackson JSON-Mapping)
     public LoginRequest() {
     }
 

@@ -6,6 +6,8 @@ import org.example.repository.RatingRepository;
 
 import java.util.List;
 
+// Business Logic Layer für Rating-Management
+// Verwaltet Bewertungen von Media durch User
 public class RatingService {
 
     private final RatingRepository ratingRepository;
@@ -121,6 +123,7 @@ public class RatingService {
     }
 
     // Confirm a rating (moderation - set confirmed=true)
+    // Nur bestätigte Ratings werden für Durchschnitt verwendet
     public boolean confirmRating(int ratingId) {
         boolean confirmed = ratingRepository.confirmRating(ratingId);
 
@@ -162,6 +165,7 @@ public class RatingService {
 
     // Calculate and update the average rating for a media entry
     // Only confirmed ratings are included in the average
+    // Private weil nur intern verwendet
     private void updateMediaAverageRating(int mediaId) {
         double avgRating = ratingRepository.getAverageRating(mediaId);
         mediaRepository.updateAverageRating(mediaId, avgRating);

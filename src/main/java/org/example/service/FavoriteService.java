@@ -6,6 +6,8 @@ import org.example.repository.MediaRepository;
 
 import java.util.List;
 
+// Business Logic Layer für Favorites-Management
+// User können Media als Favoriten markieren
 public class FavoriteService {
 
     private final FavoriteRepository favoriteRepository;
@@ -35,11 +37,11 @@ public class FavoriteService {
         if (favoriteRepository.isFavorite(username, mediaId)) {
             // Remove favorite
             favoriteRepository.removeFavorite(username, mediaId);
-            return false;
+            return false;  // Wurde entfernt
         } else {
             // Add favorite
             favoriteRepository.addFavorite(username, mediaId);
-            return true;
+            return true;  // Wurde hinzugefügt
         }
     }
 

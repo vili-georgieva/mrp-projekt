@@ -7,6 +7,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// Data Access Layer für Ratings
+// Verwaltet CRUD-Operationen für ratings Tabelle
 public class RatingRepository {
 
     // Creates ratings table on server start
@@ -16,14 +18,14 @@ public class RatingRepository {
                     "id SERIAL PRIMARY KEY," +
                     "media_id INTEGER NOT NULL," +
                     "username VARCHAR(255) NOT NULL," +
-                    "stars INTEGER NOT NULL CHECK (stars >= 1 AND stars <= 5)," +
+                    "stars INTEGER NOT NULL CHECK (stars >= 1 AND stars <= 5)," +  // CHECK constraint: Nur 1-5 Sterne erlaubt
                     "comment TEXT," +
-                    "confirmed BOOLEAN DEFAULT false," +
+                    "confirmed BOOLEAN DEFAULT false," +  // Für Moderation (nur confirmed Ratings zählen für Durchschnitt)
                     "likes INTEGER DEFAULT 0," +
-                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +  // Auto-Zeitstempel bei Erstellung
                     "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-                    "UNIQUE(media_id, username)," +
-                    "FOREIGN KEY (media_id) REFERENCES media_entries(id) ON DELETE CASCADE," +
+                    "UNIQUE(media_id, username)," +  // Ein User kann pro Media nur ein Rating haben
+                    "FOREIGN KEY (media_id) REFERENCES media_entries(id) ON DELETE CASCADE," +  // CASCADE: Löscht Ratings wenn Media gelöscht wird
                     "FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE" +
                     ")";
             try (Statement stmt = conn.createStatement()) {
@@ -38,11 +40,12 @@ public class RatingRepository {
     // Create a new rating or update existing one
     public Rating createRating(Rating rating) {
         return DatabaseConnection.executeInTransaction(conn -> {
+            // ON CONFLICT: Wenn Rating schon existiert (UNIQUE constraint), dann UPDATE statt INSERT
             String sql = "INSERT INTO ratings (media_id, username, stars, comment, confirmed, likes) " +
                          "VALUES (?, ?, ?, ?, ?, ?) " +
-                         "ON CONFLICT (media_id, username) DO UPDATE SET " +
+                         "ON CONFLICT (media_id, username) DO UPDATE SET " +  // Upsert: Insert or Update
                          "stars = EXCLUDED.stars, comment = EXCLUDED.comment, updated_at = CURRENT_TIMESTAMP " +
-                         "RETURNING id, created_at, updated_at";
+                         "RETURNING id, created_at, updated_at";  // Gibt generierte Werte zurück
 
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, rating.getMediaId());
@@ -55,7 +58,7 @@ public class RatingRepository {
                 try (ResultSet rs = pstmt.executeQuery()) {
                     if (rs.next()) {
                         rating.setId(rs.getInt("id"));
-                        rating.setTimestamp(rs.getTimestamp("created_at").toLocalDateTime());
+                        rating.setTimestamp(rs.getTimestamp("created_at").toLocalDateTime());  // Timestamp -> LocalDateTime
                     }
                 }
                 return rating;
@@ -265,6 +268,7 @@ public class RatingRepository {
     }
 
     // Helper method to map ResultSet to Rating object
+    // Konvertiert DB-Zeile (ResultSet) zu Rating Java-Object
     private Rating mapResultSetToRating(ResultSet rs) throws SQLException {
         Rating rating = new Rating();
         rating.setId(rs.getInt("id"));
@@ -277,7 +281,7 @@ public class RatingRepository {
 
         Timestamp created = rs.getTimestamp("created_at");
         if (created != null) {
-            rating.setTimestamp(created.toLocalDateTime());
+            rating.setTimestamp(created.toLocalDateTime());  // SQL Timestamp -> Java LocalDateTime
         }
 
         return rating;

@@ -10,21 +10,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+// Data Access Layer für Media-Einträge
+// Verwaltet CRUD-Operationen für media_entries Tabelle
 public class MediaRepository {
 
     // Creates table for media entries
     public void createTable() {
         DatabaseConnection.executeInTransaction(conn -> {
             String sql = "CREATE TABLE IF NOT EXISTS media_entries (" +
-                    "id SERIAL PRIMARY KEY," +
+                    "id SERIAL PRIMARY KEY," +  // SERIAL = Auto-Increment ID
                     "title VARCHAR(255) NOT NULL," +
                     "description TEXT," +
                     "media_type VARCHAR(50) NOT NULL," +
                     "release_year INTEGER," +
-                    "genres TEXT," +
+                    "genres TEXT," +  // Gespeichert als Komma-separierte Liste
                     "age_restriction INTEGER," +
                     "creator VARCHAR(255) NOT NULL," +
-                    "FOREIGN KEY (creator) REFERENCES users(username)" +
+                    "FOREIGN KEY (creator) REFERENCES users(username)" +  // Foreign Key Constraint
                     ")";
             try (Statement stmt = conn.createStatement()) {
                 stmt.execute(sql);
@@ -39,11 +41,11 @@ public class MediaRepository {
     public int save(MediaEntry media) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "INSERT INTO media_entries (title, description, media_type, release_year, genres, age_restriction, creator) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id";
+                    "VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id";  // RETURNING id gibt die generierte ID zurück
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, media.getTitle());
                 stmt.setString(2, media.getDescription());
-                stmt.setString(3, media.getMediaType().name());
+                stmt.setString(3, media.getMediaType().name());  // Enum -> String
                 stmt.setInt(4, media.getReleaseYear());
                 stmt.setString(5, String.join(",", media.getGenres()));  // List -> "Action,Drama"
                 stmt.setInt(6, media.getAgeRestriction());
@@ -67,7 +69,7 @@ public class MediaRepository {
                 stmt.setInt(1, id);
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
-                    return Optional.of(mapResultSetToMedia(rs));
+                    return Optional.of(mapResultSetToMedia(rs));  // Konvertiert DB-Zeile zu Java Object
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -149,6 +151,7 @@ public class MediaRepository {
     }
 
     // Converts database row (ResultSet) to MediaEntry object
+    // Helper-Methode um DB-Zeile in Java-Object zu konvertieren
     private MediaEntry mapResultSetToMedia(ResultSet rs) throws SQLException {
         MediaEntry media = new MediaEntry();
         media.setId(rs.getInt("id"));
@@ -158,7 +161,7 @@ public class MediaRepository {
         media.setReleaseYear(rs.getInt("release_year"));
         String genresStr = rs.getString("genres");
         if (genresStr != null && !genresStr.isEmpty()) {
-            media.setGenres(Arrays.asList(genresStr.split(",")));
+            media.setGenres(Arrays.asList(genresStr.split(",")));  // "Action,Drama" -> ["Action", "Drama"]
         }
         media.setAgeRestriction(rs.getInt("age_restriction"));
         media.setCreator(rs.getString("creator"));
@@ -169,13 +172,14 @@ public class MediaRepository {
     public List<MediaEntry> searchMedia(String title, String genre, MediaType mediaType,
                                         Integer minRating, Integer ageRestriction) {
         return DatabaseConnection.executeInTransaction(conn -> {
+            // Dynamischer SQL-Query: Fügt WHERE-Bedingungen nur hinzu wenn Filter gesetzt
             StringBuilder sql = new StringBuilder("SELECT * FROM media_entries WHERE 1=1");
             List<Object> params = new ArrayList<>();
 
             // Filter by title (case-insensitive partial match)
             if (title != null && !title.trim().isEmpty()) {
-                sql.append(" AND LOWER(title) LIKE LOWER(?)");
-                params.add("%" + title + "%");
+                sql.append(" AND LOWER(title) LIKE LOWER(?)");  // LIKE für Teilstring-Suche
+                params.add("%" + title + "%");  // % = Wildcard (beliebige Zeichen)
             }
 
             // Filter by genre (partial match in comma-separated list)
@@ -192,15 +196,16 @@ public class MediaRepository {
 
             // Filter by age restriction (max age)
             if (ageRestriction != null) {
-                sql.append(" AND age_restriction <= ?");
+                sql.append(" AND age_restriction <= ?");  // <= um alle bis zur Altersgrenze zu finden
                 params.add(ageRestriction);
             }
 
-            sql.append(" ORDER BY title");
+            sql.append(" ORDER BY title");  // Sortiert alphabetisch nach Titel
 
             try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+                // Setzt alle Parameter in PreparedStatement ein
                 for (int i = 0; i < params.size(); i++) {
-                    stmt.setObject(i + 1, params.get(i));
+                    stmt.setObject(i + 1, params.get(i));  // i+1 weil PreparedStatement bei 1 beginnt
                 }
 
                 ResultSet rs = stmt.executeQuery();

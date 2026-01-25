@@ -1,9 +1,12 @@
 package org.example.dto;
 
+// Data Transfer Object für Registrierung Request
+// Empfängt Username und Passwort vom Client für neue User
 public class RegisterRequest {
     private String username;
     private String password;
 
+    // Standard-Konstruktor (für Jackson JSON-Mapping)
     public RegisterRequest() {
     }
 

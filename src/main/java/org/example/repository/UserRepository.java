@@ -8,8 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+// Data Access Layer für User
+// Verwaltet alle Datenbankoperationen für User-Tabelle
 public class UserRepository {
 
+    // Erstellt User-Tabelle beim Server-Start (wenn nicht vorhanden)
     public void createTable() {
         DatabaseConnection.executeInTransaction(conn -> {
             String sql = "CREATE TABLE IF NOT EXISTS users (" +
@@ -26,12 +29,13 @@ public class UserRepository {
         });
     }
 
+    // Speichert neuen User in DB
     public void save(User user) {
         DatabaseConnection.executeInTransaction(conn -> {
             String sql = "INSERT INTO users (username, password_hash, token) VALUES (?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, user.getUsername());
-                stmt.setString(2, user.getPassword());
+                stmt.setString(2, user.getPassword());  // Passwort ist bereits gehasht
                 stmt.setString(3, user.getToken());
                 stmt.executeUpdate();
             } catch (SQLException e) {
@@ -41,6 +45,7 @@ public class UserRepository {
         });
     }
 
+    // Sucht User nach Username (gibt Optional.empty() zurück wenn nicht gefunden)
     public Optional<User> findByUsername(String username) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT * FROM users WHERE username = ?";
@@ -61,6 +66,7 @@ public class UserRepository {
         });
     }
 
+    // Sucht User nach Token (für Authentifizierung)
     public Optional<User> findByToken(String token) {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT * FROM users WHERE token = ?";
@@ -81,6 +87,7 @@ public class UserRepository {
         });
     }
 
+    // Aktualisiert den Session-Token eines Users (nach Login)
     public void updateToken(String username, String token) {
         DatabaseConnection.executeInTransaction(conn -> {
             String sql = "UPDATE users SET token = ? WHERE username = ?";
@@ -100,7 +107,7 @@ public class UserRepository {
         DatabaseConnection.executeInTransaction(conn -> {
             String sql = "UPDATE users SET password_hash = ? WHERE username = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, hashedPassword);
+                stmt.setString(1, hashedPassword);  // Passwort muss bereits gehasht sein
                 stmt.setString(2, username);
                 stmt.executeUpdate();
             } catch (SQLException e) {
@@ -110,6 +117,7 @@ public class UserRepository {
         });
     }
 
+    // Lädt alle User aus DB (z.B. für Admin-Zwecke)
     public List<User> findAll() {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT * FROM users";
@@ -201,6 +209,7 @@ public class UserRepository {
     // Gets leaderboard (top users by rating count)
     public List<java.util.Map<String, Object>> getLeaderboard(int limit) {
         return DatabaseConnection.executeInTransaction(conn -> {
+            // JOIN-Query: User + Anzahl Ratings, sortiert nach Anzahl
             String sql = "SELECT u.username, COUNT(r.id) as rating_count " +
                         "FROM users u " +
                         "LEFT JOIN ratings r ON u.username = r.username " +
@@ -214,7 +223,7 @@ public class UserRepository {
                 int rank = 1;
                 while (rs.next()) {
                     java.util.Map<String, Object> entry = new java.util.HashMap<>();
-                    entry.put("rank", rank++);
+                    entry.put("rank", rank++);  // Rang-Position (1, 2, 3, ...)
                     entry.put("username", rs.getString("username"));
                     entry.put("ratingCount", rs.getInt("rating_count"));
                     leaderboard.add(entry);
@@ -230,13 +239,14 @@ public class UserRepository {
     public List<java.util.Map<String, Object>> getRecommendations(String username, int limit) {
         return DatabaseConnection.executeInTransaction(conn -> {
             // Find genres from user's highly rated media (4-5 stars)
+            // Komplexe Query: Findet Media mit ähnlichen Genres wie die vom User hoch bewerteten
             String sql = "SELECT DISTINCT m.id, m.title, m.media_type, m.genres, m.average_rating " +
                         "FROM media_entries m " +
-                        "WHERE m.id NOT IN (SELECT media_id FROM ratings WHERE username = ?) " +
+                        "WHERE m.id NOT IN (SELECT media_id FROM ratings WHERE username = ?) " +  // Noch nicht bewertet
                         "AND EXISTS (" +
                         "  SELECT 1 FROM ratings r " +
                         "  JOIN media_entries m2 ON r.media_id = m2.id " +
-                        "  WHERE r.username = ? AND r.stars >= 4 " +
+                        "  WHERE r.username = ? AND r.stars >= 4 " +  // User hat andere Media >= 4 Sterne bewertet
                         "  AND (" +
                         "    m.genres LIKE '%' || SUBSTRING(m2.genres, 1, POSITION(',' IN m2.genres || ',') - 1) || '%' " +
                         "    OR m2.genres LIKE '%' || SUBSTRING(m.genres, 1, POSITION(',' IN m.genres || ',') - 1) || '%'" +

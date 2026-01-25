@@ -2,22 +2,26 @@ package org.example.model;
 
 import java.time.LocalDateTime;
 
+// Domain Model für Rating (Bewertung von Media durch User)
+// Ein User kann pro Media nur ein Rating abgeben
 public class Rating {
-    private int id;
-    private int mediaId;
-    private String username;
-    private int stars;
-    private String comment;
-    private LocalDateTime timestamp;
-    private int likes;
-    private boolean confirmed;
+    private int id;  // Eindeutige ID (Auto-generiert von DB)
+    private int mediaId;  // Referenz zum bewerteten Media
+    private String username;  // User der das Rating erstellt hat
+    private int stars;  // Bewertung 1-5 Sterne
+    private String comment;  // Optionaler Kommentar
+    private LocalDateTime timestamp;  // Zeitpunkt der Erstellung
+    private int likes;  // Anzahl Likes für dieses Rating
+    private boolean confirmed;  // Moderation Status (true = freigegeben)
 
+    // Standard-Konstruktor (für Jackson JSON-Mapping)
     public Rating() {
         this.timestamp = LocalDateTime.now();
         this.likes = 0;
         this.confirmed = false;
     }
 
+    // Konstruktor für neues Rating
     public Rating(int id, int mediaId, String username, int stars, String comment) {
         this.id = id;
         this.mediaId = mediaId;

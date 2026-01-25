@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+// Data Access Layer für Favorites
+// Verwaltet Favorite-Markierungen von Usern für Media
 public class FavoriteRepository {
 
     // Creates favorites table on server start
@@ -20,8 +22,8 @@ public class FavoriteRepository {
             String sql = "CREATE TABLE IF NOT EXISTS favorites (" +
                     "username VARCHAR(255) NOT NULL," +
                     "media_id INTEGER NOT NULL," +
-                    "added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-                    "PRIMARY KEY (username, media_id)," +
+                    "added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +  // Zeitpunkt wann favorisiert
+                    "PRIMARY KEY (username, media_id)," +  // Composite Primary Key (beide zusammen eindeutig)
                     "FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE," +
                     "FOREIGN KEY (media_id) REFERENCES media_entries(id) ON DELETE CASCADE" +
                     ")";
@@ -37,12 +39,13 @@ public class FavoriteRepository {
     // Adds a media to a user's favorites
     public boolean addFavorite(String username, int mediaId) {
         return DatabaseConnection.executeInTransaction(conn -> {
+            // ON CONFLICT DO NOTHING: Ignoriert Fehler wenn schon favorisiert (statt Exception)
             String sql = "INSERT INTO favorites (username, media_id) VALUES (?, ?) ON CONFLICT DO NOTHING";
 
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, username);
                 stmt.setInt(2, mediaId);
-                return stmt.executeUpdate() > 0;
+                return stmt.executeUpdate() > 0;  // true wenn Zeile eingefügt wurde
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -57,7 +60,7 @@ public class FavoriteRepository {
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, username);
                 stmt.setInt(2, mediaId);
-                return stmt.executeUpdate() > 0;
+                return stmt.executeUpdate() > 0;  // true wenn Zeile gelöscht wurde
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -75,7 +78,7 @@ public class FavoriteRepository {
 
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
-                        return rs.getInt(1) > 0;
+                        return rs.getInt(1) > 0;  // true wenn mindestens 1 Zeile gefunden
                     }
                 }
             } catch (SQLException e) {
@@ -88,10 +91,11 @@ public class FavoriteRepository {
     // Gets all favorites of a user (returns complete MediaEntry objects)
     public List<MediaEntry> getFavoritesByUser(String username) {
         return DatabaseConnection.executeInTransaction(conn -> {
+            // INNER JOIN: Verbindet favorites mit media_entries Tabelle
             String sql = "SELECT m.* FROM media_entries m " +
                         "INNER JOIN favorites f ON m.id = f.media_id " +
                         "WHERE f.username = ? " +
-                        "ORDER BY f.added_at DESC";
+                        "ORDER BY f.added_at DESC";  // Neueste zuerst
 
             List<MediaEntry> favorites = new ArrayList<>();
 

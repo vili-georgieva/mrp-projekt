@@ -3,23 +3,27 @@ package org.example.model;
 import java.util.ArrayList;
 import java.util.List;
 
+// Domain Model für Media-Einträge (Filme, Serien, Spiele)
+// Speichert alle Informationen zu einem Media-Eintrag
 public class MediaEntry {
-    private int id;
-    private String title;
-    private String description;
+    private int id;  // Eindeutige ID (Auto-generiert von DB)
+    private String title;  // Titel des Media
+    private String description;  // Beschreibung/Zusammenfassung
     private MediaType mediaType; // movie, series, game
-    private int releaseYear;
+    private int releaseYear;  // Erscheinungsjahr
     private List<String> genres; //action, drama, comedy...
-    private int ageRestriction;
-    private String creator;
-    private List<Rating> ratings;
-    private double averageScore;
+    private int ageRestriction;  // Altersfreigabe (z.B. 16)
+    private String creator;  // Username des Erstellers
+    private List<Rating> ratings;  // Alle Ratings zu diesem Media
+    private double averageScore;  // Durchschnittliche Bewertung (berechnet)
 
+    // Standard-Konstruktor (für Jackson JSON-Mapping)
     public MediaEntry() {
         this.genres = new ArrayList<>();
         this.ratings = new ArrayList<>();
     }
 
+    // Vollständiger Konstruktor
     public MediaEntry(int id, String title, String description, MediaType mediaType,
                       int releaseYear, List<String> genres, int ageRestriction, String creator) {
         this.id = id;
@@ -34,6 +38,7 @@ public class MediaEntry {
         this.averageScore = 0.0;
     }
 
+    // Berechnet den Durchschnitt aller Rating-Stars
     public void calculateAverageScore() {
         if (ratings.isEmpty()) {
             this.averageScore = 0.0;

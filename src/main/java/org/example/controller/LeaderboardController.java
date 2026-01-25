@@ -53,7 +53,7 @@ public class LeaderboardController implements HttpHandler {
             String query = exchange.getRequestURI().getQuery();
             int limit = parseLimitParam(query, 10);
 
-            List<Map<String, Object>> leaderboard = leaderboardService.getLeaderboard(limit);
+            var leaderboard = leaderboardService.getLeaderboard(limit);
             String response = objectMapper.writeValueAsString(leaderboard);
             sendResponse(exchange, 200, response);
         } catch (IllegalArgumentException e) {

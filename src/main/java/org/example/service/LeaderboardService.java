@@ -14,6 +14,7 @@ public class LeaderboardService {
     }
 
     // Gibt Leaderboard sortiert nach Anzahl Ratings zurück
+    //string username, int ratingCount
     public List<Map<String, Object>> getLeaderboard(int limit) {
         if (limit <= 0) {
             throw new IllegalArgumentException("Limit must be greater than 0");

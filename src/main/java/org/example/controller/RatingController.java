@@ -78,7 +78,7 @@ public class RatingController {
                 String action = parts[4];
                 switch (action) {
                     case "comment":
-                        if (method.equals("PATCH")) {
+                        if (method.equals("PATCH")) { // update comment
                             handleUpdateComment(exchange, ratingId, user.get());
                         } else if (method.equals("DELETE")) {
                             handleDeleteComment(exchange, ratingId, user.get());

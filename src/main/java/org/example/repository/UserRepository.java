@@ -206,6 +206,7 @@ public class UserRepository {
     }
 
     // Holt Leaderboard (top User nach Rating-Count)
+    // left join user und ratings, gruppiert nach user, zählt ratings, sortiert absteigend
     public List<java.util.Map<String, Object>> getLeaderboard(int limit) {
         return DatabaseConnection.executeInTransaction(conn -> {
             // JOIN-Query: User + Anzahl Ratings, sortiert nach Anzahl

@@ -103,6 +103,12 @@ public class RatingController {
                 }
             }
 
+            // PUT /api/ratings/{id} - Update eigenes Rating
+            if (method.equals("PUT")) {
+                handleUpdateRating(exchange, ratingId, user.get());
+                return;
+            }
+
             // DELETE /api/ratings/{id}
             if (method.equals("DELETE")) {
                 handleDeleteRating(exchange, ratingId, user.get());
@@ -168,6 +174,40 @@ public class RatingController {
             }
         } catch (SecurityException e) {
             sendResponse(exchange, 403, "{\"error\":\"" + e.getMessage() + "\"}");
+        }
+    }
+
+    // PUT /api/ratings/{ratingId} - Update eigenes Rating (stars und comment)
+    private void handleUpdateRating(HttpExchange exchange, int ratingId, User user) throws IOException {
+        try {
+            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            Rating input = objectMapper.readValue(body, Rating.class);
+
+            // Hole bestehendes Rating zur Ownership-Prüfung
+            Rating existing = ratingService.getRatingById(ratingId);
+            if (existing == null) {
+                sendResponse(exchange, 404, "{\"error\":\"Rating not found\"}");
+                return;
+            }
+
+            // Prüfe ob User der Owner ist
+            if (!existing.getUsername().equals(user.getUsername())) {
+                sendResponse(exchange, 403, "{\"error\":\"You can only update your own ratings\"}");
+                return;
+            }
+
+            // Update über createOrUpdateRating (verwendet mediaId und username)
+            Rating updated = ratingService.createOrUpdateRating(
+                existing.getMediaId(),
+                user.getUsername(),
+                input.getStars(),
+                input.getComment()
+            );
+
+            String response = objectMapper.writeValueAsString(updated);
+            sendResponse(exchange, 200, response);
+        } catch (IllegalArgumentException e) {
+            sendResponse(exchange, 400, "{\"error\":\"" + e.getMessage() + "\"}");
         }
     }
 

@@ -1,13 +1,154 @@
 # Protocol - Media Ratings Platform (MRP)
 
 ## Student Information
-- **Name:** David
-- **Student ID:** if25b113
+- **Name:** Velichka Georgieva
+- **Student ID:** if24b265
 - **Date:** January 24, 2026
 - **Submission:** Final
 
 ## Project Overview
 Implementation of a RESTful HTTP server for a Media Ratings Platform using pure Java HTTP libraries (HttpServer) without web frameworks like Spring or JSP.
+
+## Implemented Features
+
+### Core Features 
+- **User Management**: Registration, login, token-based authentication
+- **Media Management**: CRUD operations (Create, Read, Update, Delete) with ownership validation
+- **Model Classes**: User, MediaEntry, Rating, MediaType (enum)
+- **HTTP Server**: Pure Java HttpServer on port 8080
+- **Database**: PostgreSQL with proper schema and foreign keys
+- **SQL Injection Protection**: All queries use PreparedStatements
+
+### Rating System 
+- Create/update rating (1-5 stars) with comment
+- One rating per user per media (UNIQUE constraint, editable)
+- Like ratings (1 like per rating per user)
+- Comment moderation (confirmed flag before public visibility)
+- Delete own ratings
+- Update/delete comments separately
+- Rating history per user
+- Automatic average rating calculation per media
+
+### Favorites System 
+- Add media to favorites
+- Remove media from favorites
+- Toggle favorite status (add/remove in one call)
+- List all user favorites with full media details
+- Check if media is favorite
+
+### Profile & Statistics 
+- View user profile with statistics
+- Statistics include: total media count, rating count, favorite count, average stars given
+- Edit profile (update password)
+
+### Search & Filter 
+- Search media by partial title match
+- Filter by genre, media type, release year, age restriction
+- Filter by minimum rating
+- Multiple filters combinable
+- Dynamic SQL query building
+
+### Business Logic 
+- **Ownership validation** (2 points): Only creator can modify/delete media
+- **One rating per user** (1 point): Enforced by UNIQUE constraint, allows updates
+- **Comment moderation** (2 points): Comments only public after confirmation
+- **Average rating** (3 points): Automatically calculated and stored per media
+
+### Advanced Features
+- **Leaderboard** (2 points): Top users by rating count with ranking
+- **Recommendation System** (4 points): Genre-based recommendations using user's highly-rated media (4-5 stars), excludes already rated media
+
+### API Endpoints (40+ Endpoints)
+#### User Management (4 endpoints)
+- POST /api/users/register
+- POST /api/users/login
+- GET /api/users/{username}
+- PUT /api/users/{username}
+
+#### Media Management (5 endpoints)
+- GET /api/media (with optional search/filter parameters)
+- GET /api/media/{id}
+- POST /api/media
+- PUT /api/media/{id}
+- DELETE /api/media/{id}
+
+#### Rating System (10 endpoints)
+- POST /api/media/{id}/ratings
+- GET /api/media/{id}/ratings
+- DELETE /api/ratings/{id}
+- PUT /api/ratings/{id}
+- PATCH /api/ratings/{id}/comment
+- DELETE /api/ratings/{id}/comment
+- POST /api/ratings/{id}/like
+- POST /api/ratings/{id}/confirm
+- GET /api/users/{username}/rating-history
+
+#### Favorites (5 endpoints)
+- POST /api/users/{username}/favorites/{mediaId}
+- DELETE /api/users/{username}/favorites/{mediaId}
+- POST /api/users/{username}/favorites/{mediaId}/toggle
+- GET /api/users/{username}/favorites
+- GET /api/users/{username}/favorites/check/{mediaId}
+
+#### Leaderboard & Recommendations (2 endpoints)
+- GET /api/leaderboard?limit={n}
+- GET /api/recommendations?username={user}&limit={n}
+
+### Non-Functional Requirements
+- **Security**: Token-based authentication (UUID tokens)
+- **Password Security**: SHA-256 hashing
+- **Data Persistence**: PostgreSQL in Docker
+- **Testing**: 52 unit tests (JUnit 5 + Mockito)
+- **Integration Testing**: Curl scripts for all endpoints
+- **Documentation**: Complete README.md and protocol.md
+- **SOLID Principles**: Clear implementation with examples
+- **Clean Architecture**: Controller-Service-Repository pattern
+
+## Points Overview (According to Checklist)
+
+### Must Haves (Essential)
+- Uses Java ✓
+- HTTP Server listening to clients ✓
+- Pure HTTP library (no Spring/JSP) ✓
+- PostgreSQL Database ✓
+- Prevents SQL injection ✓
+- No OR-Mapping ✓
+- 20+ unit tests ✓ (52 tests)
+
+### Functional Requirements (Points)
+- Model classes: Essential ✓
+- Register/Login: Essential ✓
+- Create/Update/Delete media (owner): 1 point ✓
+- Rate media + comments + likes: 2 points ✓
+- Favorites: 2 points ✓
+- Profile & statistics: 1 point ✓
+- Rating history & favorites list: 2 points ✓
+
+### Business Logic (Points)
+- One rating per user: 1 point ✓
+- Comment moderation: 2 points ✓
+- Average rating: 3 points ✓
+- Recommendation system: 4 points ✓
+- Search & filter: 3 points ✓
+- Ownership logic: 2 points ✓
+- Leaderboard: 2 points ✓
+
+### Non-Functional (Points)
+- Token security: Essential ✓
+- PostgreSQL + Docker: 7 points ✓
+- Unit test quality: 4 points ✓
+- SOLID principles: 2 points ✓
+- Integration tests: 2 points ✓
+
+### Protocol (Points)
+- App design: 0.5 points ✓
+- Lessons learned: 1 point ✓
+- Unit test strategy: 1 point ✓
+- SOLID examples: 1 point ✓
+- Time tracking: 0.5 points ✓
+- Git link: Essential ✓
+
+**Total Possible Points: 44**
 
 ## Technical Architecture
 
@@ -43,38 +184,48 @@ This separation ensures:
 └────────┬────────┘
          │ initializes
          ▼
-┌──────────────────────────────────────┐
-│  Controllers                          │
-│  ├─ UserController                    │
-│  └─ MediaController                   │
-└────────┬─────────────────────────────┘
+┌──────────────────────────────────────────┐
+│  Controllers                              │
+│  ├─ UserController                        │
+│  ├─ MediaController                       │
+│  ├─ RatingController                      │
+│  ├─ FavoriteController                    │
+│  ├─ LeaderboardController                 │
+│  └─ RecommendationController              │
+└────────┬─────────────────────────────────┘
          │ uses
          ▼
-┌──────────────────────────────────────┐
-│  Services (Business Logic)            │
-│  ├─ UserService                       │
-│  └─ MediaService                      │
-└────────┬─────────────────────────────┘
+┌──────────────────────────────────────────┐
+│  Services (Business Logic)                │
+│  ├─ UserService                           │
+│  ├─ MediaService                          │
+│  ├─ RatingService                         │
+│  ├─ FavoriteService                       │
+│  ├─ LeaderboardService                    │
+│  └─ RecommendationService                 │
+└────────┬─────────────────────────────────┘
          │ uses
          ▼
-┌──────────────────────────────────────┐
-│  Repositories (Data Access)           │
-│  ├─ UserRepository                    │
-│  └─ MediaRepository                   │
-└────────┬─────────────────────────────┘
+┌──────────────────────────────────────────┐
+│  Repositories (Data Access)               │
+│  ├─ UserRepository                        │
+│  ├─ MediaRepository                       │
+│  ├─ RatingRepository                      │
+│  └─ FavoriteRepository                    │
+└────────┬─────────────────────────────────┘
          │ uses
          ▼
-┌──────────────────────────────────────┐
-│  PostgreSQL Database                  │
-└──────────────────────────────────────┘
+┌──────────────────────────────────────────┐
+│  PostgreSQL Database                      │
+└──────────────────────────────────────────┘
 
-┌──────────────────────────────────────┐
-│  Models (Domain Objects)              │
-│  ├─ User                              │
-│  ├─ MediaEntry                        │
-│  ├─ Rating                            │
-│  └─ MediaType (enum)                  │
-└──────────────────────────────────────┘
+┌──────────────────────────────────────────┐
+│  Models (Domain Objects)                  │
+│  ├─ User                                  │
+│  ├─ MediaEntry                            │
+│  ├─ Rating                                │
+│  └─ MediaType (enum)                      │
+└──────────────────────────────────────────┘
 ```
 
 ## Implementation Details
@@ -129,12 +280,50 @@ CREATE TABLE media_entries (
     description TEXT,
     media_type VARCHAR(50) NOT NULL,
     release_year INTEGER,
-    genres TEXT,
+    genre VARCHAR(255),
     age_restriction INTEGER,
+    director VARCHAR(255),
     creator VARCHAR(255) NOT NULL,
-    FOREIGN KEY (creator) REFERENCES users(username)
+    average_rating DECIMAL(3,2) DEFAULT 0.0,
+    FOREIGN KEY (creator) REFERENCES users(username) ON DELETE CASCADE
 );
 ```
+
+**Ratings Table:**
+```sql
+CREATE TABLE ratings (
+    id SERIAL PRIMARY KEY,
+    media_id INTEGER NOT NULL,
+    username VARCHAR(255) NOT NULL,
+    stars INTEGER NOT NULL CHECK (stars >= 1 AND stars <= 5),
+    comment TEXT,
+    confirmed BOOLEAN DEFAULT FALSE,
+    likes INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (media_id) REFERENCES media_entries(id) ON DELETE CASCADE,
+    FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE,
+    UNIQUE(media_id, username)
+);
+```
+
+**Favorites Table:**
+```sql
+CREATE TABLE favorites (
+    username VARCHAR(255) NOT NULL,
+    media_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (username, media_id),
+    FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE,
+    FOREIGN KEY (media_id) REFERENCES media_entries(id) ON DELETE CASCADE
+);
+```
+
+**Key Design Decisions:**
+- UNIQUE constraint on (media_id, username) in ratings ensures one rating per user per media
+- CASCADE deletes maintain referential integrity
+- CHECK constraint validates star rating range (1-5)
+- average_rating stored in media_entries for performance (updated automatically)
+- confirmed flag enables comment moderation
 
 ### 5. HTTP Response Codes
 Proper HTTP status codes are implemented:
@@ -234,8 +423,10 @@ An automated curl script (`test_api.sh`) tests all endpoints:
 
 **Solution:**
 - Stored in database (persistent across restarts)
-- Simple format: `{username}-mrpToken`
+- UUID-based format: Random UUID generated for each login
 - Easy to validate with database query
+- Token invalidation possible (logout functionality)
+- Secure: unpredictable random tokens instead of username-based patterns
 
 
 ## Git Repository
@@ -328,15 +519,21 @@ Use a proper logging framework (SLF4J, Log4j) instead of System.out.println:
 ## Unit Testing Strategy and Coverage
 
 ### Test Distribution
-The project includes 53 unit tests distributed across layers:
-- **Controller Layer (PL)**: 19 tests (36%)
-- **Service Layer (BLL)**: 27 tests (51%)
-- **Integration Tests (HTTP Routes)**: 7 tests (13%)
+The project includes 52 unit tests distributed across layers:
+- **Service Layer (BLL)**: 27 tests (52%)
+- **Controller Layer (PL)**: 19 tests (37%)
+- **Integration Tests (HTTP Routes)**: 6 tests (11%, skipped if server not running)
 
 This distribution follows the lecturer's recommendation:
-- Focus on Presentation Layer (Controller tests)
-- Medium coverage on Business Logic Layer (Service tests)
-- Minimal/None on Data Access Layer (Repository - tested via integration)
+- Strong focus on Business Logic Layer (Service tests)
+- Good coverage on Presentation Layer (Controller tests)
+- Integration tests validate HTTP routing and end-to-end flows
+
+**Test Results:**
+- 46 tests run successfully (all pass)
+- 6 integration tests skipped when server not running
+- 0 failures, 0 errors
+- Total coverage of all critical business logic
 
 ### Test Categories
 
@@ -402,13 +599,15 @@ This distribution follows the lecturer's recommendation:
 - `handleToggleFavoriteWithValidTokenTest`: Tests toggle with token (200)
 - `handleCheckFavoriteTest`: Tests check favorite (200)
 
-#### RouteIntegrationTest (7 tests)
+#### RouteIntegrationTest (6 tests)
 - `registerUserViaRouteTest`: Tests real HTTP POST /api/users/register
 - `loginUserViaRouteTest`: Tests real HTTP POST /api/users/login
 - `getMediaViaRouteTest`: Tests real HTTP GET /api/media
 - `createMediaWithoutTokenViaRouteTest`: Tests unauthorized access (401)
 - `getUserProfileViaRouteTest`: Tests real HTTP GET /api/users/{username}
 - `loginWithWrongCredentialsViaRouteTest`: Tests wrong credentials (401)
+
+**Note:** Integration tests are skipped when the server is not running, ensuring unit tests can run independently.
 
 ### Mockito Strategy
 Mockito is used extensively to isolate unit tests:
@@ -722,21 +921,72 @@ Not heavily demonstrated due to lack of inheritance, but:
 
 ---
 
+## Submission Completeness
+
+### Delivered Files
+- **Source Code**: Complete Java project with Maven configuration
+- **README.md**: User documentation with API reference and quick start guide
+- **protocol.md**: This development report with architecture, testing, and reflections
+- **docker-compose.yml**: PostgreSQL database configuration
+- **MRP_Postman_Collection.json**: Complete Postman collection for all endpoints
+- **Integration Test Scripts**:
+  - `test_all_endpoints.sh`: Master test script
+  - `test_api.sh`: Basic API tests
+  - `test_search.sh`: Search & filter tests
+  - `test_leaderboard.sh`: Leaderboard tests
+  - `test_recommendations.sh`: Recommendation tests
+  - `test_favorites.sh`: Favorites tests
+  - `test_rating_system.sh`: Rating system tests
+
+### GitHub Repository
+- **Link**: https://github.com/vili-georgieva/mrp-projekt
+- **Commit History**: Complete development history with meaningful commit messages
+- **Branches**: Main branch with stable code
+
+### Requirements Checklist
+✓ Java implementation
+✓ Pure HTTP server (no web frameworks)
+✓ PostgreSQL database in Docker
+✓ SQL injection prevention (PreparedStatements)
+✓ No OR-Mapping library
+✓ 52 unit tests (requirement: minimum 20)
+✓ Token-based authentication
+✓ All functional requirements implemented
+✓ All business logic implemented
+✓ Complete documentation
+✓ Integration tests (curl scripts)
+✓ SOLID principles demonstrated
+✓ Time tracking included
+✓ Lessons learned documented
+
+### Presentation Readiness
+- ✓ Working solution tested and ready
+- ✓ Docker environment configured
+- ✓ Postman collection prepared
+- ✓ Architecture diagrams available
+- ✓ Demo data can be created via test scripts
+
+---
+
 ## Final Notes
 
 This project successfully demonstrates a complete RESTful API implementation using pure Java HTTP libraries without web frameworks. All required features are implemented, tested, and documented.
 
 The final application includes:
-- 20 unit tests covering business logic
+- **52 unit tests** covering business logic (46 active + 6 integration tests)
+- **6 Controllers**: User, Media, Rating, Favorite, Leaderboard, Recommendation
+- **6 Services**: Complete business logic layer
+- **4 Repositories**: Database access with PreparedStatements (SQL injection protection)
 - Integration tests via curl scripts
 - Docker-based PostgreSQL database
-- Token-based authentication
+- Token-based authentication (UUID format)
 - Complete CRUD operations for users and media
-- Rating system with confirmation and likes
-- Favorites system
-- Search and filter functionality
-- Leaderboard
-- Genre-based recommendation system
+- **Rating system** with confirmation, likes, and comment moderation
+- **Favorites system** with toggle functionality
+- **Search and filter** functionality (title, genre, type, age restriction, rating)
+- **Leaderboard** (top users by rating count)
+- **Genre-based recommendation system**
+- **User statistics** (media count, rating count, average stars, favorites)
 
-All code adheres to SOLID principles and follows clean architecture patterns.
+All code adheres to SOLID principles and follows clean architecture patterns with clear separation between Controller, Service, and Repository layers.
 

@@ -56,12 +56,14 @@ echo ""
 
 # Get recommendations (should recommend Inception and Interstellar - similar genres)
 echo "5. Get recommendations..."
-curl -s -X GET "$BASE_URL/api/users/recouser/recommendations?limit=5"
+curl -s -X GET "$BASE_URL/api/recommendations?username=recouser&limit=5" \
+  -H "Authorization: Bearer $TOKEN"
 echo ""
 echo ""
 
 echo "6. Get recommendations with limit 3..."
-curl -s -X GET "$BASE_URL/api/users/recouser/recommendations?limit=3"
+curl -s -X GET "$BASE_URL/api/recommendations?username=recouser&limit=3" \
+  -H "Authorization: Bearer $TOKEN"
 echo ""
 echo ""
 

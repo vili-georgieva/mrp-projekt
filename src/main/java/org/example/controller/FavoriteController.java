@@ -4,7 +4,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.example.model.MediaEntry;
-import org.example.repository.UserRepository;
 import org.example.service.FavoriteService;
 import org.example.service.UserService;
 import java.io.IOException;
@@ -18,15 +17,7 @@ public class FavoriteController implements HttpHandler {
     private final UserService userService;
     private final ObjectMapper objectMapper;
 
-    // Default constructor (production use)
-    public FavoriteController() {
-        this.favoriteService = new FavoriteService();
-        this.userService = new UserService(new UserRepository());
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.registerModule(new JavaTimeModule());
-    }
-
-    // Constructor for dependency injection (testing)
+    // Constructor mit Dependency Injection
     public FavoriteController(FavoriteService favoriteService, UserService userService) {
         this.favoriteService = favoriteService;
         this.userService = userService;
@@ -151,7 +142,7 @@ public class FavoriteController implements HttpHandler {
             sendError(exchange, 404, e.getMessage());
         }
     }
-
+    // Toggle favorite: add if not present, remove if present
     private void handleToggleFavorite(HttpExchange exchange, String username, int mediaId) throws IOException {
         try {
             boolean added = favoriteService.toggleFavorite(username, mediaId);

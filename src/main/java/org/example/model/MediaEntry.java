@@ -39,7 +39,7 @@ public class MediaEntry {
             this.averageScore = 0.0;
         } else {
             this.averageScore = ratings.stream()
-                    .mapToInt(Rating::getStars)
+                    .mapToInt(Rating::getStars)// extract stars from each rating
                     .average()
                     .orElse(0.0);
         }

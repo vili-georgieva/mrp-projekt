@@ -30,15 +30,23 @@ TOKEN2=$(curl -s -X POST "$BASE_URL/api/users/login" \
 echo "Test users created"
 echo ""
 
-# Get leaderboard (default limit 10)
+# Get leaderboard (default limit 10) - requires authentication
 echo "2. Get leaderboard (default)..."
-curl -s -X GET "$BASE_URL/api/leaderboard"
+curl -s -X GET "$BASE_URL/api/leaderboard" \
+  -H "Authorization: Bearer $TOKEN1"
 echo ""
 echo ""
 
 # Get leaderboard with limit
 echo "3. Get leaderboard (limit 5)..."
-curl -s -X GET "$BASE_URL/api/leaderboard?limit=5"
+curl -s -X GET "$BASE_URL/api/leaderboard?limit=5" \
+  -H "Authorization: Bearer $TOKEN1"
+echo ""
+echo ""
+
+# Test without token (should fail)
+echo "4. Get leaderboard without token (should fail with 401)..."
+curl -s -X GET "$BASE_URL/api/leaderboard"
 echo ""
 echo ""
 

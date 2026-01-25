@@ -106,16 +106,21 @@ echo "✅ $RATING_COUNT Rating(s) gefunden"
 echo "$RATINGS" | jq '.'
 echo ""
 
-# 6. Update Rating (Edit Kommentar)
-echo "6️⃣  Rating aktualisieren (Kommentar ändern)..."
-UPDATE_RESPONSE=$(curl -s -X POST "$BASE_URL/api/media/$MEDIA_ID/ratings" \
+ 6. Update Rating via PUT /api/ratings/{id}
+echo "6️⃣  Rating aktualisieren (PUT /api/ratings/{id})..."
+UPDATE_RESPONSE=$(curl -s -X PUT "$BASE_URL/api/ratings/$RATING_ID" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{"stars":4,"comment":"Still great, but not perfect on second viewing."}')
 
-echo "✅ Rating aktualisiert"
-echo "   New Stars: $(echo "$UPDATE_RESPONSE" | jq -r '.stars')"
-echo "   New Comment: $(echo "$UPDATE_RESPONSE" | jq -r '.comment')"
+if echo "$UPDATE_RESPONSE" | jq -e '.stars' > /dev/null 2>&1; then
+    echo "✅ Rating aktualisiert"
+    echo "   New Stars: $(echo "$UPDATE_RESPONSE" | jq -r '.stars')"
+    echo "   New Comment: $(echo "$UPDATE_RESPONSE" | jq -r '.comment')"
+else
+    echo "❌ Rating Update fehlgeschlagen!"
+    echo "   Response: $UPDATE_RESPONSE"
+fi
 echo ""
 
 # 7. Like Rating
@@ -176,7 +181,7 @@ echo ""
 echo "Getestete Features:"
 echo "  ✅ Rating erstellen (1-5 Sterne)"
 echo "  ✅ Kommentar hinzufügen"
-echo "  ✅ Kommentar bearbeiten (Update)"
+echo "  ✅ Rating aktualisieren (PUT /api/ratings/{id})"
 echo "  ✅ Like-Funktion"
 echo "  ✅ Comment Moderation (confirm)"
 echo "  ✅ Rating löschen"

@@ -70,6 +70,15 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
+    // Updates user password
+    public void updatePassword(String username, String newPassword) {
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+        String hashedPassword = hashPassword(newPassword);
+        userRepository.updatePassword(username, hashedPassword);
+    }
+
     // Generates a secure token with UUID
     private String generateSecureToken() {
         return UUID.randomUUID().toString() + "-" + UUID.randomUUID().toString();

@@ -11,9 +11,15 @@ public class RatingService {
     private final RatingRepository ratingRepository;
     private final MediaRepository mediaRepository;
 
+    // Constructor mit Dependency Injection (für Tests und SOLID DIP)
+    public RatingService(RatingRepository ratingRepository, MediaRepository mediaRepository) {
+        this.ratingRepository = ratingRepository;
+        this.mediaRepository = mediaRepository;
+    }
+
+    // Default constructor (production use)
     public RatingService() {
-        this.ratingRepository = new RatingRepository();
-        this.mediaRepository = new MediaRepository();
+        this(new RatingRepository(), new MediaRepository());
     }
 
     // Create or update a rating for a media entry

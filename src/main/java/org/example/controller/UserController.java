@@ -67,6 +67,56 @@ public class UserController {
         }
     }
 
+    // PUT /api/users/{username} - Update user profile (password)
+    public void handleUpdateProfile(HttpExchange exchange) throws IOException {
+        if (!"PUT".equals(exchange.getRequestMethod())) {
+            sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
+            return;
+        }
+
+        try {
+            // Check authentication
+            Optional<User> user = authenticateRequest(exchange);
+            if (user.isEmpty()) {
+                sendResponse(exchange, 401, "{\"error\":\"Unauthorized\"}");
+                return;
+            }
+
+            // Extract username from path
+            String path = exchange.getRequestURI().getPath();
+            String[] parts = path.split("/");
+            if (parts.length < 4) {
+                sendResponse(exchange, 400, "{\"error\":\"Invalid request\"}");
+                return;
+            }
+
+            String username = parts[3];
+
+            // User can only update own profile
+            if (!username.equals(user.get().getUsername())) {
+                sendResponse(exchange, 403, "{\"error\":\"Forbidden\"}");
+                return;
+            }
+
+            // Read new password from request body
+            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            var updateData = objectMapper.readValue(body, java.util.Map.class);
+
+            String newPassword = (String) updateData.get("password");
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                sendResponse(exchange, 400, "{\"error\":\"Password cannot be empty\"}");
+                return;
+            }
+
+            // Update password
+            userService.updatePassword(username, newPassword);
+
+            sendResponse(exchange, 200, "{\"message\":\"Profile updated successfully\"}");
+        } catch (RuntimeException e) {
+            sendResponse(exchange, 500, "{\"error\":\"Database error\"}");
+        }
+    }
+
     // GET /api/users/{username}
     public void handleGetUser(HttpExchange exchange) throws IOException {
         if (!"GET".equals(exchange.getRequestMethod())) {
@@ -109,49 +159,8 @@ public class UserController {
         }
     }
 
-    // GET /api/leaderboard?limit=10
-    public void handleLeaderboard(HttpExchange exchange) throws IOException {
-        if (!"GET".equals(exchange.getRequestMethod())) {
-            sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
-            return;
-        }
+    // GET /api/leaderboard?limit=10 - requires authentication
 
-        try {
-            int limit = parseLimitParam(exchange.getRequestURI().getQuery(), 10);
-            var leaderboard = userService.getLeaderboard(limit);
-            String response = objectMapper.writeValueAsString(leaderboard);
-            sendResponse(exchange, 200, response);
-        } catch (RuntimeException e) {
-            sendResponse(exchange, 500, "{\"error\":\"Database error\"}");
-        }
-    }
-
-    // GET /api/users/{username}/recommendations?limit=10
-    public void handleRecommendations(HttpExchange exchange) throws IOException {
-        if (!"GET".equals(exchange.getRequestMethod())) {
-            sendResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
-            return;
-        }
-
-        try {
-            String path = exchange.getRequestURI().getPath();
-            String[] parts = path.split("/");
-
-            if (parts.length < 4) {
-                sendResponse(exchange, 400, "{\"error\":\"Invalid request\"}");
-                return;
-            }
-
-            String username = parts[3];
-            int limit = parseLimitParam(exchange.getRequestURI().getQuery(), 10);
-
-            var recommendations = userService.getRecommendations(username, limit);
-            String response = objectMapper.writeValueAsString(recommendations);
-            sendResponse(exchange, 200, response);
-        } catch (RuntimeException e) {
-            sendResponse(exchange, 500, "{\"error\":\"Database error\"}");
-        }
-    }
 
     // Parses limit parameter from query string, returns defaultValue if not found
     private int parseLimitParam(String query, int defaultValue) {

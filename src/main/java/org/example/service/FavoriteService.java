@@ -11,15 +11,15 @@ public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
     private final MediaRepository mediaRepository;
 
-    public FavoriteService() {
-        this.favoriteRepository = new FavoriteRepository();
-        this.mediaRepository = new MediaRepository();
-    }
-
-    // Constructor for tests (Dependency Injection)
+    // Constructor mit Dependency Injection (für Tests und SOLID DIP)
     public FavoriteService(FavoriteRepository favoriteRepository, MediaRepository mediaRepository) {
         this.favoriteRepository = favoriteRepository;
         this.mediaRepository = mediaRepository;
+    }
+
+    // Default constructor (production use)
+    public FavoriteService() {
+        this(new FavoriteRepository(), new MediaRepository());
     }
 
     // Toggles favorite status (add if not present, remove if present)

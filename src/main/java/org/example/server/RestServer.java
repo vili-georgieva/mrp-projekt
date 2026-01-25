@@ -5,6 +5,8 @@ import org.example.controller.MediaController;
 import org.example.controller.RatingController;
 import org.example.controller.UserController;
 import org.example.controller.FavoriteController;
+import org.example.controller.RecommendationController;
+import org.example.controller.LeaderboardController;
 import org.example.repository.MediaRepository;
 import org.example.repository.UserRepository;
 import org.example.repository.RatingRepository;
@@ -12,6 +14,9 @@ import org.example.repository.FavoriteRepository;
 import org.example.service.MediaService;
 import org.example.service.UserService;
 import org.example.service.RatingService;
+import org.example.service.RecommendationService;
+import org.example.service.LeaderboardService;
+import org.example.service.FavoriteService;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -35,35 +40,35 @@ public class RestServer {
         // Create services
         UserService userService = new UserService(userRepository);
         MediaService mediaService = new MediaService(mediaRepository);
-        RatingService ratingService = new RatingService();
+        RatingService ratingService = new RatingService(ratingRepository, mediaRepository);
+        RecommendationService recommendationService = new RecommendationService(userRepository);
+        LeaderboardService leaderboardService = new LeaderboardService(userRepository);
+        FavoriteService favoriteService = new FavoriteService(favoriteRepository, mediaRepository);
 
         // Create controllers
         UserController userController = new UserController(userService);
         MediaController mediaController = new MediaController(mediaService, userService);
         RatingController ratingController = new RatingController(ratingService, userService);
-        FavoriteController favoriteController = new FavoriteController();
+        FavoriteController favoriteController = new FavoriteController(favoriteService, userService);
+        RecommendationController recommendationController = new RecommendationController(recommendationService, userService);
+        LeaderboardController leaderboardController = new LeaderboardController(leaderboardService, userService);
 
         this.server = HttpServer.create(new InetSocketAddress(port), 0);
 
         // Setup contexts (endpoints) - Order important: more specific paths first
         server.createContext("/api/users/register", userController::handleRegister);
         server.createContext("/api/users/login", userController::handleLogin);
-        server.createContext("/api/leaderboard", exchange -> {
-            // GET /api/leaderboard?limit=10
-            if ("GET".equals(exchange.getRequestMethod())) {
-                userController.handleLeaderboard(exchange);
-            } else {
-                exchange.sendResponseHeaders(405, -1);
-            }
-        });
+        server.createContext("/api/recommendations", recommendationController::handle);
+        server.createContext("/api/leaderboard", leaderboardController::handle);
         server.createContext("/api/users/", exchange -> {
             String path = exchange.getRequestURI().getPath();
-            if (path.contains("/recommendations")) {
-                userController.handleRecommendations(exchange);
-            } else if (path.contains("/favorites")) {
+            String method = exchange.getRequestMethod();
+            if (path.contains("/favorites")) {
                 favoriteController.handle(exchange);
             } else if (path.contains("/rating-history")) {
                 ratingController.handleRatingHistory(exchange);
+            } else if ("PUT".equals(method)) {
+                userController.handleUpdateProfile(exchange);
             } else {
                 userController.handleGetUser(exchange);
             }

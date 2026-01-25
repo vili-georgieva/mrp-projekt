@@ -95,6 +95,21 @@ public class UserRepository {
         });
     }
 
+    // Updates user password
+    public void updatePassword(String username, String hashedPassword) {
+        DatabaseConnection.executeInTransaction(conn -> {
+            String sql = "UPDATE users SET password_hash = ? WHERE username = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, hashedPassword);
+                stmt.setString(2, username);
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        });
+    }
+
     public List<User> findAll() {
         return DatabaseConnection.executeInTransaction(conn -> {
             String sql = "SELECT * FROM users";

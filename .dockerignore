@@ -31,7 +31,7 @@ logs/
 
 # Documentation
 *.md
-img.png
+md/angaben/img.png
 img_1.png
 
 # Test files

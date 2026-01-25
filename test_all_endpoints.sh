@@ -48,7 +48,23 @@ curl -s -X GET "$BASE_URL/api/users/$USERNAME" \
 echo ""
 
 echo ""
-echo "1.4 Login with wrong password (should fail)..."
+echo "1.4 Update user profile (change password)..."
+curl -s -X PUT "$BASE_URL/api/users/$USERNAME" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"password":"newpassword123"}'
+echo ""
+
+echo ""
+echo "1.5 Login with new password..."
+NEW_TOKEN=$(curl -s -X POST "$BASE_URL/api/users/login" \
+  -H "Content-Type: application/json" \
+  -d "{\"username\":\"$USERNAME\",\"password\":\"newpassword123\"}" | tr -d '"')
+echo "New Token: ${NEW_TOKEN:0:30}..."
+TOKEN=$NEW_TOKEN
+
+echo ""
+echo "1.6 Login with wrong password (should fail)..."
 curl -s -X POST "$BASE_URL/api/users/login" \
   -H "Content-Type: application/json" \
   -d "{\"username\":\"$USERNAME\",\"password\":\"wrongpass\"}"
@@ -193,18 +209,26 @@ curl -s -X POST "$BASE_URL/api/media/$SERIES_ID/ratings" \
 echo ""
 
 echo ""
-echo "4.3 Get ratings for media..."
+echo "4.3 Update rating via PUT..."
+curl -s -X PUT "$BASE_URL/api/ratings/$RATING_ID" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"stars":4,"comment":"Updated via PUT endpoint"}'
+echo ""
+
+echo ""
+echo "4.4 Get ratings for media..."
 curl -s -X GET "$BASE_URL/api/media/$MOVIE_ID/ratings"
 echo ""
 
 echo ""
-echo "4.4 Get user rating history..."
+echo "4.5 Get user rating history..."
 curl -s -X GET "$BASE_URL/api/users/$USERNAME/rating-history" \
   -H "Authorization: Bearer $TOKEN"
 echo ""
 
 echo ""
-echo "4.5 Update rating comment..."
+echo "4.6 Update rating comment..."
 curl -s -X PATCH "$BASE_URL/api/ratings/$RATING_ID/comment" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
@@ -212,19 +236,19 @@ curl -s -X PATCH "$BASE_URL/api/ratings/$RATING_ID/comment" \
 echo ""
 
 echo ""
-echo "4.6 Like rating..."
+echo "4.7 Like rating..."
 curl -s -X POST "$BASE_URL/api/ratings/$RATING_ID/like" \
   -H "Authorization: Bearer $TOKEN"
 echo ""
 
 echo ""
-echo "4.7 Confirm rating..."
+echo "4.8 Confirm rating..."
 curl -s -X POST "$BASE_URL/api/ratings/$RATING_ID/confirm" \
   -H "Authorization: Bearer $TOKEN"
 echo ""
 
 echo ""
-echo "4.8 Invalid rating (stars > 5)..."
+echo "4.9 Invalid rating (stars > 5)..."
 curl -s -X POST "$BASE_URL/api/media/$GAME_ID/ratings" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
@@ -282,13 +306,20 @@ echo "========================================"
 echo "6. LEADERBOARD"
 echo "========================================"
 
-echo "6.1 Get leaderboard (default)..."
-curl -s -X GET "$BASE_URL/api/leaderboard"
+echo "6.1 Get leaderboard (with auth)..."
+curl -s -X GET "$BASE_URL/api/leaderboard" \
+  -H "Authorization: Bearer $TOKEN"
 echo ""
 
 echo ""
 echo "6.2 Get leaderboard with limit..."
-curl -s -X GET "$BASE_URL/api/leaderboard?limit=5"
+curl -s -X GET "$BASE_URL/api/leaderboard?limit=5" \
+  -H "Authorization: Bearer $TOKEN"
+echo ""
+
+echo ""
+echo "6.3 Get leaderboard without token (should fail)..."
+curl -s -X GET "$BASE_URL/api/leaderboard"
 echo ""
 
 # ========================================
@@ -300,12 +331,14 @@ echo "7. RECOMMENDATIONS"
 echo "========================================"
 
 echo "7.1 Get recommendations..."
-curl -s -X GET "$BASE_URL/api/users/$USERNAME/recommendations"
+curl -s -X GET "$BASE_URL/api/recommendations?username=$USERNAME" \
+  -H "Authorization: Bearer $TOKEN"
 echo ""
 
 echo ""
 echo "7.2 Get recommendations with limit..."
-curl -s -X GET "$BASE_URL/api/users/$USERNAME/recommendations?limit=3"
+curl -s -X GET "$BASE_URL/api/recommendations?username=$USERNAME&limit=3" \
+  -H "Authorization: Bearer $TOKEN"
 echo ""
 
 # ========================================
